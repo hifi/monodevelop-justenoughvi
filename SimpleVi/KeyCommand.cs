@@ -43,6 +43,8 @@ namespace SimpleVi
             _commands.Add('Y', YankLine);
             _commands.Add('$', LineEnd);
             _commands.Add('/', Find);
+            _commands.Add('<', IndentRemove);
+            _commands.Add('>', IndentAdd);
 
             Vi = _editMode;
         }
@@ -355,6 +357,50 @@ namespace SimpleVi
         private bool Find(int count, char[] args)
         {
             MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.SearchCommands.Find);
+            return true;
+        }
+
+        private bool IndentRemove(int count, char[] args)
+        {
+            if (args.Length > 0)
+            {
+                if (args[0] == '<')
+                    count = 1;
+                else
+                    return true;
+            }
+
+            if (count < 1)
+                return false;
+
+            Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line);
+            for (int i = 0; i < count; i++)
+            {
+                Vi.Action(MiscActions.RemoveIndentSelection);
+            }
+            Data.ClearSelection();
+            return true;
+        }
+
+        private bool IndentAdd(int count, char[] args)
+        {
+            if (args.Length > 0)
+            {
+                if (args[0] == '>')
+                    count = 1;
+                else
+                    return true;
+            }
+
+            if (count < 1)
+                return false;
+
+            Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line);
+            for (int i = 0; i < count; i++)
+            {
+                Vi.Action(MiscActions.IndentSelection);
+            }
+            Data.ClearSelection();
             return true;
         }
 

@@ -59,6 +59,11 @@ namespace SimpleVi
             SetMode(ViMode.Normal);
         }
 
+        public void Action(Action<TextEditorData> a)
+        {
+            RunAction(a);
+        }
+
         public void SetMode(ViMode newMode)
         {
             if (newMode == ViMode.Normal)
