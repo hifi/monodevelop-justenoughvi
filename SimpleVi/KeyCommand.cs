@@ -354,7 +354,7 @@ namespace SimpleVi
 
         private bool Find(int count, char[] args)
         {
-            // open search box or do custom search?
+            MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.SearchCommands.Find);
             return true;
         }
 
