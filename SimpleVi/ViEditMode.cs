@@ -33,7 +33,7 @@ namespace SimpleVi
                 try {
                     return Convert.ToInt32(_countString);
                 } catch (FormatException) {
-                    return 1;
+                    return 0;
                 }
             }
         }
@@ -122,13 +122,10 @@ namespace SimpleVi
                 if (_command == null)
                 {
                     // build repeat buffer
-                    if (unicodeKey >= '0' && unicodeKey <= '9')
+                    if ((_countString.Length > 0 || unicodeKey > '0') && unicodeKey >= '0' && unicodeKey <= '9')
                     {
                         _countString += Char.ToString((char)unicodeKey);
-
-                        // 0 is a valid count (for Go) but also needs to fall through for LineStart
-                        if (unicodeKey > '0')
-                            return true;
+                        return true;
                     }
 
                     _command = unicodeKey;
@@ -141,9 +138,8 @@ namespace SimpleVi
                 // try running the key command
                 if (_keyCommands.Execute(Data, Count, (char)_command, _commandArgs.ToArray()))
                 {
-                    // succeeded, reset everything, except count if the command was 0
-                    if (_command != '0')
-                        _countString = "";
+                    // succeeded, reset everything
+                    _countString = "";
                     _command = null;
                     _commandArgs.Clear();
                 }

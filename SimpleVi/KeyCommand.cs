@@ -100,7 +100,7 @@ namespace SimpleVi
 
             if (args[0] == 'd')
             {
-                Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line + (count - 1));
+                Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line + (Math.Max(count, 1) - 1));
                 ClipboardActions.Cut(Data);
                 CaretToLineStart();
             }
@@ -151,6 +151,7 @@ namespace SimpleVi
 
         private bool Down(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 CaretMoveActions.Down(Data);
@@ -161,6 +162,7 @@ namespace SimpleVi
 
         private bool Left(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 if (DocumentLocation.MinColumn < Data.Caret.Column)
@@ -185,6 +187,7 @@ namespace SimpleVi
 
         private bool Up(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 CaretMoveActions.Up(Data);
@@ -195,6 +198,7 @@ namespace SimpleVi
 
         private bool Right(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 CaretMoveActions.Right(Data);
@@ -315,6 +319,7 @@ namespace SimpleVi
 
         private bool Undo(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 Vi.Document.GetContent<SourceEditorView>().Undo();
@@ -345,6 +350,7 @@ namespace SimpleVi
 
         private bool DeleteCharacter(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 Data.SetSelection(Data.Caret.Offset, Data.Caret.Offset + 1);
@@ -355,6 +361,7 @@ namespace SimpleVi
 
         private bool YankLine(int count, char[] args)
         {
+            count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
                 Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line + (count - 1));
