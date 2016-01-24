@@ -85,6 +85,9 @@ namespace SimpleVi
             }
 
             Mode = newMode;
+
+            // reset count string on mode switch for now
+            _countString = "";
         }
 
         internal static bool IsEol(char c)
@@ -184,6 +187,13 @@ namespace SimpleVi
 
             if (modifier == 0)
             {
+                // build repeat buffer
+                if (unicodeKey >= '0' && unicodeKey <= '9')
+                {
+                    _countString += Char.ToString((char)unicodeKey);
+                    return true;
+                }
+
                 if (unicodeKey == 'j' || unicodeKey == 'k')
                 {
                     if (unicodeKey == 'j')
@@ -216,6 +226,28 @@ namespace SimpleVi
                 if (unicodeKey == 'y' || unicodeKey == 'Y')
                 {
                     ClipboardActions.Copy(_data);
+                    Data.ClearSelection();
+                    SetMode(ViMode.Normal);
+                }
+
+                if (unicodeKey == '<')
+                {
+                    var count = Math.Max(1, Count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        RunAction(MiscActions.RemoveIndentSelection);
+                    }
+                    Data.ClearSelection();
+                    SetMode(ViMode.Normal);
+                }
+
+                if (unicodeKey == '>')
+                {
+                    var count = Math.Max(1, Count);
+                    for (int i = 0; i < count; i++)
+                    {
+                        RunAction(MiscActions.IndentSelection);
+                    }
                     Data.ClearSelection();
                     SetMode(ViMode.Normal);
                 }
