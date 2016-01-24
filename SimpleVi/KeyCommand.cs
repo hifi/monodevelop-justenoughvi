@@ -367,11 +367,8 @@ namespace SimpleVi
         private bool DeleteCharacter(int count, char[] args)
         {
             count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                Data.SetSelection(Data.Caret.Offset, Data.Caret.Offset + 1);
-                ClipboardActions.Cut(Data);
-            }
+            Data.SetSelection(Data.Caret.Offset, Data.Caret.Offset + count);
+            ClipboardActions.Cut(Data);
             return true;
         }
 
