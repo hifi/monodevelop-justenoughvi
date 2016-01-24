@@ -27,6 +27,7 @@ namespace SimpleVi
             _commands.Add('i', Insert);
             _commands.Add('I', InsertStart);
             _commands.Add('j', Down);
+            _commands.Add('J', Join);
             _commands.Add('k', Up);
             _commands.Add('l', Right);
             _commands.Add('o', OpenBelow);
@@ -147,6 +148,20 @@ namespace SimpleVi
                 Data.Caret.Line = count;
             }
 
+            return true;
+        }
+
+        private bool Join(int count, char[] args)
+        {
+            count = Math.Max(1, count);
+            for (int i = 0; i < count; i++)
+            {
+                // not exactly up to spec but good enough for normal use for now
+                LineEnd(1, new char[]{ });
+                Data.InsertAtCaret(" ");
+                Delete(1, new char[]{ 'w' }); // shouldn't work like this (beyond line)
+                Data.Caret.Offset--;
+            }
             return true;
         }
 
