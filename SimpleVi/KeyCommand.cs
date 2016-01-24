@@ -38,6 +38,7 @@ namespace SimpleVi
             _commands.Add('V', VisualLine);
             _commands.Add('w', Word);
             _commands.Add('x', DeleteCharacter);
+            _commands.Add('y', Yank);
             _commands.Add('Y', YankLine);
             _commands.Add('$', LineEnd);
             _commands.Add('/', Find);
@@ -356,6 +357,17 @@ namespace SimpleVi
                 Data.SetSelection(Data.Caret.Offset, Data.Caret.Offset + 1);
                 ClipboardActions.Cut(Data);
             }
+            return true;
+        }
+
+        private bool Yank(int count, char[] args)
+        {
+            if (args.Length == 0)
+                return false;
+
+            if (args[0] == 'y')
+                YankLine(1, new char[]{});
+
             return true;
         }
 
