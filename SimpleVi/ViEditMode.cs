@@ -127,6 +127,26 @@ namespace SimpleVi
                     return false;
                 }
 
+                // remap some function keys to Vi commands
+                if (key == Gdk.Key.Home)
+                    unicodeKey = '0';
+                else if (key == Gdk.Key.End)
+                    unicodeKey = '$';
+                else if (key == Gdk.Key.Left)
+                    unicodeKey = 'h';
+                else if (key == Gdk.Key.Right)
+                    unicodeKey = 'l';
+                else if (key == Gdk.Key.Up)
+                    unicodeKey = 'k';
+                else if (key == Gdk.Key.Down)
+                    unicodeKey = 'j';
+                else if (key == Gdk.Key.Delete)
+                    unicodeKey = 'x';
+                else if (key == Gdk.Key.Insert)
+                    unicodeKey = 'i';
+                else if (key == Gdk.Key.BackSpace)
+                    unicodeKey = 'h';
+
                 if (_command == null)
                 {
                     // build repeat buffer
