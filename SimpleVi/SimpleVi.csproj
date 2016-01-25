@@ -34,6 +34,7 @@
     <Compile Include="NormalEditMode.cs" />
     <Compile Include="InsertEditMode.cs" />
     <Compile Include="VisualEditMode.cs" />
+    <Compile Include="BaseEditMode.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />

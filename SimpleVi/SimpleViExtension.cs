@@ -16,8 +16,6 @@ namespace SimpleVi
 
             var textEditor = Document.GetContent<SourceEditorView>().TextEditor;
             textEditor.CurrentMode = new ViEditMode(Document);
-
-            Console.WriteLine("SimpleVi Init for " + Document.Name);
         }
     }
 }

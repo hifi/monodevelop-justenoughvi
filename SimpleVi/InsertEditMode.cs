@@ -1,17 +1,20 @@
 ﻿using System;
+using Mono.TextEditor;
 
 namespace SimpleVi
 {
-    public class InsertEditMode : Mono.TextEditor.EditMode
+    public class InsertEditMode : BaseEditMode
     {
-        ViEditMode Vi { get; set; }
-
-        public InsertEditMode(ViEditMode vi)
+        public InsertEditMode(ViEditMode vi) : base(vi)
         {
-            Vi = vi;
         }
 
-        #region implemented abstract members of EditMode
+        #region implemented abstract members of BaseEditMode
+
+        public override void InternalActivate(MonoDevelop.SourceEditor.ExtensibleTextEditor editor, Mono.TextEditor.TextEditorData data)
+        {
+            data.Caret.Mode = CaretMode.Insert;
+        }
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
         {

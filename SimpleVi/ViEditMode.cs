@@ -18,59 +18,49 @@ namespace SimpleVi
     {
         private Document _doc;
         private EditMode _baseMode; 
-        private TextEditorData _data;
 
         private NormalEditMode _normalMode;
         private InsertEditMode _insertMode;
         private VisualEditMode _visualMode;
 
-        public ViMode Mode {get; set; }
+        private BaseEditMode _currentMode;
+        private BaseEditMode _requestedMode;
 
+        // is this available from the editor?
         new public Document Document {
             get { return _doc; }
         }
-
-        public EditMode BaseMode { get { return _baseMode; } }
 
         public ViEditMode(Document doc)
         {
             _doc = doc;
 
-            var textEditor = doc.GetContent<SourceEditorView>().TextEditor;
-            _baseMode = textEditor.CurrentMode;
-            _data = _doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
+            var editor = doc.GetContent<SourceEditorView>().TextEditor;
+            _baseMode = editor.CurrentMode;
+            var data = doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
+
             _normalMode = new NormalEditMode(this);
             _insertMode = new InsertEditMode(this);
             _visualMode = new VisualEditMode(this);
 
-            SetMode(ViMode.Normal);
+            // start in normal mode
+            _currentMode = _requestedMode = _normalMode;
+            _currentMode.InternalActivate(editor, data);
         }
 
         public void SetMode(ViMode newMode)
         {
             if (newMode == ViMode.Normal)
-            {
-                _data.Caret.Mode = CaretMode.Block;
-                _normalMode.Activate();
-
-                if (Mode == ViMode.Insert)
-                {
-                    CaretMoveActions.Left(_data);
-                }
-            }
+                _requestedMode = _normalMode;
             else if (newMode == ViMode.Insert)
-            {
-                _data.Caret.Mode = CaretMode.Insert;
-            }
+                _requestedMode = _insertMode;
             else if (newMode == ViMode.Visual)
-            {
-                _data.Caret.Mode = CaretMode.Block;
-                _visualMode.VisualStart = Data.Caret.Line;
-                _visualMode.VisualEnd = Data.Caret.Line;
-                _visualMode.Activated();
-            }
+                _requestedMode = _visualMode;
+        }
 
-            Mode = newMode;
+        public void BaseKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
+        {
+            _baseMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
         }
 
         internal static bool IsEol(char c)
@@ -82,17 +72,28 @@ namespace SimpleVi
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
         {
-            if (Mode == ViMode.Normal)
-                _normalMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
-            else if (Mode == ViMode.Insert)
-                _insertMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
-            else if (Mode == ViMode.Visual)
-                _visualMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
-        }
+            _currentMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
 
-        public void BaseKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
-        {
-            _baseMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
+            // where the heck this should be?
+            if (_requestedMode == _normalMode)
+            {
+                if (_currentMode == _normalMode)
+                {
+                    while (ViEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
+                        CaretMoveActions.Left(Data);
+                }
+
+                if (_currentMode == _insertMode)
+                {
+                    CaretMoveActions.Left(Data);
+                }
+            }
+
+            if (_requestedMode != _currentMode)
+            {
+                _requestedMode.InternalActivate((ExtensibleTextEditor)Editor, Data);
+                _currentMode = _requestedMode;
+            }
         }
 
         #endregion

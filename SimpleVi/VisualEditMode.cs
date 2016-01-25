@@ -1,12 +1,11 @@
 ﻿using System;
 using Mono.TextEditor;
+using MonoDevelop.SourceEditor;
 
 namespace SimpleVi
 {
-    public class VisualEditMode : Mono.TextEditor.EditMode
+    public class VisualEditMode : BaseEditMode
     {
-        ViEditMode Vi { get; set; }
-
         private string _countString;
 
         public int VisualStart { get; set; }
@@ -22,15 +21,17 @@ namespace SimpleVi
             }
         }
 
-        public VisualEditMode(ViEditMode vi)
+        public VisualEditMode(ViEditMode vi) : base(vi)
         {
-            Vi = vi;
             _countString = "";
         }
 
-        public void Activated()
+        public override void InternalActivate(ExtensibleTextEditor editor, TextEditorData data)
         {
             _countString = "";
+            data.Caret.Mode = CaretMode.Block;
+            VisualStart = data.Caret.Line;
+            VisualEnd = data.Caret.Line;
         }
 
         #region implemented abstract members of EditMode

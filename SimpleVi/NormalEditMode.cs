@@ -7,11 +7,9 @@ using System.Text.RegularExpressions;
 
 namespace SimpleVi
 {
-    public class NormalEditMode : EditMode
+    public class NormalEditMode : BaseEditMode
     {
         private Dictionary<uint, Func<int, char[], bool>> _commands;
-
-        ViEditMode Vi { get; set; }
 
         private string _countString;
         private uint? _command;
@@ -27,7 +25,7 @@ namespace SimpleVi
             }
         }
 
-        public NormalEditMode(ViEditMode _editMode)
+        public NormalEditMode(ViEditMode vi) : base(vi)
         {
             _command = null;
             _commandArgs = new List<char>();
@@ -62,13 +60,12 @@ namespace SimpleVi
             _commands.Add('/', Find);
             _commands.Add('<', IndentRemove);
             _commands.Add('>', IndentAdd);
-
-            Vi = _editMode;
         }
 
-        public void Activate()
+        public override void InternalActivate(ExtensibleTextEditor editor, TextEditorData data)
         {
             _countString = "";
+            data.Caret.Mode = CaretMode.Block;
         }
 
         private void CaretToLineStart()
@@ -586,12 +583,7 @@ namespace SimpleVi
                     _commandArgs.Clear();
                 }
             }
-
-            // never let the cursor sit on an EOL
-            while (Vi.Mode == ViMode.Normal && ViEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
-                CaretMoveActions.Left(Data);
         }
-
 
         #endregion
     }
