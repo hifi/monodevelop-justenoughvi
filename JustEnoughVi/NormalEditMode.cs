@@ -72,6 +72,11 @@ namespace JustEnoughVi
         {
         }
 
+        internal static bool IsEol(char c)
+        {
+            return (c == '\r' || c == '\n');
+        }
+
         private void CaretToLineStart()
         {
             Data.Caret.Column = 1;
@@ -88,6 +93,12 @@ namespace JustEnoughVi
             }
         }
 
+        private void CaretOffEol()
+        {
+            while (NormalEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
+                CaretMoveActions.Left(Data);
+        }
+
         private bool LineStart(int count, char[] args)
         {
             CaretMoveActions.LineStart(Data);
@@ -96,7 +107,7 @@ namespace JustEnoughVi
 
         private bool Append(int count, char[] args)
         {
-            Right(1, new char[]{});
+            CaretMoveActions.Right(Data);
             Vi.SetMode(ViMode.Insert);
             return true;
         }
@@ -186,6 +197,8 @@ namespace JustEnoughVi
                 CaretMoveActions.Down(Data);
             }
 
+            CaretOffEol();
+
             return true;
         }
 
@@ -222,6 +235,8 @@ namespace JustEnoughVi
                 CaretMoveActions.Up(Data);
             }
 
+            CaretOffEol();
+
             return true;
         }
 
@@ -232,6 +247,8 @@ namespace JustEnoughVi
             {
                 CaretMoveActions.Right(Data);
             }
+
+            CaretOffEol();
 
             return true;
         }
@@ -580,14 +597,14 @@ namespace JustEnoughVi
                 if (!_commands.ContainsKey((uint)_command))
                     return;
 
+                CaretOffEol();
+
                 if (_commands[(uint)_command](Count, _commandArgs.ToArray()))
                 {
                     // succeeded, reset everything
                     _countString = "";
                     _command = null;
                     _commandArgs.Clear();
-                    while (ViEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
-                        CaretMoveActions.Left(Data);
                 }
             }
         }

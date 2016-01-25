@@ -55,11 +55,6 @@ namespace JustEnoughVi
             _baseMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
         }
 
-        internal static bool IsEol(char c)
-        {
-            return (c == '\r' || c == '\n');
-        }
-
         #region implemented abstract members of EditMode
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
