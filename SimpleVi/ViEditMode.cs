@@ -22,6 +22,7 @@ namespace SimpleVi
         private string _countString;
 
         private NormalEditMode _normalMode;
+        private InsertEditMode _insertMode;
 
         public int VisualStart { get; set; }
         public int VisualEnd { get; set; }
@@ -53,6 +54,7 @@ namespace SimpleVi
             _baseMode = textEditor.CurrentMode;
             _data = _doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
             _normalMode = new NormalEditMode(this);
+            _insertMode = new InsertEditMode(this);
 
             SetMode(ViMode.Normal);
         }
@@ -86,19 +88,6 @@ namespace SimpleVi
         internal static bool IsEol(char c)
         {
             return (c == '\r' || c == '\n');
-        }
-
-        private bool InsertKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
-        {
-            if (
-                (modifier == 0 && key == Gdk.Key.Escape) ||
-                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
-            {
-                SetMode(ViMode.Normal);
-                return true;
-            }
-
-            return false;
         }
 
         private bool VisualKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
@@ -198,7 +187,10 @@ namespace SimpleVi
                 handled = true;
             }
             else if (Mode == ViMode.Insert)
-                handled = InsertKeypress(key, unicodeKey, modifier);
+            {
+                _insertMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
+                handled = true;
+            }
             else if (Mode == ViMode.Visual)
                 handled = VisualKeypress(key, unicodeKey, modifier);
 
