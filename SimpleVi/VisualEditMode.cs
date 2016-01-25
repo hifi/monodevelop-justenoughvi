@@ -61,10 +61,12 @@ namespace SimpleVi
                     if (unicodeKey == 'j')
                     {
                         VisualEnd++;
+                        Caret.Line = VisualEnd;
                     }
                     else if (unicodeKey == 'k')
                     {
                         VisualEnd--;
+                        Caret.Line = VisualEnd;
                     }
 
                     int start = VisualStart;
