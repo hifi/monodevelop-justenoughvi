@@ -36,6 +36,7 @@ namespace JustEnoughVi
 
         public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
         {
+            data.ClearSelection();
         }
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
@@ -44,7 +45,6 @@ namespace JustEnoughVi
                 (modifier == 0 && key == Gdk.Key.Escape) ||
                 (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
             {
-                Data.ClearSelection();
                 Vi.SetMode(ViMode.Normal);
                 return;
             }
