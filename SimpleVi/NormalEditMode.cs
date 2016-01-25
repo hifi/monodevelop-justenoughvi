@@ -7,16 +7,33 @@ using System.Text.RegularExpressions;
 
 namespace SimpleVi
 {
-    public class KeyCommand
+    public class NormalEditMode : EditMode
     {
-        private Dictionary<char, Func<int, char[], bool>> _commands;
+        private Dictionary<uint, Func<int, char[], bool>> _commands;
 
-        public TextEditorData Data { get; set; }
         ViEditMode Vi { get; set; }
 
-        public KeyCommand(ViEditMode _editMode)
+        private string _countString;
+        private uint? _command;
+        private List<char> _commandArgs;
+
+        private int Count {
+            get {
+                try {
+                    return Convert.ToInt32(_countString);
+                } catch (FormatException) {
+                    return 0;
+                }
+            }
+        }
+
+        public NormalEditMode(ViEditMode _editMode)
         {
-            _commands = new Dictionary<char, Func<int, char[], bool>>();
+            _command = null;
+            _commandArgs = new List<char>();
+            _countString = "";
+
+            _commands = new Dictionary<uint, Func<int, char[], bool>>();
 
             _commands.Add('0', LineStart);
             _commands.Add('a', Append);
@@ -47,18 +64,6 @@ namespace SimpleVi
             _commands.Add('>', IndentAdd);
 
             Vi = _editMode;
-        }
-
-        public bool Execute(TextEditorData data, int count, char key, char[] args)
-        {
-            Console.WriteLine("KeyCommand.Execute({0}, '{1}', {2} args)", count, key, args.Length);
-
-            if (!_commands.ContainsKey(key))
-                return true;
-
-            Data = data;
-
-            return _commands[key](count, args);
         }
 
         private void CaretToLineStart()
@@ -376,7 +381,7 @@ namespace SimpleVi
             Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line);
             for (int i = 0; i < count; i++)
             {
-                Vi.Action(MiscActions.RemoveIndentSelection);
+                RunAction(MiscActions.RemoveIndentSelection);
             }
             Data.ClearSelection();
             return true;
@@ -398,7 +403,7 @@ namespace SimpleVi
             Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line);
             for (int i = 0; i < count; i++)
             {
-                Vi.Action(MiscActions.IndentSelection);
+                RunAction(MiscActions.IndentSelection);
             }
             Data.ClearSelection();
             return true;
@@ -495,6 +500,97 @@ namespace SimpleVi
 
             return endOffset - offset;
         }
+
+        #region implemented abstract members of EditMode
+
+        protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
+        {
+            // reset count 
+            if (
+                (modifier == 0 && key == Gdk.Key.Escape) ||
+                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
+            {
+                _countString = "";
+                _command = null;
+                _commandArgs.Clear();
+                return;
+            }
+
+            if (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.f)
+            {
+                Vi.BaseKeypress(Gdk.Key.Page_Down, ' ', Gdk.ModifierType.None);
+                return;
+            }
+
+            if (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.b)
+            {
+                Vi.BaseKeypress(Gdk.Key.Page_Up, ' ', Gdk.ModifierType.None);
+                return;
+            }
+
+            if (modifier == 0)
+            {
+                if (key == Gdk.Key.Page_Down || key == Gdk.Key.Page_Up)
+                {
+                    Vi.BaseKeypress(key, unicodeKey, modifier);
+                    return;
+                }
+
+                // remap some function keys to Vi commands
+                if (key == Gdk.Key.Home)
+                    unicodeKey = '0';
+                else if (key == Gdk.Key.End)
+                    unicodeKey = '$';
+                else if (key == Gdk.Key.Left)
+                    unicodeKey = 'h';
+                else if (key == Gdk.Key.Right)
+                    unicodeKey = 'l';
+                else if (key == Gdk.Key.Up)
+                    unicodeKey = 'k';
+                else if (key == Gdk.Key.Down)
+                    unicodeKey = 'j';
+                else if (key == Gdk.Key.Delete)
+                    unicodeKey = 'x';
+                else if (key == Gdk.Key.Insert)
+                    unicodeKey = 'i';
+                else if (key == Gdk.Key.BackSpace)
+                    unicodeKey = 'h';
+
+                if (_command == null)
+                {
+                    // build repeat buffer
+                    if ((_countString.Length > 0 || unicodeKey > '0') && unicodeKey >= '0' && unicodeKey <= '9')
+                    {
+                        _countString += Char.ToString((char)unicodeKey);
+                        return;
+                    }
+
+                    _command = unicodeKey;
+                }
+                else
+                {
+                    _commandArgs.Add((char)unicodeKey);
+                }
+
+                if (!_commands.ContainsKey((uint)_command))
+                    return;
+
+                if (_commands[(uint)_command](Count, _commandArgs.ToArray()))
+                {
+                    // succeeded, reset everything
+                    _countString = "";
+                    _command = null;
+                    _commandArgs.Clear();
+                }
+            }
+
+            // never let the cursor sit on an EOL
+            while (Vi.Mode == ViMode.Normal && ViEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
+                CaretMoveActions.Left(Data);
+        }
+
+
+        #endregion
     }
 }
 

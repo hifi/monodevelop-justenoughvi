@@ -31,7 +31,7 @@
     <Compile Include="Properties\AddinInfo.cs" />
     <Compile Include="SimpleViExtension.cs" />
     <Compile Include="ViEditMode.cs" />
-    <Compile Include="KeyCommand.cs" />
+    <Compile Include="NormalEditMode.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
