@@ -4,8 +4,8 @@ using System.Runtime.CompilerServices;
 // Information about this assembly is defined by the following attributes.
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("SimpleVi")]
-[assembly: AssemblyDescription("Simple basic Vi mode for MonoDevelop.")]
+[assembly: AssemblyTitle("JustEnoughVi")]
+[assembly: AssemblyDescription("Simplified Vi mode for MonoDevelop/Xamarin Studio.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("")]

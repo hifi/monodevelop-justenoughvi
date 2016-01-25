@@ -5,7 +5,7 @@ using MonoDevelop.SourceEditor;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace SimpleVi
+namespace JustEnoughVi
 {
     public enum ViMode
     {
@@ -66,23 +66,9 @@ namespace SimpleVi
         {
             _currentMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
 
-            // where the heck this should be?
-            if (_requestedMode == _normalMode)
-            {
-                if (_currentMode == _normalMode)
-                {
-                    while (ViEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
-                        CaretMoveActions.Left(Data);
-                }
-
-                if (_currentMode == _insertMode)
-                {
-                    CaretMoveActions.Left(Data);
-                }
-            }
-
             if (_requestedMode != _currentMode)
             {
+                _currentMode.InternalDeactivate((ExtensibleTextEditor)Editor, Data);
                 _requestedMode.InternalActivate((ExtensibleTextEditor)Editor, Data);
                 _currentMode = _requestedMode;
             }

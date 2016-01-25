@@ -3,6 +3,6 @@
     <Runtime>
     </Runtime>
     <Extension path="/MonoDevelop/Ide/TextEditorExtensions">
-        <Class class="SimpleVi.SimpleViExtension" />
+        <Class class="JustEnoughVi.JustEnoughViExtension" />
     </Extension>
 </ExtensionModel>

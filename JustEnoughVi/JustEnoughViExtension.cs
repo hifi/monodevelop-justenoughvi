@@ -2,11 +2,11 @@
 using MonoDevelop.Ide.Gui.Content;
 using MonoDevelop.SourceEditor;
 
-namespace SimpleVi
+namespace JustEnoughVi
 {
-    public class SimpleViExtension : TextEditorExtension
+    public class JustEnoughViExtension : TextEditorExtension
     {
-        public SimpleViExtension()
+        public JustEnoughViExtension()
         {
         }
 

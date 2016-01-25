@@ -2,7 +2,7 @@
 using Mono.TextEditor;
 using MonoDevelop.SourceEditor;
 
-namespace SimpleVi
+namespace JustEnoughVi
 {
     public class VisualEditMode : BaseEditMode
     {
@@ -34,7 +34,9 @@ namespace SimpleVi
             VisualEnd = data.Caret.Line;
         }
 
-        #region implemented abstract members of EditMode
+        public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
+        {
+        }
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
         {
@@ -117,8 +119,6 @@ namespace SimpleVi
                 }
             }
         }
-
-        #endregion
     }
 }
 

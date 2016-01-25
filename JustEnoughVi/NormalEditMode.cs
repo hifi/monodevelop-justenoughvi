@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.TextEditor;
-using SimpleVi;
+using JustEnoughVi;
 using MonoDevelop.SourceEditor;
 using System.Text.RegularExpressions;
 
-namespace SimpleVi
+namespace JustEnoughVi
 {
     public class NormalEditMode : BaseEditMode
     {
@@ -66,6 +66,10 @@ namespace SimpleVi
         {
             _countString = "";
             data.Caret.Mode = CaretMode.Block;
+        }
+
+        public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
+        {
         }
 
         private void CaretToLineStart()
@@ -582,6 +586,8 @@ namespace SimpleVi
                     _countString = "";
                     _command = null;
                     _commandArgs.Clear();
+                    while (ViEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
+                        CaretMoveActions.Left(Data);
                 }
             }
         }

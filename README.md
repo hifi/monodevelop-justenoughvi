@@ -1,19 +1,21 @@
-# monodevelop-simplevi
-Simple basic Vi add-in for MonoDevelop 5. It's not supposed to *completely* emulate Vi/Vim but be just enough for navigating.
+# Just Enough Vi for MonoDevelop / Xamarin Studio
+Simplified Vi mode for MonoDevelop/Xamarin Studio. It's not supposed to *completely* emulate Vi/Vim but be just enough for navigating.
 
-What supposedly works:
+## Current Features
 
- * Most normal mode single key bindings
- * Some repeat counts for normal mode keys
- * Full line visual select with yank/delete
- * `/` search mapped to MD search
- 
-Major things missing:
+ * Intuitive and predictable normal mode navigation
+ * Full line visual select with yank/delete/indent
+ * Pass-through insert mode for full IDE potential
+
+## Out of scope
 
  * `:` ex mode
-  - like substitution with `s/foo/bar`
-  
-There's also a lot of bugs in cursor placement (compared to Vi/Vim) when handling some commands. Some are not a big issue but some are annoying enough and should be fixed.
 
-Project also needs some refactoring when new modes are added.
- 
+## Status
+  
+There's a lot of bugs in cursor placement (compared to Vi/Vim) when handling some commands. Some are not a big issue but some are annoying enough and should be fixed.
+
+## Building
+
+ * MonoDevelop development assemblies
+ * Add-in Maker (available in add-in catalogue)

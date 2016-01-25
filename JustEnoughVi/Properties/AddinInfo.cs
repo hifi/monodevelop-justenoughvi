@@ -3,13 +3,13 @@ using Mono.Addins;
 using Mono.Addins.Description;
 
 [assembly:Addin(
-    "SimpleVi", 
-    Namespace = "SimpleVi",
+    "JustEnoughVi", 
+    Namespace = "JustEnoughVi",
     Version = "0.2"
 )]
 
-[assembly:AddinName("SimpleVi")]
+[assembly:AddinName("Just Enough Vi")]
 [assembly:AddinCategory("IDE extensions")]
-[assembly:AddinDescription("SimpleVi")]
+[assembly:AddinDescription("Simplified Vi mode for MonoDevelop/Xamarin Studio.")]
 [assembly:AddinAuthor("Toni Spets")]
 

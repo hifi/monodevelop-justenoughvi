@@ -6,8 +6,8 @@
     <ProjectTypeGuids>{86F6BF2A-E449-4B3E-813B-9ACC37E5545F};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>SimpleVi</RootNamespace>
-    <AssemblyName>SimpleVi</AssemblyName>
+    <RootNamespace>JustEnoughVi</RootNamespace>
+    <AssemblyName>JustEnoughVi</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,12 +29,12 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AddinInfo.cs" />
-    <Compile Include="SimpleViExtension.cs" />
     <Compile Include="ViEditMode.cs" />
     <Compile Include="NormalEditMode.cs" />
     <Compile Include="InsertEditMode.cs" />
     <Compile Include="VisualEditMode.cs" />
     <Compile Include="BaseEditMode.cs" />
+    <Compile Include="JustEnoughViExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />

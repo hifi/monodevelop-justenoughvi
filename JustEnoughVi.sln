@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleVi", "SimpleVi\SimpleVi.csproj", "{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JustEnoughVi", "JustEnoughVi\JustEnoughVi.csproj", "{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
