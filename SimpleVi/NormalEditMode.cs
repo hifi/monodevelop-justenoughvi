@@ -66,6 +66,11 @@ namespace SimpleVi
             Vi = _editMode;
         }
 
+        public void Activate()
+        {
+            _countString = "";
+        }
+
         private void CaretToLineStart()
         {
             Data.Caret.Column = 1;
@@ -354,8 +359,6 @@ namespace SimpleVi
         {
             Vi.SetMode(ViMode.Visual);
             Data.SetSelectLines(Data.Caret.Line, Data.Caret.Line);
-            Vi.VisualStart = Data.Caret.Line;
-            Vi.VisualEnd = Data.Caret.Line;
             return true;
         }
 
