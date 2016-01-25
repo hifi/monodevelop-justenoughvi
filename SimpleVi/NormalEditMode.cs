@@ -347,8 +347,9 @@ namespace SimpleVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                Vi.Document.GetContent<SourceEditorView>().Undo();
+                RunAction(MiscActions.Undo);
             }
+            Data.ClearSelection();
             return true;
         }
 

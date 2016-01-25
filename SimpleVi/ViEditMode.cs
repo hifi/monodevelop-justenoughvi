@@ -16,7 +16,6 @@ namespace SimpleVi
 
     public class ViEditMode : Mono.TextEditor.EditMode
     {
-        private Document _doc;
         private EditMode _baseMode; 
 
         private NormalEditMode _normalMode;
@@ -26,15 +25,8 @@ namespace SimpleVi
         private BaseEditMode _currentMode;
         private BaseEditMode _requestedMode;
 
-        // is this available from the editor?
-        new public Document Document {
-            get { return _doc; }
-        }
-
         public ViEditMode(Document doc)
         {
-            _doc = doc;
-
             var editor = doc.GetContent<SourceEditorView>().TextEditor;
             _baseMode = editor.CurrentMode;
             var data = doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
