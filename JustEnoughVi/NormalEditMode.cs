@@ -99,6 +99,9 @@ namespace JustEnoughVi
 
         private void CaretOffEol()
         {
+            if (Caret.Offset >= Data.Text.Length)
+                Caret.Offset = Data.Text.Length - 1;
+
             while (NormalEditMode.IsEol(Data.Document.GetCharAt(Data.Caret.Offset)) && DocumentLocation.MinColumn < Data.Caret.Column)
                 CaretMoveActions.Left(Data);
         }
