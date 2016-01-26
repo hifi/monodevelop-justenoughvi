@@ -59,6 +59,17 @@ namespace JustEnoughVi
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
         {
+            // generic mode escape handler
+            if (
+                (modifier == 0 && key == Gdk.Key.Escape) ||
+                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
+            {
+                _currentMode.InternalDeactivate((ExtensibleTextEditor)Editor, Data);
+                _currentMode = _requestedMode = _normalMode;
+                _currentMode.InternalActivate((ExtensibleTextEditor)Editor, Data);
+                return;
+            }
+
             _currentMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
 
             if (_requestedMode != _currentMode)

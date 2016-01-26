@@ -64,12 +64,19 @@ namespace JustEnoughVi
 
         public override void InternalActivate(ExtensibleTextEditor editor, TextEditorData data)
         {
-            _countString = "";
             data.Caret.Mode = CaretMode.Block;
         }
 
         public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
         {
+            Reset();
+        }
+
+        protected void Reset()
+        {
+            _command = null;
+            _commandArgs.Clear();
+            _countString = "";
         }
 
         internal static bool IsEol(char c)
@@ -527,17 +534,6 @@ namespace JustEnoughVi
 
         protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
         {
-            // reset count 
-            if (
-                (modifier == 0 && key == Gdk.Key.Escape) ||
-                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
-            {
-                _countString = "";
-                _command = null;
-                _commandArgs.Clear();
-                return;
-            }
-
             if (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.f)
             {
                 Vi.BaseKeypress(Gdk.Key.Page_Down, ' ', Gdk.ModifierType.None);
@@ -601,10 +597,7 @@ namespace JustEnoughVi
 
                 if (_commands[(uint)_command](Count, _commandArgs.ToArray()))
                 {
-                    // succeeded, reset everything
-                    _countString = "";
-                    _command = null;
-                    _commandArgs.Clear();
+                    Reset();
                 }
             }
         }
