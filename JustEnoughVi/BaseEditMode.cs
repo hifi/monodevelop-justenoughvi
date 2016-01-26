@@ -1,6 +1,4 @@
-﻿using System;
-using Mono.TextEditor;
-using MonoDevelop.SourceEditor;
+﻿using Mono.TextEditor;
 
 namespace JustEnoughVi
 {
@@ -13,8 +11,8 @@ namespace JustEnoughVi
             Vi = vi;
         }
 
-        public abstract void InternalActivate(ExtensibleTextEditor editor, TextEditorData data);
-        public abstract void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data);
+        public abstract void InternalActivate(TextEditor editor, TextEditorData data);
+        public abstract void InternalDeactivate(TextEditor editor, TextEditorData data);
     }
 }
 

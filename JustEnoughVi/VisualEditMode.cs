@@ -1,6 +1,5 @@
 ﻿using System;
 using Mono.TextEditor;
-using MonoDevelop.SourceEditor;
 
 namespace JustEnoughVi
 {
@@ -26,7 +25,7 @@ namespace JustEnoughVi
             _countString = "";
         }
 
-        public override void InternalActivate(ExtensibleTextEditor editor, TextEditorData data)
+        public override void InternalActivate(TextEditor editor, TextEditorData data)
         {
             _countString = "";
             data.Caret.Mode = CaretMode.Block;
@@ -34,7 +33,7 @@ namespace JustEnoughVi
             VisualEnd = data.Caret.Line;
         }
 
-        public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
+        public override void InternalDeactivate(TextEditor editor, TextEditorData data)
         {
             data.ClearSelection();
         }

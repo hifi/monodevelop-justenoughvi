@@ -1,6 +1,4 @@
-﻿using System;
-using Mono.TextEditor;
-using MonoDevelop.SourceEditor;
+﻿using Mono.TextEditor;
 
 namespace JustEnoughVi
 {
@@ -12,12 +10,12 @@ namespace JustEnoughVi
 
         #region implemented abstract members of BaseEditMode
 
-        public override void InternalActivate(MonoDevelop.SourceEditor.ExtensibleTextEditor editor, Mono.TextEditor.TextEditorData data)
+        public override void InternalActivate(TextEditor editor, TextEditorData data)
         {
             data.Caret.Mode = CaretMode.Insert;
         }
 
-        public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
+        public override void InternalDeactivate(TextEditor editor, TextEditorData data)
         {
             CaretMoveActions.Left(data);
         }

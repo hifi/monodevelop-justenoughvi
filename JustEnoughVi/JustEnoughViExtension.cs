@@ -1,5 +1,4 @@
-﻿using System;
-using MonoDevelop.Ide.Gui.Content;
+﻿using MonoDevelop.Ide.Gui.Content;
 using MonoDevelop.SourceEditor;
 
 namespace JustEnoughVi

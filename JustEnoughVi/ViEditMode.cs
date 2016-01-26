@@ -1,9 +1,6 @@
-﻿using System;
-using Mono.TextEditor;
+﻿using Mono.TextEditor;
 using MonoDevelop.Ide.Gui;
 using MonoDevelop.SourceEditor;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace JustEnoughVi
 {
@@ -14,7 +11,7 @@ namespace JustEnoughVi
         Visual
     }
 
-    public class ViEditMode : Mono.TextEditor.EditMode
+    public class ViEditMode : EditMode
     {
         private EditMode _baseMode; 
 
@@ -65,9 +62,9 @@ namespace JustEnoughVi
                 (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.bracketleft) ||
                 (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
             {
-                _currentMode.InternalDeactivate((ExtensibleTextEditor)Editor, Data);
+                _currentMode.InternalDeactivate(Editor, Data);
                 _currentMode = _requestedMode = _normalMode;
-                _currentMode.InternalActivate((ExtensibleTextEditor)Editor, Data);
+                _currentMode.InternalActivate(Editor, Data);
                 return;
             }
 
@@ -75,8 +72,8 @@ namespace JustEnoughVi
 
             if (_requestedMode != _currentMode)
             {
-                _currentMode.InternalDeactivate((ExtensibleTextEditor)Editor, Data);
-                _requestedMode.InternalActivate((ExtensibleTextEditor)Editor, Data);
+                _currentMode.InternalDeactivate(Editor, Data);
+                _requestedMode.InternalActivate(Editor, Data);
                 _currentMode = _requestedMode;
             }
         }

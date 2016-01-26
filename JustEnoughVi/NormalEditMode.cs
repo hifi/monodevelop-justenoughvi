@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.TextEditor;
-using JustEnoughVi;
-using MonoDevelop.SourceEditor;
-using System.Text.RegularExpressions;
 
 namespace JustEnoughVi
 {
@@ -62,12 +59,12 @@ namespace JustEnoughVi
             _commands.Add('>', IndentAdd);
         }
 
-        public override void InternalActivate(ExtensibleTextEditor editor, TextEditorData data)
+        public override void InternalActivate(TextEditor editor, TextEditorData data)
         {
             data.Caret.Mode = CaretMode.Block;
         }
 
-        public override void InternalDeactivate(ExtensibleTextEditor editor, TextEditorData data)
+        public override void InternalDeactivate(TextEditor editor, TextEditorData data)
         {
             Reset();
         }
