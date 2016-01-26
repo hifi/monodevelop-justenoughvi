@@ -62,6 +62,7 @@ namespace JustEnoughVi
             // generic mode escape handler
             if (
                 (modifier == 0 && key == Gdk.Key.Escape) ||
+                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.bracketleft) ||
                 (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
             {
                 _currentMode.InternalDeactivate((ExtensibleTextEditor)Editor, Data);
