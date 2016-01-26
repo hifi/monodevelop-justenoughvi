@@ -6,9 +6,7 @@ namespace JustEnoughVi
     public class VisualEditMode : BaseEditMode
     {
         private string _countString;
-
-        private int VisualStart { get; set; }
-        private int VisualEnd { get; set; }
+        private int lineStart;
 
         private int Count {
             get {
@@ -29,8 +27,7 @@ namespace JustEnoughVi
         {
             _countString = "";
             data.Caret.Mode = CaretMode.Block;
-            VisualStart = data.Caret.Line;
-            VisualEnd = data.Caret.Line;
+            lineStart = data.Caret.Line;
         }
 
         public override void InternalDeactivate(TextEditor editor, TextEditorData data)
@@ -53,17 +50,15 @@ namespace JustEnoughVi
                 {
                     if (unicodeKey == 'j')
                     {
-                        VisualEnd++;
-                        Caret.Line = VisualEnd;
+                        Caret.Line++;
                     }
                     else if (unicodeKey == 'k')
                     {
-                        VisualEnd--;
-                        Caret.Line = VisualEnd;
+                        Caret.Line--;
                     }
 
-                    int start = VisualStart;
-                    int end = VisualEnd;
+                    int start = lineStart;
+                    int end = Caret.Line;
 
                     if (end < start)
                     {
