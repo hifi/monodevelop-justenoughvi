@@ -6,7 +6,7 @@ namespace JustEnoughVi
     {
         protected ViEditMode Vi { get; set; }
 
-        public BaseEditMode(ViEditMode vi)
+        protected BaseEditMode(ViEditMode vi)
         {
             Vi = vi;
         }

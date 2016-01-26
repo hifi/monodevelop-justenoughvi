@@ -7,8 +7,8 @@ namespace JustEnoughVi
     {
         private string _countString;
 
-        public int VisualStart { get; set; }
-        public int VisualEnd { get; set; }
+        private int VisualStart { get; set; }
+        private int VisualEnd { get; set; }
 
         private int Count {
             get {

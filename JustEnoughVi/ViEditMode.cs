@@ -13,20 +13,21 @@ namespace JustEnoughVi
 
     public class ViEditMode : EditMode
     {
-        private EditMode _baseMode; 
+        private readonly EditMode _baseMode;
 
-        private NormalEditMode _normalMode;
-        private InsertEditMode _insertMode;
-        private VisualEditMode _visualMode;
+        private readonly NormalEditMode _normalMode;
+        private readonly InsertEditMode _insertMode;
+        private readonly VisualEditMode _visualMode;
 
         private BaseEditMode _currentMode;
         private BaseEditMode _requestedMode;
 
         public ViEditMode(Document doc)
         {
-            var editor = doc.GetContent<SourceEditorView>().TextEditor;
-            _baseMode = editor.CurrentMode;
-            var data = doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
+            var baseEditor = doc.GetContent<SourceEditorView>().TextEditor;
+            var baseData = doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
+
+            _baseMode = baseEditor.CurrentMode;
 
             _normalMode = new NormalEditMode(this);
             _insertMode = new InsertEditMode(this);
@@ -34,10 +35,10 @@ namespace JustEnoughVi
 
             // start in normal mode
             _currentMode = _requestedMode = _normalMode;
-            _currentMode.InternalActivate(editor, data);
+            _currentMode.InternalActivate(baseEditor, baseData);
         }
 
-        public void SetMode(ViMode newMode)
+        internal void SetMode(ViMode newMode)
         {
             if (newMode == ViMode.Normal)
                 _requestedMode = _normalMode;
@@ -47,7 +48,7 @@ namespace JustEnoughVi
                 _requestedMode = _visualMode;
         }
 
-        public void BaseKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
+        internal void BaseKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
         {
             _baseMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
         }

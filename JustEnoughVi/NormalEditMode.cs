@@ -6,11 +6,11 @@ namespace JustEnoughVi
 {
     public class NormalEditMode : BaseEditMode
     {
-        private Dictionary<uint, Func<int, char[], bool>> _commands;
+        private readonly Dictionary<uint, Func<int, char[], bool>> _commands;
 
         private string _countString;
         private uint? _command;
-        private List<char> _commandArgs;
+        private readonly List<char> _commandArgs;
 
         private int Count {
             get {
