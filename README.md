@@ -1,4 +1,6 @@
 # Just Enough Vi for MonoDevelop / Xamarin Studio 6.0
+
+[![Join the chat at https://gitter.im/hifi/monodevelop-justenoughvi](https://badges.gitter.im/hifi/monodevelop-justenoughvi.svg)](https://gitter.im/hifi/monodevelop-justenoughvi?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 Simplified Vi mode for MonoDevelop/Xamarin Studio. It's not supposed to *completely* emulate Vi/Vim but be just enough for navigating.
 
 ## Current Features
