@@ -609,7 +609,10 @@ namespace JustEnoughVi
                 }
 
                 if (!_commands.ContainsKey((uint)_command))
+                {
+                    _command = null;
                     return false;
+                }
 
                 CaretOffEol();
 
