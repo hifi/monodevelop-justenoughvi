@@ -67,7 +67,7 @@ namespace JustEnoughVi
                 _currentMode = _requestedMode;
             }
 
-            return pass;
+            return pass && base.KeyPress(descriptor);
         }
     }
 }
