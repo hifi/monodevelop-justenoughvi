@@ -1,6 +1,4 @@
-﻿using Mono.TextEditor;
-using MonoDevelop.Ide.Gui;
-using MonoDevelop.SourceEditor;
+﻿using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
@@ -11,31 +9,29 @@ namespace JustEnoughVi
         Visual
     }
 
-    public class ViEditMode : EditMode
+    public class ViEditMode : TextEditorExtension
     {
-        private readonly EditMode _baseMode;
-
-        private readonly NormalEditMode _normalMode;
-        private readonly InsertEditMode _insertMode;
-        private readonly VisualEditMode _visualMode;
+        private NormalEditMode _normalMode;
+        private InsertEditMode _insertMode;
+        private VisualEditMode _visualMode;
 
         private BaseEditMode _currentMode;
         private BaseEditMode _requestedMode;
 
-        public ViEditMode(Document doc)
+        public ViEditMode()
         {
-            var baseEditor = doc.GetContent<SourceEditorView>().TextEditor;
-            var baseData = doc.GetContent<ITextEditorDataProvider>().GetTextEditorData();
 
-            _baseMode = baseEditor.CurrentMode;
+        }
 
-            _normalMode = new NormalEditMode(this);
-            _insertMode = new InsertEditMode(this);
-            _visualMode = new VisualEditMode(this);
+        protected override void Initialize()
+        {
+            _normalMode = new NormalEditMode(this, Editor);
+            _insertMode = new InsertEditMode(this, Editor);
+            _visualMode = new VisualEditMode(this, Editor);
 
             // start in normal mode
             _currentMode = _requestedMode = _normalMode;
-            _currentMode.InternalActivate(baseEditor, baseData);
+            _currentMode.Activate();
         }
 
         internal void SetMode(ViMode newMode)
@@ -48,38 +44,31 @@ namespace JustEnoughVi
                 _requestedMode = _visualMode;
         }
 
-        internal void BaseKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
-        {
-            _baseMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
-        }
-
-        #region implemented abstract members of EditMode
-
-        protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
+        public override bool KeyPress(KeyDescriptor descriptor)
         {
             // generic mode escape handler
             if (
-                (modifier == 0 && key == Gdk.Key.Escape) ||
-                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.bracketleft) ||
-                (modifier == Gdk.ModifierType.ControlMask && key == Gdk.Key.c))
+                (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.Escape) ||
+                (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == '[') ||
+                (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == 'c'))
             {
-                _currentMode.InternalDeactivate(Editor, Data);
+                _currentMode.Deactivate();
                 _currentMode = _requestedMode = _normalMode;
-                _currentMode.InternalActivate(Editor, Data);
-                return;
+                _currentMode.Activate();
+                return false;
             }
 
-            _currentMode.InternalHandleKeypress(Editor, Data, key, unicodeKey, modifier);
+            var pass = _currentMode.KeyPress (descriptor);
 
             if (_requestedMode != _currentMode)
             {
-                _currentMode.InternalDeactivate(Editor, Data);
-                _requestedMode.InternalActivate(Editor, Data);
+                _currentMode.Deactivate();
+                _requestedMode.Activate();
                 _currentMode = _requestedMode;
             }
-        }
 
-        #endregion
+            return pass;
+        }
     }
 }
 

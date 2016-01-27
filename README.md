@@ -1,4 +1,4 @@
-# Just Enough Vi for MonoDevelop / Xamarin Studio
+# Just Enough Vi for MonoDevelop / Xamarin Studio 6.0
 Simplified Vi mode for MonoDevelop/Xamarin Studio. It's not supposed to *completely* emulate Vi/Vim but be just enough for navigating.
 
 ## Current Features

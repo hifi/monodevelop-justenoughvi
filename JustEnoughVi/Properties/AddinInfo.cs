@@ -1,15 +1,14 @@
-﻿using System;
-using Mono.Addins;
+﻿using Mono.Addins;
 using Mono.Addins.Description;
 
-[assembly:Addin(
-    "JustEnoughVi", 
+[assembly: Addin(
+    "JustEnoughVi",
     Namespace = "JustEnoughVi",
-    Version = "0.2"
+    Version = "0.5"
 )]
 
-[assembly:AddinName("Just Enough Vi")]
-[assembly:AddinCategory("IDE extensions")]
-[assembly:AddinDescription("Simplified Vi mode for MonoDevelop/Xamarin Studio.")]
-[assembly:AddinAuthor("Toni Spets")]
+[assembly: AddinName("Just Enough Vi")]
+[assembly: AddinCategory("IDE extensions")]
+[assembly: AddinDescription("Simplified Vi mode for MonoDevelop/Xamarin Studio.")]
+[assembly: AddinAuthor("Toni Spets")]
 

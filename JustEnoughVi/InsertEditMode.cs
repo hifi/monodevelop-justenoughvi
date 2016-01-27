@@ -1,28 +1,28 @@
-﻿using Mono.TextEditor;
+﻿using MonoDevelop.Ide.Editor;
+using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
     public class InsertEditMode : BaseEditMode
     {
-        public InsertEditMode(ViEditMode vi) : base(vi)
+        public InsertEditMode(ViEditMode vi, TextEditor editor) : base(vi, editor)
         {
         }
 
         #region implemented abstract members of BaseEditMode
 
-        public override void InternalActivate(TextEditor editor, TextEditorData data)
+        public override void Activate()
         {
-            data.Caret.Mode = CaretMode.Insert;
         }
 
-        public override void InternalDeactivate(TextEditor editor, TextEditorData data)
+        public override void Deactivate()
         {
-            CaretMoveActions.Left(data);
+            EditActions.MoveCaretLeft(Editor);
         }
 
-        protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
+        public override bool KeyPress(KeyDescriptor descriptor)
         {
-            Vi.BaseKeypress(key, unicodeKey, modifier);
+            return true;
         }
 
         #endregion

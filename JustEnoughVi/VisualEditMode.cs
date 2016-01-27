@@ -1,12 +1,15 @@
 ﻿using System;
-using Mono.TextEditor;
+using MonoDevelop.Ide.Editor;
+using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
     public class VisualEditMode : BaseEditMode
     {
         private string _countString;
-        private int lineStart;
+
+        private int _startLineStart;
+        private int _startLineEnd;
 
         private int Count {
             get {
@@ -18,67 +21,84 @@ namespace JustEnoughVi
             }
         }
 
-        public VisualEditMode(ViEditMode vi) : base(vi)
+        public VisualEditMode(ViEditMode vi, TextEditor editor) : base(vi, editor)
+        {
+        }
+
+        public override void Activate()
         {
             _countString = "";
+            int origOffset = Editor.CaretOffset;
+            Editor.CaretColumn = DocumentLocation.MinColumn;
+            _startLineStart = Editor.CaretOffset;
+            EditActions.MoveCaretToLineEnd(Editor);
+            _startLineEnd = Editor.CaretOffset;
+            Editor.CaretOffset = origOffset;
+            Editor.SetSelection(_startLineStart, _startLineEnd);
         }
 
-        public override void InternalActivate(TextEditor editor, TextEditorData data)
+        public override void Deactivate()
         {
-            _countString = "";
-            data.Caret.Mode = CaretMode.Block;
-            lineStart = data.Caret.Line;
+            Editor.ClearSelection();
         }
 
-        public override void InternalDeactivate(TextEditor editor, TextEditorData data)
+        public override bool KeyPress(KeyDescriptor descriptor)
         {
-            data.ClearSelection();
-        }
+            uint unicodeKey = descriptor.KeyChar;
 
-        protected override void HandleKeypress(Gdk.Key key, uint unicodeKey, Gdk.ModifierType modifier)
-        {
-            if (modifier == 0)
+            if (descriptor.ModifierKeys == 0)
             {
                 // build repeat buffer
                 if (unicodeKey >= '0' && unicodeKey <= '9')
                 {
                     _countString += Char.ToString((char)unicodeKey);
-                    return;
+                    return false;
                 }
 
                 if (unicodeKey == 'j' || unicodeKey == 'k')
                 {
                     if (unicodeKey == 'j')
                     {
-                        Caret.Line++;
+                        Editor.CaretLine++;
                     }
                     else if (unicodeKey == 'k')
                     {
-                        Caret.Line--;
+                        Editor.CaretLine--;
                     }
 
-                    int start = lineStart;
-                    int end = Caret.Line;
+                    int origOffset = Editor.CaretOffset;
+                    Editor.CaretColumn = DocumentLocation.MinColumn;
+                    int endLineStart = Editor.CaretOffset;
+                    EditActions.MoveCaretToLineEnd(Editor);
+                    int endLineEnd = Editor.CaretOffset;
+                    Editor.CaretOffset = origOffset;
 
-                    if (end < start)
+                    int selectStart = 0;
+                    int selectEnd = 0;
+
+                    if (endLineStart > _startLineEnd)
                     {
-                        end--;
-                        start++;
+                        selectStart = _startLineStart;
+                        selectEnd = endLineEnd;
+                    }
+                    else
+                    {
+                        selectStart = _startLineEnd;
+                        selectEnd = endLineStart;
                     }
 
-                    Data.SetSelectLines(start, end);
+                    Editor.SetSelection(selectStart, selectEnd);
                 }
 
                 if (unicodeKey == 'd')
                 {
-                    ClipboardActions.Cut(Data);
+                    EditActions.ClipboardCut(Editor);
                     Vi.SetMode(ViMode.Normal);
                 }
 
                 if (unicodeKey == 'y' || unicodeKey == 'Y')
                 {
-                    ClipboardActions.Copy(Data);
-                    Data.ClearSelection();
+                    EditActions.ClipboardCopy(Editor);
                     Vi.SetMode(ViMode.Normal);
                 }
 
@@ -87,9 +107,8 @@ namespace JustEnoughVi
                     var count = Math.Max(1, Count);
                     for (int i = 0; i < count; i++)
                     {
-                        RunAction(MiscActions.RemoveIndentSelection);
+                        EditActions.UnIndentSelection(Editor);
                     }
-                    Data.ClearSelection();
                     Vi.SetMode(ViMode.Normal);
                 }
 
@@ -98,12 +117,13 @@ namespace JustEnoughVi
                     var count = Math.Max(1, Count);
                     for (int i = 0; i < count; i++)
                     {
-                        RunAction(MiscActions.IndentSelection);
+                        EditActions.IndentSelection(Editor);
                     }
-                    Data.ClearSelection();
                     Vi.SetMode(ViMode.Normal);
                 }
             }
+
+            return false;
         }
     }
 }
