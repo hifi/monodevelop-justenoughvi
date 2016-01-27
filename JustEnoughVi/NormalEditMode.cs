@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MonoDevelop.Ide;
 using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
 
@@ -31,7 +32,7 @@ namespace JustEnoughVi
 
             _commands = new Dictionary<uint, Func<int, char[], bool>>();
 
-            _commands.Add('0', LineStart);
+            _commands.Add('0', FirstColumn);
             _commands.Add('a', Append);
             _commands.Add('A', AppendEnd);
             _commands.Add('d', Delete);
@@ -58,6 +59,7 @@ namespace JustEnoughVi
             _commands.Add('/', Find);
             _commands.Add('<', IndentRemove);
             _commands.Add('>', IndentAdd);
+            _commands.Add('^', TextStart);
         }
 
         public override void Activate()
@@ -97,7 +99,7 @@ namespace JustEnoughVi
                 EditActions.MoveCaretLeft (Editor);
         }
 
-        private bool LineStart(int count, char[] args)
+        private bool FirstColumn(int count, char[] args)
         {
             Editor.CaretColumn = DocumentLocation.MinColumn;
             return true;
@@ -499,6 +501,12 @@ namespace JustEnoughVi
         {
             EditActions.MoveCaretToLineEnd(Editor);
             CaretOffEol();
+            return true;
+        }
+
+        private bool LineStart(int count, char[] args)
+        {
+            EditActions.MoveCaretToLineStart(Editor);
             return true;
         }
 
