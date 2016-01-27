@@ -4,6 +4,7 @@ namespace JustEnoughVi
 {
     public enum ViMode
     {
+        None,
         Normal,
         Insert,
         Visual
@@ -25,23 +26,13 @@ namespace JustEnoughVi
 
         protected override void Initialize()
         {
-            _normalMode = new NormalEditMode(this, Editor);
-            _insertMode = new InsertEditMode(this, Editor);
-            _visualMode = new VisualEditMode(this, Editor);
+            _normalMode = new NormalEditMode(Editor);
+            _insertMode = new InsertEditMode(Editor);
+            _visualMode = new VisualEditMode(Editor);
 
             // start in normal mode
             _currentMode = _requestedMode = _normalMode;
             _currentMode.Activate();
-        }
-
-        internal void SetMode(ViMode newMode)
-        {
-            if (newMode == ViMode.Normal)
-                _requestedMode = _normalMode;
-            else if (newMode == ViMode.Insert)
-                _requestedMode = _insertMode;
-            else if (newMode == ViMode.Visual)
-                _requestedMode = _visualMode;
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)
@@ -60,8 +51,17 @@ namespace JustEnoughVi
 
             var pass = _currentMode.KeyPress (descriptor);
 
+            var newMode = _currentMode.RequestedMode;
+            if (newMode == ViMode.Normal)
+                _requestedMode = _normalMode;
+            else if (newMode == ViMode.Insert)
+                _requestedMode = _insertMode;
+            else if (newMode == ViMode.Visual)
+                _requestedMode = _visualMode;
+
             if (_requestedMode != _currentMode)
             {
+                _currentMode.RequestedMode = ViMode.None;
                 _currentMode.Deactivate();
                 _requestedMode.Activate();
                 _currentMode = _requestedMode;

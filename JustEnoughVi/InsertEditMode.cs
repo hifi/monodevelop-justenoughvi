@@ -5,7 +5,7 @@ namespace JustEnoughVi
 {
     public class InsertEditMode : BaseEditMode
     {
-        public InsertEditMode(ViEditMode vi, TextEditor editor) : base(vi, editor)
+        public InsertEditMode(TextEditor editor) : base(editor)
         {
         }
 

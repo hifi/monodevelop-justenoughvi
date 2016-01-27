@@ -1,17 +1,18 @@
-﻿using MonoDevelop.Ide.Editor;
+﻿using System;
+using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
     public abstract class BaseEditMode
     {
-        protected ViEditMode Vi { get; set; }
         protected TextEditor Editor { get; set; }
+        public ViMode RequestedMode { get; internal set; }
 
-        protected BaseEditMode(ViEditMode vi, TextEditor editor)
+        protected BaseEditMode(TextEditor editor)
         {
-            Vi = vi;
             Editor = editor;
+            RequestedMode = ViMode.None;
         }
 
         public abstract void Activate();

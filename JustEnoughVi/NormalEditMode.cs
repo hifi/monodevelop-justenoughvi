@@ -23,7 +23,7 @@ namespace JustEnoughVi
             }
         }
 
-        public NormalEditMode(ViEditMode vi, TextEditor editor) : base(vi, editor)
+        public NormalEditMode(TextEditor editor) : base(editor)
         {
             _command = null;
             _commandArgs = new List<char>();
@@ -106,14 +106,14 @@ namespace JustEnoughVi
         private bool Append(int count, char[] args)
         {
             EditActions.MoveCaretRight(Editor);
-            Vi.SetMode(ViMode.Insert);
+            RequestedMode = ViMode.Insert;
             return true;
         }
 
         private bool AppendEnd(int count, char[] args)
         {
             EditActions.MoveCaretToLineEnd(Editor);
-            Vi.SetMode(ViMode.Insert);
+            RequestedMode = ViMode.Insert;
             return true;
         }
 
@@ -215,14 +215,14 @@ namespace JustEnoughVi
 
         private bool Insert(int count, char[] args)
         {
-            Vi.SetMode(ViMode.Insert);
+            RequestedMode = ViMode.Insert;
             return true;
         }
 
         private bool InsertStart(int count, char[] args)
         {
             CaretToLineStart();
-            Vi.SetMode(ViMode.Insert);
+            RequestedMode = ViMode.Insert;
             return true;
         }
 
@@ -255,7 +255,7 @@ namespace JustEnoughVi
         private bool OpenBelow(int count, char[] args)
         {
             EditActions.InsertNewLineAtEnd(Editor);
-            Vi.SetMode(ViMode.Insert);
+            RequestedMode = ViMode.Insert;
             return true;
         }
 
@@ -272,7 +272,7 @@ namespace JustEnoughVi
             {
                 EditActions.InsertNewLineAtEnd(Editor);
             }
-            Vi.SetMode(ViMode.Insert);
+            RequestedMode = ViMode.Insert;
             return true;
         }
 
@@ -377,7 +377,7 @@ namespace JustEnoughVi
 
         private bool VisualLine(int count, char[] args)
         {
-            Vi.SetMode(ViMode.Visual);
+            RequestedMode = ViMode.Visual;
             return true;
         }
 

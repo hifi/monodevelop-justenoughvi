@@ -21,7 +21,7 @@ namespace JustEnoughVi
             }
         }
 
-        public VisualEditMode(ViEditMode vi, TextEditor editor) : base(vi, editor)
+        public VisualEditMode(TextEditor editor) : base(editor)
         {
         }
 
@@ -93,13 +93,13 @@ namespace JustEnoughVi
                 if (unicodeKey == 'd')
                 {
                     EditActions.ClipboardCut(Editor);
-                    Vi.SetMode(ViMode.Normal);
+                    RequestedMode = ViMode.Normal;
                 }
 
                 if (unicodeKey == 'y' || unicodeKey == 'Y')
                 {
                     EditActions.ClipboardCopy(Editor);
-                    Vi.SetMode(ViMode.Normal);
+                    RequestedMode = ViMode.Normal;
                 }
 
                 if (unicodeKey == '<')
@@ -109,7 +109,7 @@ namespace JustEnoughVi
                     {
                         EditActions.UnIndentSelection(Editor);
                     }
-                    Vi.SetMode(ViMode.Normal);
+                    RequestedMode = ViMode.Normal;
                 }
 
                 if (unicodeKey == '>')
@@ -119,7 +119,7 @@ namespace JustEnoughVi
                     {
                         EditActions.IndentSelection(Editor);
                     }
-                    Vi.SetMode(ViMode.Normal);
+                    RequestedMode = ViMode.Normal;
                 }
             }
 
