@@ -36,6 +36,8 @@ namespace JustEnoughVi
             _commands.Add('a', Append);
             _commands.Add('A', AppendEnd);
             _commands.Add('b', WordBack);
+            _commands.Add('c', Change);
+            _commands.Add('C', ChangeToEnd);
             _commands.Add('d', Delete);
             _commands.Add('g', Go);
             _commands.Add('G', GoToLine);
@@ -110,6 +112,83 @@ namespace JustEnoughVi
         private bool WordBack(int count, char[] args)
         {
             Editor.CaretOffset = StringUtils.PreviousWordOffset(Editor.Text, Editor.CaretOffset);
+            return true;
+        }
+
+        private bool Change(int count, char[] args)
+        {
+            if (args.Length == 0)
+                return false;
+
+            if (args[0] == 'c')
+            {
+                EditActions.MoveCaretToLineStart(Editor);
+                int start = Editor.CaretOffset;
+                EditActions.MoveCaretToLineEnd(Editor);
+                Editor.SetSelection(start, Editor.CaretOffset);
+                EditActions.ClipboardCut(Editor);
+                RequestedMode = Mode.Insert;
+            }
+
+            if (args[0] == '$')
+            {
+                ChangeToEnd(1, new char[] { });
+                return true;
+            }
+
+            if (args[0] == 'w')
+            {
+                Editor.SetSelection(Editor.CaretOffset, StringUtils.NextWordOffset(Editor.Text, Editor.CaretOffset));
+                EditActions.ClipboardCut(Editor);
+                RequestedMode = Mode.Insert;
+            }
+
+            else if (args[0] == 'i')
+            {
+                if (args.Length < 2)
+                    return false;
+
+                if (args[1] == '"')
+                {
+                    if (Editor.Text[Editor.CaretOffset] != '"')
+                        return true;
+
+                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.CaretOffset, '"');
+                    if (offset > 0)
+                    {
+                        EditActions.MoveCaretRight(Editor);
+                        Editor.SetSelection(Editor.CaretOffset, offset);
+                        EditActions.ClipboardCut(Editor);
+                        RequestedMode = Mode.Insert;
+                    }
+                }
+
+                if (args[1] == '(')
+                {
+                    if (Editor.Text[Editor.CaretOffset] != '(')
+                        return true;
+
+                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.CaretOffset, ')');
+                    if (offset > 0)
+                    {
+                        EditActions.MoveCaretRight(Editor);
+                        Editor.SetSelection(Editor.CaretOffset, offset);
+                        EditActions.ClipboardCut(Editor);
+                        RequestedMode = Mode.Insert;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private bool ChangeToEnd(int count, char[] args)
+        {
+            int start = Editor.CaretOffset;
+            EditActions.MoveCaretToLineEnd(Editor);
+            Editor.SetSelection(start, Editor.CaretOffset);
+            EditActions.ClipboardCut(Editor);
+            RequestedMode = Mode.Insert;
             return true;
         }
 

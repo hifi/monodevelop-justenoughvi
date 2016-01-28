@@ -57,6 +57,18 @@ namespace JustEnoughVi
 
             return endOffset + 1;
         }
+
+        public static int FindNextInLine(string searchText, int offset, char c)
+        {
+            do
+            {
+                offset++;
+                if (Char.IsControl(searchText[offset]))
+                    return -1;
+            } while (searchText[offset] != c);
+
+            return offset;
+        }
     }
 }
 
