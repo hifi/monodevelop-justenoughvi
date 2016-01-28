@@ -78,11 +78,6 @@ namespace JustEnoughVi
             return (c == '\r' || c == '\n');
         }
 
-        private void CaretToLineStart()
-        {
-            EditActions.MoveCaretToLineStart(Editor);
-        }
-
         private void CaretOffEol()
         {
             if (Editor.CaretOffset >= Editor.Text.Length)
@@ -133,8 +128,7 @@ namespace JustEnoughVi
                 EditActions.ClipboardCopy(Editor);
                 Editor.ClearSelection();
                 EditActions.DeleteCurrentLine(Editor);
-
-                CaretToLineStart();
+                EditActions.MoveCaretToLineStart(Editor);
             }
             else if (args[0] == 'w')
             {
@@ -237,7 +231,7 @@ namespace JustEnoughVi
 
         private bool InsertStart(int count, char[] args)
         {
-            CaretToLineStart();
+            EditActions.MoveCaretToLineStart(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
@@ -312,7 +306,7 @@ namespace JustEnoughVi
                 Editor.InsertAtCaret(text);
                 Editor.CaretOffset = oldOffset;
                 Down(1, new char[]{});
-                CaretToLineStart();
+                EditActions.MoveCaretToLineStart(Editor);
             }
             else
             {
@@ -343,7 +337,7 @@ namespace JustEnoughVi
                     Editor.CaretOffset = 0;
                     Editor.InsertAtCaret(text);
                     Editor.CaretOffset = 0;
-                    CaretToLineStart(); // if indentation before pasted text
+                    EditActions.MoveCaretToLineStart(Editor);
                 }
                 else
                 {
@@ -353,7 +347,7 @@ namespace JustEnoughVi
                     int oldOffset = Editor.CaretOffset;
                     Editor.InsertAtCaret(text);
                     Editor.CaretOffset = oldOffset;
-                    CaretToLineStart();
+                    EditActions.MoveCaretToLineStart(Editor);
                 }
             }
             else
