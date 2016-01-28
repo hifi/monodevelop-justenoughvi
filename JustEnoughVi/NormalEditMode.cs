@@ -59,7 +59,7 @@ namespace JustEnoughVi
             _commands.Add('/', Find);
             _commands.Add('<', IndentRemove);
             _commands.Add('>', IndentAdd);
-            _commands.Add('^', TextStart);
+            _commands.Add('^', LineStart);
         }
 
         public override void Activate()
