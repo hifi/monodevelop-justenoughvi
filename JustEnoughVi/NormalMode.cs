@@ -61,6 +61,7 @@ namespace JustEnoughVi
             _commands.Add('<', IndentRemove);
             _commands.Add('>', IndentAdd);
             _commands.Add('^', LineStart);
+            _commands.Add('%', MatchingBrace);
         }
 
         protected void Reset()
@@ -503,6 +504,12 @@ namespace JustEnoughVi
         private bool LineStart(int count, char[] args)
         {
             EditActions.MoveCaretToLineStart(Editor);
+            return true;
+        }
+
+        private bool MatchingBrace(int count, char[] args)
+        {
+            EditActions.GotoMatchingBrace(Editor);
             return true;
         }
 
