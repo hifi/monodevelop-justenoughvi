@@ -4,15 +4,15 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
-    public abstract class BaseEditMode
+    public abstract class ViMode
     {
         protected TextEditor Editor { get; set; }
-        public ViMode RequestedMode { get; internal set; }
+        public Mode RequestedMode { get; internal set; }
 
-        protected BaseEditMode(TextEditor editor)
+        protected ViMode(TextEditor editor)
         {
             Editor = editor;
-            RequestedMode = ViMode.None;
+            RequestedMode = Mode.None;
         }
 
         public abstract void Activate();

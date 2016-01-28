@@ -4,7 +4,7 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
-    public class VisualEditMode : BaseEditMode
+    public class VisualMode : ViMode
     {
         private string _countString;
 
@@ -21,9 +21,11 @@ namespace JustEnoughVi
             }
         }
 
-        public VisualEditMode(TextEditor editor) : base(editor)
+        public VisualMode(TextEditor editor) : base(editor)
         {
         }
+
+        #region implemented abstract members of ViMode
 
         public override void Activate()
         {
@@ -93,13 +95,13 @@ namespace JustEnoughVi
                 if (unicodeKey == 'd')
                 {
                     EditActions.ClipboardCut(Editor);
-                    RequestedMode = ViMode.Normal;
+                    RequestedMode = Mode.Normal;
                 }
 
                 if (unicodeKey == 'y' || unicodeKey == 'Y')
                 {
                     EditActions.ClipboardCopy(Editor);
-                    RequestedMode = ViMode.Normal;
+                    RequestedMode = Mode.Normal;
                 }
 
                 if (unicodeKey == '<')
@@ -109,7 +111,7 @@ namespace JustEnoughVi
                     {
                         EditActions.UnIndentSelection(Editor);
                     }
-                    RequestedMode = ViMode.Normal;
+                    RequestedMode = Mode.Normal;
                 }
 
                 if (unicodeKey == '>')
@@ -119,12 +121,14 @@ namespace JustEnoughVi
                     {
                         EditActions.IndentSelection(Editor);
                     }
-                    RequestedMode = ViMode.Normal;
+                    RequestedMode = Mode.Normal;
                 }
             }
 
             return false;
         }
+
+        #endregion
     }
 }
 

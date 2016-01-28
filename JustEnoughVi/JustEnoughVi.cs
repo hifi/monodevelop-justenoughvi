@@ -2,7 +2,7 @@
 
 namespace JustEnoughVi
 {
-    public enum ViMode
+    public enum Mode
     {
         None,
         Normal,
@@ -10,25 +10,25 @@ namespace JustEnoughVi
         Visual
     }
 
-    public class ViEditMode : TextEditorExtension
+    public class JustEnoughVi : TextEditorExtension
     {
-        private NormalEditMode _normalMode;
-        private InsertEditMode _insertMode;
-        private VisualEditMode _visualMode;
+        private NormalMode _normalMode;
+        private InsertMode _insertMode;
+        private VisualMode _visualMode;
 
-        private BaseEditMode _currentMode;
-        private BaseEditMode _requestedMode;
+        private ViMode _currentMode;
+        private ViMode _requestedMode;
 
-        public ViEditMode()
+        public JustEnoughVi()
         {
 
         }
 
         protected override void Initialize()
         {
-            _normalMode = new NormalEditMode(Editor);
-            _insertMode = new InsertEditMode(Editor);
-            _visualMode = new VisualEditMode(Editor);
+            _normalMode = new NormalMode(Editor);
+            _insertMode = new InsertMode(Editor);
+            _visualMode = new VisualMode(Editor);
 
             // start in normal mode
             _currentMode = _requestedMode = _normalMode;
@@ -52,16 +52,16 @@ namespace JustEnoughVi
             var pass = _currentMode.KeyPress (descriptor);
 
             var newMode = _currentMode.RequestedMode;
-            if (newMode == ViMode.Normal)
+            if (newMode == Mode.Normal)
                 _requestedMode = _normalMode;
-            else if (newMode == ViMode.Insert)
+            else if (newMode == Mode.Insert)
                 _requestedMode = _insertMode;
-            else if (newMode == ViMode.Visual)
+            else if (newMode == Mode.Visual)
                 _requestedMode = _visualMode;
 
             if (_requestedMode != _currentMode)
             {
-                _currentMode.RequestedMode = ViMode.None;
+                _currentMode.RequestedMode = Mode.None;
                 _currentMode.Deactivate();
                 _requestedMode.Activate();
                 _currentMode = _requestedMode;

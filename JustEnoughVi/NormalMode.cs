@@ -6,7 +6,7 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
-    public class NormalEditMode : BaseEditMode
+    public class NormalMode : ViMode
     {
         private readonly Dictionary<uint, Func<int, char[], bool>> _commands;
 
@@ -24,7 +24,7 @@ namespace JustEnoughVi
             }
         }
 
-        public NormalEditMode(TextEditor editor) : base(editor)
+        public NormalMode(TextEditor editor) : base(editor)
         {
             _command = null;
             _commandArgs = new List<char>();
@@ -62,17 +62,6 @@ namespace JustEnoughVi
             _commands.Add('^', LineStart);
         }
 
-        public override void Activate()
-        {
-            EditActions.SwitchCaretMode(Editor);
-        }
-
-        public override void Deactivate()
-        {
-            EditActions.SwitchCaretMode(Editor);
-            Reset();
-        }
-
         protected void Reset()
         {
             _command = null;
@@ -95,7 +84,7 @@ namespace JustEnoughVi
             if (Editor.CaretOffset >= Editor.Text.Length)
                 Editor.CaretOffset = Editor.Text.Length - 1;
 
-            while (NormalEditMode.IsEol (Editor.Text [Editor.CaretOffset]) && DocumentLocation.MinColumn < Editor.CaretColumn)
+            while (NormalMode.IsEol (Editor.Text [Editor.CaretOffset]) && DocumentLocation.MinColumn < Editor.CaretColumn)
                 EditActions.MoveCaretLeft (Editor);
         }
 
@@ -108,14 +97,14 @@ namespace JustEnoughVi
         private bool Append(int count, char[] args)
         {
             EditActions.MoveCaretRight(Editor);
-            RequestedMode = ViMode.Insert;
+            RequestedMode = Mode.Insert;
             return true;
         }
 
         private bool AppendEnd(int count, char[] args)
         {
             EditActions.MoveCaretToLineEnd(Editor);
-            RequestedMode = ViMode.Insert;
+            RequestedMode = Mode.Insert;
             return true;
         }
 
@@ -217,14 +206,14 @@ namespace JustEnoughVi
 
         private bool Insert(int count, char[] args)
         {
-            RequestedMode = ViMode.Insert;
+            RequestedMode = Mode.Insert;
             return true;
         }
 
         private bool InsertStart(int count, char[] args)
         {
             CaretToLineStart();
-            RequestedMode = ViMode.Insert;
+            RequestedMode = Mode.Insert;
             return true;
         }
 
@@ -257,7 +246,7 @@ namespace JustEnoughVi
         private bool OpenBelow(int count, char[] args)
         {
             EditActions.InsertNewLineAtEnd(Editor);
-            RequestedMode = ViMode.Insert;
+            RequestedMode = Mode.Insert;
             return true;
         }
 
@@ -274,7 +263,7 @@ namespace JustEnoughVi
             {
                 EditActions.InsertNewLineAtEnd(Editor);
             }
-            RequestedMode = ViMode.Insert;
+            RequestedMode = Mode.Insert;
             return true;
         }
 
@@ -379,7 +368,7 @@ namespace JustEnoughVi
 
         private bool VisualLine(int count, char[] args)
         {
-            RequestedMode = ViMode.Visual;
+            RequestedMode = Mode.Visual;
             return true;
         }
 
@@ -558,7 +547,18 @@ namespace JustEnoughVi
             return endOffset - offset;
         }
 
-        #region implemented abstract members of EditMode
+        #region implemented abstract members of ViMode
+
+        public override void Activate()
+        {
+            EditActions.SwitchCaretMode(Editor);
+        }
+
+        public override void Deactivate()
+        {
+            EditActions.SwitchCaretMode(Editor);
+            Reset();
+        }
 
         public override bool KeyPress(KeyDescriptor descriptor)
         {

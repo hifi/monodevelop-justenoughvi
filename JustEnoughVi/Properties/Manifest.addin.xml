@@ -3,6 +3,6 @@
     <Runtime>
     </Runtime>
     <Extension path="/MonoDevelop/Ide/TextEditorExtensions">
-        <Class class="JustEnoughVi.ViEditMode" />
+        <Class class="JustEnoughVi.JustEnoughVi" />
     </Extension>
 </ExtensionModel>
