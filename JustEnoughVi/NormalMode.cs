@@ -35,6 +35,7 @@ namespace JustEnoughVi
             _commands.Add('0', FirstColumn);
             _commands.Add('a', Append);
             _commands.Add('A', AppendEnd);
+            _commands.Add('b', WordBack);
             _commands.Add('d', Delete);
             _commands.Add('G', Go);
             _commands.Add('h', Left);
@@ -105,6 +106,12 @@ namespace JustEnoughVi
         {
             EditActions.MoveCaretToLineEnd(Editor);
             RequestedMode = Mode.Insert;
+            return true;
+        }
+
+        private bool WordBack(int count, char[] args)
+        {
+            Editor.CaretOffset = StringUtils.PreviousWordOffset(Editor.Text, Editor.CaretOffset);
             return true;
         }
 

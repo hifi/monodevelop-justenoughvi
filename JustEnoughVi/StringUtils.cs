@@ -52,6 +52,30 @@ namespace JustEnoughVi
 
             return endOffset;
         }
+
+        public static int PreviousWordOffset(string searchText, int offset)
+        {
+            int endOffset = offset - 1;
+
+            if (Char.IsWhiteSpace(searchText[endOffset]) || Char.IsControl(searchText[endOffset]))
+            {
+                while (endOffset > 0 && (Char.IsWhiteSpace(searchText[endOffset]) || Char.IsControl(searchText[endOffset])))
+                    endOffset--;
+            }
+
+            if (IsCodePunctuation(searchText[endOffset]))
+            {
+                while (endOffset > 0 && IsCodePunctuation(searchText[endOffset]))
+                    endOffset--;
+            }
+            else
+            {
+                while (endOffset > 0 && !Char.IsWhiteSpace(searchText[endOffset]) && !IsCodePunctuation(searchText[endOffset]))
+                    endOffset--;
+            }
+
+            return endOffset + 1;
+        }
     }
 }
 
