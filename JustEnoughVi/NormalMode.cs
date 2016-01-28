@@ -128,8 +128,8 @@ namespace JustEnoughVi
             }
             else if (args[0] == 'w')
             {
-                int wordLength = CalculateWordLength(Editor.Text, Editor.CaretOffset);
-                Editor.SetSelection(Editor.CaretOffset, Editor.CaretOffset + wordLength);
+                int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.CaretOffset);
+                Editor.SetSelection(Editor.CaretOffset, wordOffset);
                 EditActions.ClipboardCut(Editor);
             }
             else if (args[0] == '$')
@@ -444,7 +444,7 @@ namespace JustEnoughVi
 
         private bool Word(int count, char[] args)
         {
-            Editor.CaretOffset += CalculateWordLength(Editor.Text, Editor.CaretOffset);
+            Editor.CaretOffset = StringUtils.NextWordOffset(Editor.Text, Editor.CaretOffset);
             return true;
         }
 
@@ -497,54 +497,6 @@ namespace JustEnoughVi
         {
             EditActions.MoveCaretToLineStart(Editor);
             return true;
-        }
-
-        static bool IsCodePunctuation(char c)
-        {
-            switch (c)
-            {
-                case '(':
-                case ')':
-                case '[':
-                case ']':
-                case '{':
-                case '}':
-                case '<':
-                case '>':
-                case ';':
-                case ':':
-                case ',':
-                case '.':
-                case '"':
-                case '\'':
-                    return true;
-            }
-
-            return false;
-        }
-
-        static int CalculateWordLength(string searchText, int offset)
-        {
-            int endOffset = offset;
-
-            if (IsCodePunctuation(searchText[offset]))
-            {
-                while (endOffset < searchText.Length && IsCodePunctuation(searchText[endOffset]))
-                    endOffset++;
-            }
-            else
-            {
-                while (endOffset < searchText.Length && !Char.IsWhiteSpace(searchText[endOffset]) && !IsCodePunctuation(searchText[endOffset]))
-                    endOffset++;
-            }
-
-            if (Char.IsWhiteSpace(searchText[endOffset]) || Char.IsControl(searchText[endOffset]))
-            {
-                while (endOffset < searchText.Length && (Char.IsWhiteSpace(searchText[endOffset]) || Char.IsControl(searchText[endOffset])))
-                    endOffset++;
-            }
-
-            return endOffset - offset;
         }
 
         #region implemented abstract members of ViMode

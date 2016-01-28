@@ -35,6 +35,7 @@
     <Compile Include="ViMode.cs" />
     <Compile Include="NormalMode.cs" />
     <Compile Include="VisualMode.cs" />
+    <Compile Include="StringUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
