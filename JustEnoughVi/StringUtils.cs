@@ -1,46 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace JustEnoughVi
 {
     public class StringUtils
     {
         private StringUtils() { }
 
-        static bool IsCodePunctuation(char c)
-        {
-            switch (c)
-            {
-                case '(':
-                case ')':
-                case '[':
-                case ']':
-                case '{':
-                case '}':
-                case '<':
-                case '>':
-                case ';':
-                case ':':
-                case ',':
-                case '.':
-                case '"':
-                case '\'':
-                    return true;
-            }
-
-            return false;
-        }
+        // FIXME: make configurable
+        static readonly List<char> nonWordChars = new List<char>(new char[]{ '(', ')', '[', ']', '{', '}', '<', '>', ';', ':', ',', '.', '"', '\'' });
 
         public static int NextWordOffset(string searchText, int offset)
         {
             int endOffset = offset;
 
-            if (IsCodePunctuation(searchText[offset]))
+            if (nonWordChars.Contains(searchText[offset]))
             {
-                while (endOffset < searchText.Length && IsCodePunctuation(searchText[endOffset]))
+                while (endOffset < searchText.Length && nonWordChars.Contains(searchText[endOffset]))
                     endOffset++;
             }
             else
             {
-                while (endOffset < searchText.Length && !Char.IsWhiteSpace(searchText[endOffset]) && !IsCodePunctuation(searchText[endOffset]))
+                while (endOffset < searchText.Length && !Char.IsWhiteSpace(searchText[endOffset]) && !nonWordChars.Contains(searchText[endOffset]))
                     endOffset++;
             }
 
@@ -63,14 +44,14 @@ namespace JustEnoughVi
                     endOffset--;
             }
 
-            if (IsCodePunctuation(searchText[endOffset]))
+            if (nonWordChars.Contains(searchText[endOffset]))
             {
-                while (endOffset > 0 && IsCodePunctuation(searchText[endOffset]))
+                while (endOffset > 0 && nonWordChars.Contains(searchText[endOffset]))
                     endOffset--;
             }
             else
             {
-                while (endOffset > 0 && !Char.IsWhiteSpace(searchText[endOffset]) && !IsCodePunctuation(searchText[endOffset]))
+                while (endOffset > 0 && !Char.IsWhiteSpace(searchText[endOffset]) && !nonWordChars.Contains(searchText[endOffset]))
                     endOffset--;
             }
 
