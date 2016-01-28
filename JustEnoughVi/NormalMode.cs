@@ -61,6 +61,7 @@ namespace JustEnoughVi
             _commands.Add('<', IndentRemove);
             _commands.Add('>', IndentAdd);
             _commands.Add('^', LineStart);
+            _commands.Add('_', LineStart);
             _commands.Add('%', MatchingBrace);
         }
 
