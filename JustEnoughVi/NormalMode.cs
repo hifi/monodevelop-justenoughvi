@@ -37,7 +37,8 @@ namespace JustEnoughVi
             _commands.Add('A', AppendEnd);
             _commands.Add('b', WordBack);
             _commands.Add('d', Delete);
-            _commands.Add('G', Go);
+            _commands.Add('g', Go);
+            _commands.Add('G', GoToLine);
             _commands.Add('h', Left);
             _commands.Add('i', Insert);
             _commands.Add('I', InsertStart);
@@ -166,6 +167,19 @@ namespace JustEnoughVi
 
         private bool Go(int count, char[] args)
         {
+            if (args.Length == 0)
+                return false;
+
+            if (args[0] == 'g')
+            {
+                GoToLine(Math.Max(1, count), new char[]{ });
+            }
+
+            return true;
+        }
+
+        private bool GoToLine(int count, char[] args)
+        {
             if (count == 0)
             {
                 EditActions.MoveCaretToDocumentEnd(Editor);
@@ -174,6 +188,8 @@ namespace JustEnoughVi
             {
                 Editor.CaretLine = count;
             }
+
+            EditActions.MoveCaretToLineStart(Editor);
 
             return true;
         }
