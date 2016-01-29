@@ -4,7 +4,7 @@ using Mono.Addins.Description;
 [assembly: Addin(
     "JustEnoughVi",
     Namespace = "JustEnoughVi",
-    Version = "0.6"
+    Version = "0.7"
 )]
 
 [assembly: AddinName("Just Enough Vi")]
