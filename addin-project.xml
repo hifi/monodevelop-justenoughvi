@@ -1,6 +1,6 @@
 <AddinProject appVersion="6.0">
     <Project platforms="Win32 Mac Linux">
-        <AddinFile>bin/Debug/JustEnoughVi.JustEnoughVi.dll</AddinFile>
+        <AddinFile>JustEnoughVi/bin/Debug/JustEnoughVi.dll</AddinFile>
         <BuildFile>JustEnoughVi.sln</BuildFile>
         <BuildConfiguration>Debug</BuildConfiguration>
     </Project>
