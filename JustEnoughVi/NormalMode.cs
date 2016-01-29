@@ -516,9 +516,12 @@ namespace JustEnoughVi
 
         private bool DeleteCharacter(int count, char[] args)
         {
-            count = Math.Max(1, count);
-            Editor.SetSelection(Editor.CaretOffset, Editor.CaretOffset + count);
-            EditActions.ClipboardCut(Editor);
+            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.CaretLine).EndOffset - Editor.CaretOffset);
+            if (count > 0)
+            {
+                Editor.SetSelection(Editor.CaretOffset, Editor.CaretOffset + count);
+                EditActions.ClipboardCut(Editor);
+            }
             return true;
         }
 
