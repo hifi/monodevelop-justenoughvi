@@ -199,14 +199,8 @@ namespace JustEnoughVi
 
             if (args[0] == 'd')
             {
-                Editor.CaretColumn = DocumentLocation.MinColumn;
-                int startOffset = Editor.CaretOffset;
-                EditActions.MoveCaretToLineEnd(Editor);
-                int endOffset = Editor.CaretOffset + Editor.EolMarker.Length;
-                Editor.SetSelection(startOffset, endOffset);
-                EditActions.ClipboardCopy(Editor);
-                Editor.ClearSelection();
-                EditActions.DeleteCurrentLine(Editor);
+                SetSelectLines(Editor.CaretLine, Editor.CaretLine);
+                EditActions.ClipboardCut(Editor);
                 EditActions.MoveCaretToLineStart(Editor);
             }
             else if (args[0] == 'w')
@@ -217,22 +211,10 @@ namespace JustEnoughVi
             }
             else if (args[0] == '$')
             {
-                // this might need some work but it's ok for now
-                int eol = 0;
-                for (int i = Editor.CaretOffset; i < Editor.Text.Length; i++)
-                {
-                    if (Editor.Text[i] == '\r' || Editor.Text[i] == '\n')
-                    {
-                        eol = i;
-                        break;
-                    }
-                }
-
-                if (eol > 0)
-                {
-                    Editor.SetSelection(Editor.CaretOffset, eol);
-                    EditActions.ClipboardCut(Editor);
-                }
+                var line = Editor.GetLine(Editor.CaretLine);
+                Editor.SetSelection(Editor.CaretOffset, line.EndOffset);
+                EditActions.ClipboardCut(Editor);
+                CaretOffEol();
             }
 
             return true;
@@ -377,8 +359,6 @@ namespace JustEnoughVi
 
             if (text.IndexOfAny(new char[]{ '\r', '\n' }) > 0)
             {
-                if (!text.EndsWith(Editor.EolMarker))
-                    text += Editor.EolMarker;
                 int oldOffset = Editor.CaretOffset;
                 EditActions.MoveCaretToLineEnd(Editor);
                 Editor.CaretOffset++;
@@ -409,8 +389,6 @@ namespace JustEnoughVi
 
             if (text.IndexOfAny(new char[]{ '\r', '\n' }) > 0)
             {
-                if (!text.EndsWith(Editor.EolMarker))
-                    text += Editor.EolMarker;
                 if (Editor.CaretLine == 1)
                 {
                     Editor.CaretOffset = 0;
@@ -489,15 +467,7 @@ namespace JustEnoughVi
             if (count < 1)
                 return false;
 
-            // FIXME: seriously
-            int origOffset = Editor.CaretOffset;
-            EditActions.MoveCaretToLineStart(Editor);
-            int startOffset = Editor.CaretOffset;
-            EditActions.MoveCaretToLineEnd(Editor);
-            int endOffset = Editor.CaretOffset;
-            Editor.CaretOffset = origOffset;
-
-            Editor.SetSelection(startOffset, endOffset);
+            SetSelectLines(Editor.CaretLine, Editor.CaretLine);
 
             for (int i = 0; i < count; i++)
             {
@@ -521,15 +491,7 @@ namespace JustEnoughVi
             if (count < 1)
                 return false;
 
-            // FIXME: seriously
-            int origOffset = Editor.CaretOffset;
-            EditActions.MoveCaretToLineStart(Editor);
-            int startOffset = Editor.CaretOffset;
-            EditActions.MoveCaretToLineEnd(Editor);
-            int endOffset = Editor.CaretOffset;
-            Editor.CaretOffset = origOffset;
-
-            Editor.SetSelection(startOffset, endOffset);
+            SetSelectLines(Editor.CaretLine, Editor.CaretLine);
 
             for (int i = 0; i < count; i++)
             {
@@ -570,15 +532,9 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                int origOffset = Editor.CaretOffset;
-                Editor.CaretColumn = DocumentLocation.MinColumn;
-                int startOffset = Editor.CaretOffset;
-                EditActions.MoveCaretToLineEnd(Editor);
-                int endOffset = Editor.CaretOffset + Editor.EolMarker.Length;
-                Editor.SetSelection(startOffset, endOffset);
+                SetSelectLines(Editor.CaretLine, Editor.CaretLine);
                 EditActions.ClipboardCopy(Editor);
                 Editor.ClearSelection();
-                Editor.CaretOffset = origOffset;
             }
 
             return true;

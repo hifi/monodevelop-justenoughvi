@@ -18,6 +18,14 @@ namespace JustEnoughVi
         public abstract void Activate();
         public abstract void Deactivate();
         public abstract bool KeyPress (KeyDescriptor descriptor);
+
+        protected void SetSelectLines(int start, int end)
+        {
+            var startLine = start > end ? Editor.GetLine(end) : Editor.GetLine(start);
+            var endLine = start > end ? Editor.GetLine(start) : Editor.GetLine(end);
+
+            Editor.SetSelection(startLine.Offset, endLine.EndOffsetIncludingDelimiter);
+        }
     }
 }
 

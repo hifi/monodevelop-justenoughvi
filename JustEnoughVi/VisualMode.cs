@@ -7,9 +7,7 @@ namespace JustEnoughVi
     public class VisualMode : ViMode
     {
         private string _countString;
-
-        private int _startLineStart;
-        private int _startLineEnd;
+        private int _startLine;
 
         private int Count {
             get {
@@ -30,13 +28,8 @@ namespace JustEnoughVi
         public override void Activate()
         {
             _countString = "";
-            int origOffset = Editor.CaretOffset;
-            Editor.CaretColumn = DocumentLocation.MinColumn;
-            _startLineStart = Editor.CaretOffset;
-            EditActions.MoveCaretToLineEnd(Editor);
-            _startLineEnd = Editor.CaretOffset;
-            Editor.CaretOffset = origOffset;
-            Editor.SetSelection(_startLineStart, _startLineEnd);
+            _startLine = Editor.CaretLine;
+            SetSelectLines(_startLine, _startLine);
         }
 
         public override void Deactivate()
@@ -68,28 +61,7 @@ namespace JustEnoughVi
                         Editor.CaretLine--;
                     }
 
-                    int origOffset = Editor.CaretOffset;
-                    Editor.CaretColumn = DocumentLocation.MinColumn;
-                    int endLineStart = Editor.CaretOffset;
-                    EditActions.MoveCaretToLineEnd(Editor);
-                    int endLineEnd = Editor.CaretOffset;
-                    Editor.CaretOffset = origOffset;
-
-                    int selectStart = 0;
-                    int selectEnd = 0;
-
-                    if (endLineStart > _startLineEnd)
-                    {
-                        selectStart = _startLineStart;
-                        selectEnd = endLineEnd;
-                    }
-                    else
-                    {
-                        selectStart = _startLineEnd;
-                        selectEnd = endLineStart;
-                    }
-
-                    Editor.SetSelection(selectStart, selectEnd);
+                    SetSelectLines(_startLine, Editor.CaretLine);
                 }
 
                 if (unicodeKey == 'd')
