@@ -14,12 +14,11 @@ namespace JustEnoughVi
         private readonly List<char> _commandBuf;
 
         private int Count {
+
             get {
-                try {
-                    return Convert.ToInt32(_countString);
-                } catch (FormatException) {
-                    return 0;
-                }
+                var count = 0;
+                int.TryParse(_countString, out count);
+                return count;   
             }
         }
 
