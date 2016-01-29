@@ -584,14 +584,18 @@ namespace JustEnoughVi
             if ((descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == 'f') ||
                 (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageDown))
             {
-                EditActions.ScrollPageDown(Editor);
+                Editor.CaretLine += Math.Min(Editor.LineCount - Editor.CaretLine, 20);
+                EditActions.MoveCaretToLineStart(Editor);
+                Editor.CenterToCaret();
                 return false;
             }
 
             if ((descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == 'b') ||
                 (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageUp))
             {
-                EditActions.ScrollPageUp(Editor);
+                Editor.CaretLine -= Math.Min(Editor.CaretLine - 1, 20);
+                EditActions.MoveCaretToLineStart(Editor);
+                Editor.CenterToCaret();
                 return false;
             }
 
