@@ -21,6 +21,9 @@ namespace JustEnoughVi
 
         protected void SetSelectLines(int start, int end)
         {
+            start = Math.Min(start, Editor.LineCount);
+            end = Math.Min(end, Editor.LineCount);
+
             var startLine = start > end ? Editor.GetLine(end) : Editor.GetLine(start);
             var endLine = start > end ? Editor.GetLine(start) : Editor.GetLine(end);
 
