@@ -203,7 +203,7 @@ namespace JustEnoughVi
                     }
                 }
 
-                SetSelectLines(Editor.CaretLine, Editor.CaretLine);
+                SetSelectLines(Editor.CaretLine, Editor.CaretLine + count + (count > 0 ? -1 : 0));
                 EditActions.ClipboardCut(Editor);
                 EditActions.MoveCaretToLineStart(Editor);
             }
