@@ -82,11 +82,12 @@ namespace JustEnoughVi
 
         private void CaretOffEol()
         {
-            if (Editor.CaretOffset >= Editor.Text.Length)
-                Editor.CaretOffset = Editor.Text.Length - 1;
+            if (RequestedMode == Mode.Insert)
+                return;
 
-            while (NormalMode.IsEol (Editor.Text [Editor.CaretOffset]) && DocumentLocation.MinColumn < Editor.CaretColumn)
-                EditActions.MoveCaretLeft (Editor);
+            var line = Editor.GetLine(Editor.CaretLine);
+            if (line.EndOffset > line.Offset && Editor.CaretOffset == line.EndOffset)
+                EditActions.MoveCaretLeft(Editor);
         }
 
         private bool FirstColumn(int count, char[] args)
@@ -199,6 +200,17 @@ namespace JustEnoughVi
 
             if (args[0] == 'd')
             {
+                // hack for last line, it doesn't actually cut the line though
+                if (Editor.CaretOffset == Editor.Text.Length)
+                {
+                    var line = Editor.GetLine(Editor.CaretLine);
+                    if (line.Offset == line.EndOffset)
+                    {
+                        EditActions.Backspace(Editor);
+                        return true;
+                    }
+                }
+
                 SetSelectLines(Editor.CaretLine, Editor.CaretLine);
                 EditActions.ClipboardCut(Editor);
                 EditActions.MoveCaretToLineStart(Editor);
@@ -214,7 +226,6 @@ namespace JustEnoughVi
                 var line = Editor.GetLine(Editor.CaretLine);
                 Editor.SetSelection(Editor.CaretOffset, line.EndOffset);
                 EditActions.ClipboardCut(Editor);
-                CaretOffEol();
             }
 
             return true;
@@ -267,8 +278,6 @@ namespace JustEnoughVi
                 EditActions.MoveCaretDown (Editor);
             }
 
-            CaretOffEol();
-
             return true;
         }
 
@@ -305,20 +314,17 @@ namespace JustEnoughVi
                 EditActions.MoveCaretUp(Editor);
             }
 
-            CaretOffEol();
-
             return true;
         }
 
         private bool Right(int count, char[] args)
         {
-            count = Math.Max(1, count);
+            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.CaretLine).EndOffset - Editor.CaretOffset - 1);
+
             for (int i = 0; i < count; i++)
             {
                 EditActions.MoveCaretRight(Editor);
             }
-
-            CaretOffEol();
 
             return true;
         }
@@ -543,7 +549,6 @@ namespace JustEnoughVi
         private bool LineEnd(int count, char[] args)
         {
             EditActions.MoveCaretToLineEnd(Editor);
-            CaretOffEol();
             return true;
         }
 
@@ -640,6 +645,8 @@ namespace JustEnoughVi
                 {
                     Reset();
                 }
+
+                CaretOffEol();
             }
 
             return false;

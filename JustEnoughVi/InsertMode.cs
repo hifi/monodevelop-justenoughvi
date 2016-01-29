@@ -17,7 +17,8 @@ namespace JustEnoughVi
 
         public override void Deactivate()
         {
-            EditActions.MoveCaretLeft(Editor);
+            if (Editor.CaretColumn > DocumentLocation.MinColumn)
+                EditActions.MoveCaretLeft(Editor);
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)
