@@ -8,11 +8,10 @@ namespace JustEnoughVi
 {
     public class NormalMode : ViMode
     {
-        private readonly Dictionary<uint, Func<int, char[], bool>> _commands;
+        private readonly Dictionary<char, Func<int, char[], bool>> _commands;
 
         private string _countString;
-        private uint? _command;
-        private readonly List<char> _commandArgs;
+        private readonly List<char> _commandBuf;
 
         private int Count {
             get {
@@ -26,11 +25,10 @@ namespace JustEnoughVi
 
         public NormalMode(TextEditor editor) : base(editor)
         {
-            _command = null;
-            _commandArgs = new List<char>();
+            _commandBuf = new List<char>();
             _countString = "";
 
-            _commands = new Dictionary<uint, Func<int, char[], bool>>();
+            _commands = new Dictionary<char, Func<int, char[], bool>>();
 
             _commands.Add('0', FirstColumn);
             _commands.Add('a', Append);
@@ -70,8 +68,7 @@ namespace JustEnoughVi
 
         protected void Reset()
         {
-            _command = null;
-            _commandArgs.Clear();
+            _commandBuf.Clear();
             _countString = "";
         }
 
@@ -598,7 +595,7 @@ namespace JustEnoughVi
 
             if (descriptor.ModifierKeys == 0)
             {
-                uint unicodeKey = descriptor.KeyChar;
+                char unicodeKey = descriptor.KeyChar;
 
                 // remap some function keys to Vi commands
                 if (descriptor.SpecialKey == SpecialKey.Home)
@@ -620,31 +617,24 @@ namespace JustEnoughVi
                 else if (descriptor.SpecialKey == SpecialKey.BackSpace)
                     unicodeKey = 'h';
 
-                if (_command == null)
+                // build repeat buffer
+                if (_commandBuf.Count == 0 && (_countString.Length > 0 || unicodeKey > '0') && unicodeKey >= '0' && unicodeKey <= '9')
                 {
-                    // build repeat buffer
-                    if ((_countString.Length > 0 || unicodeKey > '0') && unicodeKey >= '0' && unicodeKey <= '9')
-                    {
-                        _countString += Char.ToString((char)unicodeKey);
-                        return false;
-                    }
-
-                    _command = unicodeKey;
-                }
-                else
-                {
-                    _commandArgs.Add((char)unicodeKey);
+                    _countString += Char.ToString((char)unicodeKey);
+                    return false;
                 }
 
-                if (!_commands.ContainsKey((uint)_command))
+                _commandBuf.Add(unicodeKey);
+
+                if (!_commands.ContainsKey(_commandBuf[0]))
                 {
-                    _command = null;
+                    _commandBuf.Clear();
                     return false;
                 }
 
                 CaretOffEol();
 
-                if (_commands[(uint)_command](Count, _commandArgs.ToArray()))
+                if (_commands[_commandBuf[0]](Count, _commandBuf.GetRange(1, _commandBuf.Count - 1).ToArray()))
                 {
                     Reset();
                 }
