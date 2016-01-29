@@ -72,11 +72,6 @@ namespace JustEnoughVi
             _countString = "";
         }
 
-        internal static bool IsEol(char c)
-        {
-            return (c == '\r' || c == '\n');
-        }
-
         private void CaretOffEol()
         {
             if (RequestedMode == Mode.Insert)
