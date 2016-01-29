@@ -37,6 +37,7 @@ namespace JustEnoughVi
             _commands.Add('c', Change);
             _commands.Add('C', ChangeToEnd);
             _commands.Add('d', Delete);
+            _commands.Add('D', DeleteToEnd);
             _commands.Add('g', Go);
             _commands.Add('G', GoToLine);
             _commands.Add('h', Left);
@@ -215,11 +216,17 @@ namespace JustEnoughVi
             }
             else if (args[0] == '$')
             {
-                var line = Editor.GetLine(Editor.CaretLine);
-                Editor.SetSelection(Editor.CaretOffset, line.EndOffset);
-                EditActions.ClipboardCut(Editor);
+                DeleteToEnd(1, new char[]{ });
             }
 
+            return true;
+        }
+
+        private bool DeleteToEnd(int count, char[] args)
+        {
+            var line = Editor.GetLine(Editor.CaretLine);
+            Editor.SetSelection(Editor.CaretOffset, line.EndOffset);
+            EditActions.ClipboardCut(Editor);
             return true;
         }
 
