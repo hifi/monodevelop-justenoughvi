@@ -1,4 +1,5 @@
-﻿using MonoDevelop.Ide.Editor.Extension;
+﻿using Mono.TextEditor;
+using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {

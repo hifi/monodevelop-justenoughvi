@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JustEnoughVi", "JustEnoughVi\JustEnoughVi.csproj", "{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JustEnoughViTests", "JustEnoughViTests\JustEnoughViTests.csproj", "{B0CE87BB-6FC2-4E21-B77A-459C6A55047B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{848A4BF0-DA46-4ED5-8E6A-D22E23C9B455}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0CE87BB-6FC2-4E21-B77A-459C6A55047B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0CE87BB-6FC2-4E21-B77A-459C6A55047B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0CE87BB-6FC2-4E21-B77A-459C6A55047B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0CE87BB-6FC2-4E21-B77A-459C6A55047B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0
