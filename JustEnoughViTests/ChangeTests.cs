@@ -7,7 +7,7 @@ namespace JustEnoughViTests
     public class ChangeTests : TextEditorTestBase
     {
         [Test]
-        public void TestCase()
+        public void C_should_delete_to_end_of_line()
         {
             var editor = Create(
                 @"aaaaaa
@@ -15,15 +15,17 @@ namespace JustEnoughViTests
                   ccc$ccc
                   dddddd
                   eeeeee");
-            var normalMode = new NormalMode(editor);
-            //data.MainSelection = data.MainSelection.WithSelectionMode (SelectionMode.Block);
-            base.ProcessKeys("C", normalMode);
+            
+            var mode = new NormalMode(editor);
+            ProcessKeys("C", mode);
+
             Check (editor, 
                 @"aaaaaa
                   bbbbbb
-                  $
+                  ccc$
                   dddddd
-                  eeeeee"  );
+                  eeeeee" );
+            // failing Assert.IsInstanceOf<InsertMode>(mode.RequestedMode);
         }
     }
 }

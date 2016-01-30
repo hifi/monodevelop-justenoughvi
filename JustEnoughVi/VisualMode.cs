@@ -20,7 +20,7 @@ namespace JustEnoughVi
             }
         }
 
-        public VisualMode(TextEditor editor) : base(editor)
+        public VisualMode(TextEditorData editor) : base(editor)
         {
         }
 
@@ -29,7 +29,7 @@ namespace JustEnoughVi
         public override void Activate()
         {
             _countString = "";
-            _startLine = Editor.CaretLine;
+            _startLine = Editor.Caret.Line;
             SetSelectLines(_startLine, _startLine);
         }
 
@@ -55,25 +55,25 @@ namespace JustEnoughVi
                 {
                     if (unicodeKey == 'j')
                     {
-                        Editor.CaretLine++;
+                        Editor.Caret.Line++;
                     }
                     else if (unicodeKey == 'k')
                     {
-                        Editor.CaretLine--;
+                        Editor.Caret.Line--;
                     }
 
-                    SetSelectLines(_startLine, Editor.CaretLine);
+                    SetSelectLines(_startLine, Editor.Caret.Line);
                 }
 
                 if (unicodeKey == 'd')
                 {
-                    EditActions.ClipboardCut(Editor);
+                    ClipboardActions.Cut(Editor);
                     RequestedMode = Mode.Normal;
                 }
 
                 if (unicodeKey == 'y' || unicodeKey == 'Y')
                 {
-                    EditActions.ClipboardCopy(Editor);
+                    ClipboardActions.Copy(Editor);
                     RequestedMode = Mode.Normal;
                 }
 
@@ -82,7 +82,7 @@ namespace JustEnoughVi
                     var count = Math.Max(1, Count);
                     for (int i = 0; i < count; i++)
                     {
-                        EditActions.UnIndentSelection(Editor);
+                        MiscActions.RemoveIndentSelection(Editor);
                     }
                     RequestedMode = Mode.Normal;
                 }
@@ -92,7 +92,7 @@ namespace JustEnoughVi
                     var count = Math.Max(1, Count);
                     for (int i = 0; i < count; i++)
                     {
-                        EditActions.IndentSelection(Editor);
+                        MiscActions.IndentSelection(Editor);
                     }
                     RequestedMode = Mode.Normal;
                 }

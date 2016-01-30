@@ -1,4 +1,5 @@
 ﻿using Mono.TextEditor;
+using MonoDevelop.Ide;
 using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
@@ -27,9 +28,12 @@ namespace JustEnoughVi
 
         protected override void Initialize()
         {
-            _normalMode = new NormalMode(Editor);
-            _insertMode = new InsertMode(Editor);
-            _visualMode = new VisualMode(Editor);
+            MonoDevelop.Ide.Gui.Document doc = IdeApp.Workbench.ActiveDocument;
+            var textEditorData = doc.GetContent<ITextEditorDataProvider> ().GetTextEditorData ();
+
+            _normalMode = new NormalMode(textEditorData);
+            _insertMode = new InsertMode(textEditorData);
+            _visualMode = new VisualMode(textEditorData);
 
             // start in normal mode
             _currentMode = _requestedMode = _normalMode;
