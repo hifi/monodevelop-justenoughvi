@@ -263,8 +263,16 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                
-//                EditActions.JoinLines(Editor);
+                CaretMoveActions.LineEnd(Editor);
+                int selectStart = Editor.Caret.Offset;
+
+                while (Char.IsWhiteSpace(Editor.Text[Editor.Caret.Offset]))
+                    Editor.Caret.Offset++;
+
+                Editor.SetSelection(selectStart, Editor.Caret.Offset);
+                Editor.DeleteSelectedText();
+                Editor.InsertAtCaret(" ");
+                Editor.Caret.Offset--;
             }
             return true;
         }
