@@ -39,23 +39,21 @@ namespace JustEnoughVi
             _currentMode.Activate();
         }
 
-        public void Interrupt()
-        {
-            _currentMode.Deactivate();
-            _currentMode = _requestedMode = _normalMode;
-            _currentMode.Activate();
-        }
-
         public override bool KeyPress(KeyDescriptor descriptor)
         {
-            // escape is always enabled
-            if (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.Escape)
+            // generic mode escape handler
+            if (
+                (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.Escape) ||
+                (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == '[') ||
+                (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == 'c'))
             {
-                Interrupt();
+                _currentMode.Deactivate();
+                _currentMode = _requestedMode = _normalMode;
+                _currentMode.Activate();
                 return false;
             }
 
-            var pass = _currentMode.KeyPress(descriptor);
+            var pass = _currentMode.KeyPress (descriptor);
 
             var newMode = _currentMode.RequestedMode;
             if (newMode == Mode.Normal)

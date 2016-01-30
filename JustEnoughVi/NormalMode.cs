@@ -589,6 +589,25 @@ namespace JustEnoughVi
 
         public override bool KeyPress(KeyDescriptor descriptor)
         {
+            if ((descriptor.ModifierKeys == ModifierKeys.Control && (descriptor.KeyChar == 'f' || descriptor.KeyChar == 'd')) ||
+                (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageDown))
+            {
+                // This isn't quite right. Ctrl-f should be full page down, Ctrl-d should be half page down
+                Editor.CaretLine += Math.Min(Editor.LineCount - Editor.CaretLine, 20);
+                EditActions.MoveCaretToLineStart(Editor);
+                Editor.CenterToCaret();
+                return false;
+            }
+
+            if ((descriptor.ModifierKeys == ModifierKeys.Control && (descriptor.KeyChar == 'b' || descriptor.KeyChar == 'u')) ||
+                (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageUp))
+            {
+                Editor.CaretLine -= Math.Min(Editor.CaretLine - 1, 20);
+                EditActions.MoveCaretToLineStart(Editor);
+                Editor.CenterToCaret();
+                return false;
+            }
+
             if (descriptor.ModifierKeys == 0)
             {
                 char unicodeKey = descriptor.KeyChar;

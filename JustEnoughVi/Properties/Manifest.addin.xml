@@ -5,41 +5,4 @@
     <Extension path="/MonoDevelop/Ide/TextEditorExtensions">
         <Class class="JustEnoughVi.JustEnoughVi" />
     </Extension>
-    <Extension path="/MonoDevelop/Ide/Commands">
-        <Category _name="Just Enough Vi" id="JustEnoughVi">
-            <Command id="JustEnoughVi.ControlCommand.Interrupt"
-                _label="Interrupt"
-                _description="Interrupt current command or return to Normal mode"
-                shortcut="Control-C|Control-["
-                defaultHandler="JustEnoughVi.InterruptCommand" />
-        </Category>
-        <Category _name="Just Enough Vi" id="JustEnoughVi">
-            <Command id="JustEnoughVi.ControlCommand.PageUp"
-                _label="Page up"
-                _description="Scroll full page up"
-                shortcut="Control-B"
-                defaultHandler="JustEnoughVi.PageUpCommand" />
-        </Category>
-        <Category _name="Just Enough Vi" id="JustEnoughVi">
-            <Command id="JustEnoughVi.ControlCommand.PageDown"
-                _label="Page down"
-                _description="Scroll full page down"
-                shortcut="Control-F"
-                defaultHandler="JustEnoughVi.PageDownCommand" />
-        </Category>
-        <Category _name="Just Enough Vi" id="JustEnoughVi">
-            <Command id="JustEnoughVi.ControlCommand.HalfPageUp"
-                _label="Half page up"
-                _description="Scroll half page up"
-                shortcut="Control-U"
-                defaultHandler="JustEnoughVi.PageUpCommand" />
-        </Category>
-        <Category _name="Just Enough Vi" id="JustEnoughVi">
-            <Command id="JustEnoughVi.ControlCommand.HalfPageDown"
-                _label="Half page down"
-                _description="Scroll half page down"
-                shortcut="Control-D"
-                defaultHandler="JustEnoughVi.HalfPageDownCommand" />
-        </Category>
-     </Extension>
 </ExtensionModel>
