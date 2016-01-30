@@ -29,16 +29,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="GuiUnit">
-      <HintPath>..\..\monodevelop\main\build\tests\GuiUnit.exe</HintPath>
-    </Reference>
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Xml.Linq" />
+    <Reference Include="GuiUnit">
+      <HintPath>..\lib\GuiUnit.exe</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChangeTests.cs" />
     <Compile Include="TextEditorTestBase.cs" />
+    <Compile Include="DeleteTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JustEnoughVi\JustEnoughVi.csproj">
