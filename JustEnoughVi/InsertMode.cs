@@ -1,11 +1,12 @@
-﻿using MonoDevelop.Ide.Editor;
+﻿using Mono.TextEditor;
+using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
     public class InsertMode : ViMode
     {
-        public InsertMode(TextEditor editor) : base(editor)
+        public InsertMode(TextEditorData editor) : base(editor)
         {
         }
 
@@ -17,8 +18,8 @@ namespace JustEnoughVi
 
         public override void Deactivate()
         {
-            if (Editor.CaretColumn > DocumentLocation.MinColumn)
-                EditActions.MoveCaretLeft(Editor);
+            if (Editor.Caret.Column > MonoDevelop.Ide.Editor.DocumentLocation.MinColumn)
+                CaretMoveActions.Left(Editor);
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)

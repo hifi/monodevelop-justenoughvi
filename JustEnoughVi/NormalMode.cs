@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Mono.TextEditor;
 using MonoDevelop.Ide;
 using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
@@ -22,7 +23,7 @@ namespace JustEnoughVi
             }
         }
 
-        public NormalMode(TextEditor editor) : base(editor)
+        public NormalMode(TextEditorData editor) : base(editor)
         {
             _commandBuf = new List<char>();
             _countString = "";
@@ -77,34 +78,34 @@ namespace JustEnoughVi
             if (RequestedMode == Mode.Insert)
                 return;
 
-            var line = Editor.GetLine(Editor.CaretLine);
-            if (line.EndOffset > line.Offset && Editor.CaretOffset == line.EndOffset)
-                EditActions.MoveCaretLeft(Editor);
+            var line = Editor.GetLine(Editor.Caret.Line);
+            if (line.EndOffset > line.Offset && Editor.Caret.Offset == line.EndOffset)
+                CaretMoveActions.Left(Editor);
         }
 
         private bool FirstColumn(int count, char[] args)
         {
-            Editor.CaretColumn = DocumentLocation.MinColumn;
+            Editor.Caret.Column = Mono.TextEditor.DocumentLocation.MinColumn;
             return true;
         }
 
         private bool Append(int count, char[] args)
         {
-            EditActions.MoveCaretRight(Editor);
+            CaretMoveActions.Right(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
 
         private bool AppendEnd(int count, char[] args)
         {
-            EditActions.MoveCaretToLineEnd(Editor);
+            CaretMoveActions.LineEnd(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
 
         private bool WordBack(int count, char[] args)
         {
-            Editor.CaretOffset = StringUtils.PreviousWordOffset(Editor.Text, Editor.CaretOffset);
+            Editor.Caret.Offset = StringUtils.PreviousWordOffset(Editor.Text, Editor.Caret.Offset);
             return true;
         }
 
@@ -115,11 +116,11 @@ namespace JustEnoughVi
 
             if (args[0] == 'c')
             {
-                EditActions.MoveCaretToLineStart(Editor);
-                int start = Editor.CaretOffset;
-                EditActions.MoveCaretToLineEnd(Editor);
-                Editor.SetSelection(start, Editor.CaretOffset);
-                EditActions.ClipboardCut(Editor);
+                CaretMoveActions.LineStart(Editor);
+                int start = Editor.Caret.Offset;
+                CaretMoveActions.LineEnd(Editor);
+                Editor.SetSelection(start, Editor.Caret.Offset);
+                ClipboardActions.Cut(Editor);
                 RequestedMode = Mode.Insert;
             }
 
@@ -131,8 +132,8 @@ namespace JustEnoughVi
 
             if (args[0] == 'w')
             {
-                Editor.SetSelection(Editor.CaretOffset, StringUtils.NextWordOffset(Editor.Text, Editor.CaretOffset));
-                EditActions.ClipboardCut(Editor);
+                Editor.SetSelection(Editor.Caret.Offset, StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset));
+                ClipboardActions.Cut(Editor);
                 RequestedMode = Mode.Insert;
             }
 
@@ -143,30 +144,30 @@ namespace JustEnoughVi
 
                 if (args[1] == '"')
                 {
-                    if (Editor.Text[Editor.CaretOffset] != '"')
+                    if (Editor.Text[Editor.Caret.Offset] != '"')
                         return true;
 
-                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.CaretOffset, '"');
+                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, '"');
                     if (offset > 0)
                     {
-                        EditActions.MoveCaretRight(Editor);
-                        Editor.SetSelection(Editor.CaretOffset, offset);
-                        EditActions.ClipboardCut(Editor);
+                        CaretMoveActions.Right(Editor);
+                        Editor.SetSelection(Editor.Caret.Offset, offset);
+                        ClipboardActions.Cut(Editor);
                         RequestedMode = Mode.Insert;
                     }
                 }
 
                 if (args[1] == '(')
                 {
-                    if (Editor.Text[Editor.CaretOffset] != '(')
+                    if (Editor.Text[Editor.Caret.Offset] != '(')
                         return true;
 
-                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.CaretOffset, ')');
+                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, ')');
                     if (offset > 0)
                     {
-                        EditActions.MoveCaretRight(Editor);
-                        Editor.SetSelection(Editor.CaretOffset, offset);
-                        EditActions.ClipboardCut(Editor);
+                        CaretMoveActions.Right(Editor);
+                        Editor.SetSelection(Editor.Caret.Offset, offset);
+                        ClipboardActions.Cut(Editor);
                         RequestedMode = Mode.Insert;
                     }
                 }
@@ -177,10 +178,10 @@ namespace JustEnoughVi
 
         private bool ChangeToEnd(int count, char[] args)
         {
-            int start = Editor.CaretOffset;
-            EditActions.MoveCaretToLineEnd(Editor);
-            Editor.SetSelection(start, Editor.CaretOffset);
-            EditActions.ClipboardCut(Editor);
+            int start = Editor.Caret.Offset;
+            CaretMoveActions.LineEnd(Editor);
+            Editor.SetSelection(start, Editor.Caret.Offset);
+            ClipboardActions.Cut(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
@@ -193,25 +194,25 @@ namespace JustEnoughVi
             if (args[0] == 'd')
             {
                 // hack for last line, it doesn't actually cut the line though
-                if (Editor.CaretOffset == Editor.Text.Length)
+                if (Editor.Caret.Offset == Editor.Text.Length)
                 {
-                    var line = Editor.GetLine(Editor.CaretLine);
+                    var line = Editor.GetLine(Editor.Caret.Line);
                     if (line.Offset == line.EndOffset)
                     {
-                        EditActions.Backspace(Editor);
+                        DeleteActions.Backspace(Editor);
                         return true;
                     }
                 }
 
-                SetSelectLines(Editor.CaretLine, Editor.CaretLine + count + (count > 0 ? -1 : 0));
-                EditActions.ClipboardCut(Editor);
-                EditActions.MoveCaretToLineStart(Editor);
+                SetSelectLines(Editor.Caret.Line, Editor.Caret.Line + count + (count > 0 ? -1 : 0));
+                ClipboardActions.Cut(Editor);
+                CaretMoveActions.LineStart(Editor);
             }
             else if (args[0] == 'w')
             {
-                int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.CaretOffset);
-                Editor.SetSelection(Editor.CaretOffset, wordOffset);
-                EditActions.ClipboardCut(Editor);
+                int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+                Editor.SetSelection(Editor.Caret.Offset, wordOffset);
+                ClipboardActions.Cut(Editor);
             }
             else if (args[0] == '$')
             {
@@ -223,9 +224,9 @@ namespace JustEnoughVi
 
         private bool DeleteToEnd(int count, char[] args)
         {
-            var line = Editor.GetLine(Editor.CaretLine);
-            Editor.SetSelection(Editor.CaretOffset, line.EndOffset);
-            EditActions.ClipboardCut(Editor);
+            var line = Editor.GetLine(Editor.Caret.Line);
+            Editor.SetSelection(Editor.Caret.Offset, line.EndOffset);
+            ClipboardActions.Cut(Editor);
             return true;
         }
 
@@ -246,14 +247,13 @@ namespace JustEnoughVi
         {
             if (count == 0)
             {
-                EditActions.MoveCaretToDocumentEnd(Editor);
+                CaretMoveActions.ToDocumentEnd(Editor);
             }
             else
             {
-                Editor.CaretLine = count;
+                Editor.Caret.Line = count;
             }
-
-            EditActions.MoveCaretToLineStart(Editor);
+            CaretMoveActions.LineStart(Editor);
 
             return true;
         }
@@ -263,7 +263,8 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                EditActions.JoinLines(Editor);
+                
+//                EditActions.JoinLines(Editor);
             }
             return true;
         }
@@ -273,7 +274,7 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                EditActions.MoveCaretDown (Editor);
+                CaretMoveActions.Down(Editor);
             }
 
             return true;
@@ -284,8 +285,8 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                if (DocumentLocation.MinColumn < Editor.CaretColumn)
-                    EditActions.MoveCaretLeft(Editor);
+                if (Mono.TextEditor.DocumentLocation.MinColumn < Editor.Caret.Column)
+                    CaretMoveActions.Left(Editor);
             }
 
             return true;
@@ -299,7 +300,7 @@ namespace JustEnoughVi
 
         private bool InsertStart(int count, char[] args)
         {
-            EditActions.MoveCaretToLineStart(Editor);
+            CaretMoveActions.Left(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
@@ -309,7 +310,7 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                EditActions.MoveCaretUp(Editor);
+                CaretMoveActions.Up(Editor);
             }
 
             return true;
@@ -317,11 +318,11 @@ namespace JustEnoughVi
 
         private bool Right(int count, char[] args)
         {
-            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.CaretLine).EndOffset - Editor.CaretOffset - 1);
+            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset - 1);
 
             for (int i = 0; i < count; i++)
             {
-                EditActions.MoveCaretRight(Editor);
+                CaretMoveActions.Right(Editor);
             }
 
             return true;
@@ -329,23 +330,23 @@ namespace JustEnoughVi
 
         private bool OpenBelow(int count, char[] args)
         {
-            EditActions.InsertNewLineAtEnd(Editor);
+            MiscActions.InsertNewLineAtEnd(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
 
         private bool OpenAbove(int count, char[] args)
         {
-            EditActions.MoveCaretUp(Editor);
-            if (Editor.CaretLine == DocumentLocation.MinLine)
+            CaretMoveActions.Up(Editor);
+            if (Editor.Caret.Line == Mono.TextEditor.DocumentLocation.MinLine)
             {
-                Editor.CaretColumn = 1;
-                EditActions.InsertNewLine(Editor);
-                EditActions.MoveCaretUp(Editor);
+                Editor.Caret.Column = 1;
+                MiscActions.InsertNewLine(Editor);
+                CaretMoveActions.Up(Editor);
             }
             else
             {
-                EditActions.InsertNewLineAtEnd(Editor);
+                MiscActions.InsertNewLineAtEnd(Editor);
             }
             RequestedMode = Mode.Insert;
             return true;
@@ -363,19 +364,19 @@ namespace JustEnoughVi
 
             if (text.IndexOfAny(new char[]{ '\r', '\n' }) > 0)
             {
-                int oldOffset = Editor.CaretOffset;
-                EditActions.MoveCaretToLineEnd(Editor);
-                Editor.CaretOffset++;
+                int oldOffset = Editor.Caret.Offset;
+                CaretMoveActions.LineEnd(Editor);
+                Editor.Caret.Offset++;
                 Editor.InsertAtCaret(text);
-                Editor.CaretOffset = oldOffset;
+                Editor.Caret.Offset = oldOffset;
                 Down(1, new char[]{});
-                EditActions.MoveCaretToLineStart(Editor);
+                CaretMoveActions.LineStart(Editor);
             }
             else
             {
-                Editor.CaretOffset++;
+                Editor.Caret.Offset++;
                 Editor.InsertAtCaret(text);
-                Editor.CaretOffset--;
+                Editor.Caret.Offset--;
             }
 
             return true;
@@ -393,28 +394,28 @@ namespace JustEnoughVi
 
             if (text.IndexOfAny(new char[]{ '\r', '\n' }) > 0)
             {
-                if (Editor.CaretLine == 1)
+                if (Editor.Caret.Line == 1)
                 {
-                    Editor.CaretOffset = 0;
+                    Editor.Caret.Offset = 0;
                     Editor.InsertAtCaret(text);
-                    Editor.CaretOffset = 0;
-                    EditActions.MoveCaretToLineStart(Editor);
+                    Editor.Caret.Offset = 0;
+                    CaretMoveActions.LineStart(Editor);
                 }
                 else
                 {
                     Up(1, new char[]{});
                     LineEnd(1, new char[]{ });
-                    Editor.CaretOffset++;
-                    int oldOffset = Editor.CaretOffset;
+                    Editor.Caret.Offset++;
+                    int oldOffset = Editor.Caret.Offset;
                     Editor.InsertAtCaret(text);
-                    Editor.CaretOffset = oldOffset;
-                    EditActions.MoveCaretToLineStart(Editor);
+                    Editor.Caret.Offset = oldOffset;
+                    CaretMoveActions.LineStart(Editor);
                 }
             }
             else
             {
                 Editor.InsertAtCaret(text);
-                Editor.CaretOffset--;
+                Editor.Caret.Offset--;
             }
 
             return true;
@@ -428,10 +429,10 @@ namespace JustEnoughVi
             if (Char.IsControl(args[0]))
                 return true;
 
-            Editor.SetSelection(Editor.CaretOffset, Editor.CaretOffset + 1);
-            EditActions.Delete(Editor);
+            Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + 1);
+            DeleteActions.Delete(Editor);
             Editor.InsertAtCaret(Char.ToString(args[0]));
-            Editor.CaretOffset--;
+            Editor.Caret.Offset--;
             return true;
         }
 
@@ -440,7 +441,7 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                EditActions.Undo(Editor);
+                MiscActions.Undo(Editor);
             }
             Editor.ClearSelection();
             return true;
@@ -471,11 +472,11 @@ namespace JustEnoughVi
             if (count < 1)
                 return false;
 
-            SetSelectLines(Editor.CaretLine, Editor.CaretLine);
+            SetSelectLines(Editor.Caret.Line, Editor.Caret.Line);
 
             for (int i = 0; i < count; i++)
             {
-                EditActions.UnIndentSelection(Editor);
+                MiscActions.RemoveIndentSelection(Editor);
             }
 
             Editor.ClearSelection();
@@ -495,11 +496,11 @@ namespace JustEnoughVi
             if (count < 1)
                 return false;
 
-            SetSelectLines(Editor.CaretLine, Editor.CaretLine);
+            SetSelectLines(Editor.Caret.Line, Editor.Caret.Line);
 
             for (int i = 0; i < count; i++)
             {
-                EditActions.IndentSelection(Editor);
+                MiscActions.IndentSelection(Editor);
             }
 
             Editor.ClearSelection();
@@ -508,17 +509,17 @@ namespace JustEnoughVi
 
         private bool Word(int count, char[] args)
         {
-            Editor.CaretOffset = StringUtils.NextWordOffset(Editor.Text, Editor.CaretOffset);
+            Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
             return true;
         }
 
         private bool DeleteCharacter(int count, char[] args)
         {
-            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.CaretLine).EndOffset - Editor.CaretOffset);
+            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset);
             if (count > 0)
             {
-                Editor.SetSelection(Editor.CaretOffset, Editor.CaretOffset + count);
-                EditActions.ClipboardCut(Editor);
+                Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
+                ClipboardActions.Cut(Editor);
             }
             return true;
         }
@@ -539,8 +540,8 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                SetSelectLines(Editor.CaretLine, Editor.CaretLine);
-                EditActions.ClipboardCopy(Editor);
+                SetSelectLines(Editor.Caret.Line, Editor.Caret.Line);
+                ClipboardActions.Copy(Editor);
                 Editor.ClearSelection();
             }
 
@@ -549,19 +550,19 @@ namespace JustEnoughVi
 
         private bool LineEnd(int count, char[] args)
         {
-            EditActions.MoveCaretToLineEnd(Editor);
+            CaretMoveActions.LineEnd(Editor);
             return true;
         }
 
         private bool LineStart(int count, char[] args)
         {
-            EditActions.MoveCaretToLineStart(Editor);
+            CaretMoveActions.LineStart(Editor);
             return true;
         }
 
         private bool MatchingBrace(int count, char[] args)
         {
-            EditActions.GotoMatchingBrace(Editor);
+            MiscActions.GotoMatchingBracket(Editor);
             return true;
         }
 
@@ -569,12 +570,12 @@ namespace JustEnoughVi
 
         public override void Activate()
         {
-            EditActions.SwitchCaretMode(Editor);
+            MiscActions.SwitchCaretMode(Editor);
         }
 
         public override void Deactivate()
         {
-            EditActions.SwitchCaretMode(Editor);
+            MiscActions.SwitchCaretMode(Editor);
             Reset();
         }
 
@@ -584,8 +585,8 @@ namespace JustEnoughVi
                 (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageDown))
             {
                 // This isn't quite right. Ctrl-f should be full page down, Ctrl-d should be half page down
-                Editor.CaretLine += Math.Min(Editor.LineCount - Editor.CaretLine, 20);
-                EditActions.MoveCaretToLineStart(Editor);
+                Editor.Caret.Line += Math.Min(Editor.LineCount - Editor.Caret.Line, 20);
+                CaretMoveActions.LineStart(Editor);
                 Editor.CenterToCaret();
                 return false;
             }
@@ -593,8 +594,8 @@ namespace JustEnoughVi
             if ((descriptor.ModifierKeys == ModifierKeys.Control && (descriptor.KeyChar == 'b' || descriptor.KeyChar == 'u')) ||
                 (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageUp))
             {
-                Editor.CaretLine -= Math.Min(Editor.CaretLine - 1, 20);
-                EditActions.MoveCaretToLineStart(Editor);
+                Editor.Caret.Line -= Math.Min(Editor.Caret.Line - 1, 20);
+                CaretMoveActions.LineStart(Editor);
                 Editor.CenterToCaret();
                 return false;
             }
