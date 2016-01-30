@@ -28,8 +28,7 @@ namespace JustEnoughVi
 
         protected override void Initialize()
         {
-            MonoDevelop.Ide.Gui.Document doc = IdeApp.Workbench.ActiveDocument;
-            var textEditorData = doc.GetContent<ITextEditorDataProvider> ().GetTextEditorData ();
+            var textEditorData = Editor.GetContent<ITextEditorDataProvider>().GetTextEditorData ();
 
             _normalMode = new NormalMode(textEditorData);
             _insertMode = new InsertMode(textEditorData);
