@@ -19,19 +19,6 @@ namespace JustEnoughVi
 
         public VisualMode(TextEditorData editor) : base(editor)
         {
-            // standard motion keys
-            KeyMap.Add("k", MotionUp);
-            KeyMap.Add("j", MotionDown);
-            KeyMap.Add("h", MotionLeft);
-            KeyMap.Add("l", MotionRight);
-            KeyMap.Add("^", MotionLineStart);
-            KeyMap.Add("_", MotionLineStart);
-            KeyMap.Add("$", MotionLineEnd);
-            KeyMap.Add("^b", MotionPageUp);
-            KeyMap.Add("^f", MotionPageDown);
-            KeyMap.Add("^d", MotionPageUp);
-            KeyMap.Add("^u", MotionPageDown);
-
             // visual mode keys
             KeyMap.Add("d", SelectionCut);
             KeyMap.Add("x", SelectionCut);
@@ -39,6 +26,9 @@ namespace JustEnoughVi
             KeyMap.Add(">", IndentAdd);
             KeyMap.Add("y", Yank);
             KeyMap.Add("Y", Yank);
+
+            // function key remaps
+            KeyMap.Add("Delete", SelectionCut);
         }
 
         private bool SelectionCut(int count = 0, char[] args = null)

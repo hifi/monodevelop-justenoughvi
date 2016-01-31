@@ -30,6 +30,29 @@ namespace JustEnoughVi
             KeyMap = new Dictionary<string, Func<int, char[], bool>>();
 
             _commandBuf = new List<char>();
+
+            // standard motion keys
+            KeyMap.Add("k", MotionUp);
+            KeyMap.Add("j", MotionDown);
+            KeyMap.Add("h", MotionLeft);
+            KeyMap.Add("l", MotionRight);
+            KeyMap.Add("^", MotionLineStart);
+            KeyMap.Add("_", MotionLineStart);
+            KeyMap.Add("$", MotionLineEnd);
+
+            KeyMap.Add("^b", MotionPageUp);
+            KeyMap.Add("^f", MotionPageDown);
+            KeyMap.Add("^d", MotionPageUp);
+            KeyMap.Add("^u", MotionPageDown);
+
+            // remaps
+            KeyMap.Add("Home", MotionFirstColumn);
+            KeyMap.Add("End", MotionLineEnd);
+            KeyMap.Add("Left", MotionLeft);
+            KeyMap.Add("Right", MotionRight);
+            KeyMap.Add("Up", MotionUp);
+            KeyMap.Add("Down", MotionDown);
+            KeyMap.Add("BackSpace", MotionLeft);
         }
 
         public void InternalActivate()
@@ -63,6 +86,11 @@ namespace JustEnoughVi
                 CaretMoveActions.Left(Editor);
         }
 
+        protected bool MotionFirstColumn(int count = 1, char[] args = null)
+        {
+            Editor.Caret.Column = Mono.TextEditor.DocumentLocation.MinColumn;
+            return true;
+        }
 
         protected bool MotionDown(int count = 1, char[] args = null)
         {
@@ -146,37 +174,25 @@ namespace JustEnoughVi
 
         public virtual bool KeyPress(KeyDescriptor descriptor)
         {
-            // remap some function keys to Vi keys
-            if (descriptor.ModifierKeys == 0)
+            string command;
+
+            if (descriptor.SpecialKey > 0)
             {
-                if (descriptor.SpecialKey == SpecialKey.Home)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.Key_0, '0', 0);
-                else if (descriptor.SpecialKey == SpecialKey.End)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.Key_4, '$', 0);
-                else if (descriptor.SpecialKey == SpecialKey.Left)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.h, 'h', 0);
-                else if (descriptor.SpecialKey == SpecialKey.Right)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.l, 'l', 0);
-                else if (descriptor.SpecialKey == SpecialKey.Up)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.k, 'k', 0);
-                else if (descriptor.SpecialKey == SpecialKey.Down)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.j, 'j', 0);
-                else if (descriptor.SpecialKey == SpecialKey.Delete)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.x, 'x', 0);
-                else if (descriptor.SpecialKey == SpecialKey.BackSpace)
-                    descriptor = KeyDescriptor.FromGtk(Gdk.Key.h, 'h', 0);
+                command = descriptor.SpecialKey.ToString();
+                _commandBuf.Clear();
             }
-
-            // build repeat buffer
-            if (_commandBuf.Count == 0 && (_countString.Length > 0 || descriptor.KeyChar > '0') && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
+            else
             {
-                _countString += Char.ToString(descriptor.KeyChar);
-                return false;
+                // build repeat buffer
+                if (_commandBuf.Count == 0 && (_countString.Length > 0 || descriptor.KeyChar > '0') && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
+                {
+                    _countString += Char.ToString(descriptor.KeyChar);
+                    return false;
+                }
+
+                _commandBuf.Add(descriptor.KeyChar);
+                command = Char.ToString(_commandBuf[0]);
             }
-
-            _commandBuf.Add(descriptor.KeyChar);
-
-            var command = Char.ToString(_commandBuf[0]);
 
             if (descriptor.ModifierKeys == ModifierKeys.Control)
                 command = "^" + command;
@@ -189,7 +205,7 @@ namespace JustEnoughVi
 
             CaretOffEol();
 
-            if (KeyMap[command](Count, _commandBuf.GetRange(1, _commandBuf.Count - 1).ToArray()))
+            if (KeyMap[command](Count, (_commandBuf.Count > 1 ? _commandBuf.GetRange(1, _commandBuf.Count - 1).ToArray() : new char[] { })))
             {
                 Reset();
             }

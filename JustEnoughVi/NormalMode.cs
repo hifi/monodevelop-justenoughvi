@@ -9,22 +9,8 @@ namespace JustEnoughVi
     {
         public NormalMode(TextEditorData editor) : base(editor)
         {
-            // standard motion keys
-            KeyMap.Add("k", MotionUp);
-            KeyMap.Add("j", MotionDown);
-            KeyMap.Add("h", MotionLeft);
-            KeyMap.Add("l", MotionRight);
-            KeyMap.Add("^", MotionLineStart);
-            KeyMap.Add("_", MotionLineStart);
-            KeyMap.Add("$", MotionLineEnd);
-
-            KeyMap.Add("^b", MotionPageUp);
-            KeyMap.Add("^f", MotionPageDown);
-            KeyMap.Add("^d", MotionPageUp);
-            KeyMap.Add("^u", MotionPageDown);
-
             // normal mode keys
-            KeyMap.Add("0", FirstColumn);
+            KeyMap.Add("0", MotionFirstColumn);
             KeyMap.Add("a", Append);
             KeyMap.Add("A", AppendEnd);
             KeyMap.Add("b", WordBack);
@@ -53,12 +39,9 @@ namespace JustEnoughVi
             KeyMap.Add("<", IndentRemove);
             KeyMap.Add(">", IndentAdd);
             KeyMap.Add("%", MatchingBrace);
-        }
 
-        private bool FirstColumn(int count, char[] args)
-        {
-            Editor.Caret.Column = Mono.TextEditor.DocumentLocation.MinColumn;
-            return true;
+            // remaps
+            KeyMap.Add("Delete", DeleteCharacter);
         }
 
         private bool Append(int count, char[] args)
