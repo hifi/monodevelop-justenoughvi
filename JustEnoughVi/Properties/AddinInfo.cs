@@ -4,11 +4,11 @@ using Mono.Addins.Description;
 [assembly: Addin(
     "JustEnoughVi",
     Namespace = "JustEnoughVi",
-    Version = "0.7"
+    Version = "0.8"
 )]
 
 [assembly: AddinName("Just Enough Vi")]
 [assembly: AddinCategory("IDE extensions")]
-[assembly: AddinDescription("Simplified Vi mode for MonoDevelop/Xamarin Studio.")]
+[assembly: AddinDescription("Simplified Vi/Vim mode for MonoDevelop/Xamarin Studio.")]
 [assembly: AddinAuthor("Toni Spets")]
 
