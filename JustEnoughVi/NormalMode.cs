@@ -206,6 +206,12 @@ namespace JustEnoughVi
                 GoToLine(Math.Max(1, count), new char[]{ });
             }
 
+            if (args[0] == 'd')
+            {
+                MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand("MonoDevelop.Refactoring.RefactoryCommands.GotoDeclaration");
+                return true;
+            }
+
             return true;
         }
 
