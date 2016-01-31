@@ -31,6 +31,13 @@ namespace JustEnoughViTests
         {
             Test(source, keys, expected, typeof(NormalMode));
         }
+
+        [TestCase("   12345$67890", "^", "   1$234567890")]
+        [TestCase("   12345$67890", "0", "$   1234567890")]
+        public void MiscTests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
     }
 }
 

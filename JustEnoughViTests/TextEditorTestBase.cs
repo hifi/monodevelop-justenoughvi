@@ -55,7 +55,8 @@ namespace JustEnoughViTests
                     goto default;
                 case '-':
                     if (i + 1 < content.Length)
-                    { var next = content[i + 1];
+                    {
+                        var next = content[i + 1];
                         if (next == '>')
                         {
                             selectionEnd = sb.Length;
@@ -82,7 +83,8 @@ namespace JustEnoughViTests
                 {
                     editor.SetSelection(selectionEnd, selectionStart);
                 }
-                else {
+                else
+                {
                     editor.SetSelection(selectionStart, selectionEnd);
                     if (caretIndex < 0)
                         editor.Caret.Offset = selectionEnd;

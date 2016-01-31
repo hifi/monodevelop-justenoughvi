@@ -9,7 +9,7 @@ namespace JustEnoughViTests
         [Test]
         public void Should_delete_two_end_of_line()
         {
-            //TODO - caret finishes in wrong location
+            //TODO - caret finishes in wrong position
             var source =
                 @"aaaaaa
                   bb$bbbb

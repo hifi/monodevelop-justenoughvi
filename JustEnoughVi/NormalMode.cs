@@ -563,6 +563,7 @@ namespace JustEnoughVi
         private bool LineStart(int count, char[] args)
         {
             CaretMoveActions.LineStart(Editor);
+            Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
             return true;
         }
 
