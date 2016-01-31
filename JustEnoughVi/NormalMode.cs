@@ -498,12 +498,12 @@ namespace JustEnoughVi
 
         protected override void Activate()
         {
-            MiscActions.SwitchCaretMode(Editor);
+            Editor.Caret.Mode = CaretMode.Block;
         }
 
         protected override void Deactivate()
         {
-            MiscActions.SwitchCaretMode(Editor);
+            Editor.Caret.Mode = CaretMode.Insert;
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)

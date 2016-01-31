@@ -98,13 +98,13 @@ namespace JustEnoughVi
         protected override void Activate()
         {
             _startOffset = Editor.Caret.Offset;
-            MiscActions.SwitchCaretMode(Editor);
+            Editor.Caret.Mode = CaretMode.Block;
             UpdateSelection();
         }
 
         protected override void Deactivate()
         {
-            MiscActions.SwitchCaretMode(Editor);
+            Editor.Caret.Mode = CaretMode.Insert;
             Editor.ClearSelection();
         }
 
