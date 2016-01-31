@@ -24,7 +24,7 @@ namespace JustEnoughViTests
 
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "w", "public c$lass NavigationTests : TextEditorTestBase")]
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "ww", "public class N$avigationTests : TextEditorTestBase")]
-        //TODO: [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "2w", "public class N$avigationTests : TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "2w", "public class N$avigationTests : TextEditorTestBase")] //TODO
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "www", "public class NavigationTests :$ TextEditorTestBase")]
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "wwww", "public class NavigationTests : T$extEditorTestBase")]
         public void W_tests(string source, string keys, string expected)
@@ -34,6 +34,8 @@ namespace JustEnoughViTests
 
         [TestCase("   12345$67890", "^", "   1$234567890")]
         [TestCase("   12345$67890", "0", "$   1234567890")]
+        [TestCase("abcd$efghijk", "fg", "abcdefg$hijk")]
+        [TestCase("123$45678", "f6", "123456$78")] //TODO: Fails because it thinks 6 is a count
         public void MiscTests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));

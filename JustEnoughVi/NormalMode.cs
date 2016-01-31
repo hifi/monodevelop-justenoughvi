@@ -18,6 +18,7 @@ namespace JustEnoughVi
             KeyMap.Add("C", ChangeToEnd);
             KeyMap.Add("d", Delete);
             KeyMap.Add("D", DeleteToEnd);
+            KeyMap.Add("f", Find);
             KeyMap.Add("g", Go);
             KeyMap.Add("G", GoToLine);
             KeyMap.Add("i", Insert);
@@ -35,7 +36,7 @@ namespace JustEnoughVi
             KeyMap.Add("x", DeleteCharacter);
             KeyMap.Add("y", Yank);
             KeyMap.Add("Y", YankLine);
-            KeyMap.Add("/", Find);
+            KeyMap.Add("/", Search);
             KeyMap.Add("<", IndentRemove);
             KeyMap.Add(">", IndentAdd);
             KeyMap.Add("%", MatchingBrace);
@@ -182,6 +183,16 @@ namespace JustEnoughVi
             var line = Editor.GetLine(Editor.Caret.Line);
             Editor.SetSelection(Editor.Caret.Offset, line.EndOffset);
             ClipboardActions.Cut(Editor);
+            return true;
+        }
+
+        private bool Find(int count, char[] args)
+        {
+            if (args.Length == 0)
+                return false;
+
+            var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, args[0]);
+            Editor.Caret.Offset = offset;
             return true;
         }
 
@@ -376,7 +387,7 @@ namespace JustEnoughVi
             return true;
         }
 
-        private bool Find(int count, char[] args)
+        private bool Search(int count, char[] args)
         {
             MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.SearchCommands.Find);
             return true;
