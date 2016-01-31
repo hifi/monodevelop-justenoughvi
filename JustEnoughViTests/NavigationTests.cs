@@ -17,11 +17,17 @@ namespace JustEnoughViTests
         }
 
         [TestCase("a$aa", "l", "aa$a")]
-        [TestCase("a$aa", "ll", "aaa$")]
-        [TestCase("aa$a", "2l", "aaa$")]
-        [TestCase("a$aa", "3l", "aaa$")]
-        [TestCase("a$aa\naa", "3l", "aaa$\naa")]
         public void L_tests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
+
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "w", "public c$lass NavigationTests : TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "ww", "public class N$avigationTests : TextEditorTestBase")]
+        //TODO: [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "2w", "public class N$avigationTests : TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "www", "public class NavigationTests :$ TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "wwww", "public class NavigationTests : T$extEditorTestBase")]
+        public void W_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));
         }
