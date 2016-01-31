@@ -15,6 +15,16 @@ namespace JustEnoughViTests
         {
             Test(source, keys, expected, typeof(NormalMode));
         }
+
+        [TestCase("a$aa", "l", "aa$a")]
+        [TestCase("a$aa", "ll", "aaa$")]
+        [TestCase("aa$a", "2l", "aaa$")]
+        [TestCase("a$aa", "3l", "aaa$")]
+        [TestCase("a$aa\naa", "3l", "aaa$\naa")]
+        public void L_tests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
     }
 }
 
