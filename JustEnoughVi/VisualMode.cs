@@ -7,98 +7,88 @@ namespace JustEnoughVi
 {
     public class VisualMode : ViMode
     {
-        private string _countString;
         private int _startLine;
-
-        private int Count {
-            get {
-                try {
-                    return Convert.ToInt32(_countString);
-                } catch (FormatException) {
-                    return 0;
-                }
-            }
-        }
 
         public VisualMode(TextEditorData editor) : base(editor)
         {
+            // standard motion keys
+            KeyMap.Add("k", MotionUp);
+            KeyMap.Add("j", MotionDown);
+            KeyMap.Add("h", MotionLeft);
+            KeyMap.Add("l", MotionRight);
+
+            KeyMap.Add("^b", MotionPageUp);
+            KeyMap.Add("^f", MotionPageDown);
+            KeyMap.Add("^d", MotionPageUp);
+            KeyMap.Add("^u", MotionPageDown);
+
+            // visual mode keys
+            KeyMap.Add("d", SelectionCut);
+            KeyMap.Add("<", IndentRemove);
+            KeyMap.Add(">", IndentAdd);
+            KeyMap.Add("y", Yank);
+            KeyMap.Add("Y", Yank);
+        }
+
+        private bool SelectionCut(int count = 0, char[] args = null)
+        {
+            ClipboardActions.Cut(Editor);
+            RequestedMode = Mode.Normal;
+            return true;
+        }
+
+        private bool IndentRemove(int count = 0, char[] args = null)
+        {
+            count = Math.Max(1, count);
+            for (int i = 0; i < count; i++)
+            {
+                MiscActions.RemoveIndentSelection(Editor);
+            }
+
+            RequestedMode = Mode.Normal;
+            return true;
+        }
+
+        private bool IndentAdd(int count = 0, char[] args = null)
+        {
+            count = Math.Max(1, count);
+            for (int i = 0; i < count; i++)
+            {
+                MiscActions.IndentSelection(Editor);
+            }
+
+            RequestedMode = Mode.Normal;
+            return true;
+        }
+
+        private bool Yank(int count = 0, char[] args = null)
+        {
+            ClipboardActions.Copy(Editor);
+            RequestedMode = Mode.Normal;
+            return true;
         }
 
         #region implemented abstract members of ViMode
 
-        public override void Activate()
+        protected override void Activate()
         {
-            _countString = "";
             _startLine = Editor.Caret.Line;
             SetSelectLines(_startLine, _startLine);
         }
 
-        public override void Deactivate()
+        protected override void Deactivate()
         {
             Editor.ClearSelection();
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)
         {
-            uint unicodeKey = descriptor.KeyChar;
+            var ret = base.KeyPress(descriptor);
 
-            if (descriptor.ModifierKeys == 0)
-            {
-                // build repeat buffer
-                if (unicodeKey >= '0' && unicodeKey <= '9')
-                {
-                    _countString += Char.ToString((char)unicodeKey);
-                    return false;
-                }
+            if (RequestedMode == Mode.None)
+                SetSelectLines(_startLine, Editor.Caret.Line);
 
-                if (unicodeKey == 'j' || unicodeKey == 'k')
-                {
-                    if (unicodeKey == 'j')
-                    {
-                        Editor.Caret.Line++;
-                    }
-                    else if (unicodeKey == 'k')
-                    {
-                        Editor.Caret.Line--;
-                    }
-
-                    SetSelectLines(_startLine, Editor.Caret.Line);
-                }
-
-                if (unicodeKey == 'd')
-                {
-                    ClipboardActions.Cut(Editor);
-                    RequestedMode = Mode.Normal;
-                }
-
-                if (unicodeKey == 'y' || unicodeKey == 'Y')
-                {
-                    ClipboardActions.Copy(Editor);
-                    RequestedMode = Mode.Normal;
-                }
-
-                if (unicodeKey == '<')
-                {
-                    var count = Math.Max(1, Count);
-                    for (int i = 0; i < count; i++)
-                    {
-                        MiscActions.RemoveIndentSelection(Editor);
-                    }
-                    RequestedMode = Mode.Normal;
-                }
-
-                if (unicodeKey == '>')
-                {
-                    var count = Math.Max(1, Count);
-                    for (int i = 0; i < count; i++)
-                    {
-                        MiscActions.IndentSelection(Editor);
-                    }
-                    RequestedMode = Mode.Normal;
-                }
-            }
-
-            return false;
+            return ret;
         }
 
         #endregion

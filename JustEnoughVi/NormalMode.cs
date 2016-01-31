@@ -7,78 +7,51 @@ namespace JustEnoughVi
 {
     public class NormalMode : ViMode
     {
-        private readonly Dictionary<char, Func<int, char[], bool>> _commands;
-
-        private string _countString;
-        private readonly List<char> _commandBuf;
-
-        private int Count {
-
-            get {
-                var count = 0;
-                int.TryParse(_countString, out count);
-                return count;
-            }
-        }
-
         public NormalMode(TextEditorData editor) : base(editor)
         {
-            _commandBuf = new List<char>();
-            _countString = "";
+            // standard motion keys
+            KeyMap.Add("k", MotionUp);
+            KeyMap.Add("j", MotionDown);
+            KeyMap.Add("h", MotionLeft);
+            KeyMap.Add("l", MotionRight);
 
-            _commands = new Dictionary<char, Func<int, char[], bool>>();
+            KeyMap.Add("^b", MotionPageUp);
+            KeyMap.Add("^f", MotionPageDown);
+            KeyMap.Add("^d", MotionPageUp);
+            KeyMap.Add("^u", MotionPageDown);
 
-            _commands.Add('0', FirstColumn);
-            _commands.Add('a', Append);
-            _commands.Add('A', AppendEnd);
-            _commands.Add('b', WordBack);
-            _commands.Add('c', Change);
-            _commands.Add('C', ChangeToEnd);
-            _commands.Add('d', Delete);
-            _commands.Add('D', DeleteToEnd);
-            _commands.Add('g', Go);
-            _commands.Add('G', GoToLine);
-            _commands.Add('h', Left);
-            _commands.Add('i', Insert);
-            _commands.Add('I', InsertStart);
-            _commands.Add('j', Down);
-            _commands.Add('J', Join);
-            _commands.Add('k', Up);
-            _commands.Add('l', Right);
-            _commands.Add('o', OpenBelow);
-            _commands.Add('O', OpenAbove);
-            _commands.Add('p', PasteAppend);
-            _commands.Add('P', PasteInsert);
-            _commands.Add('r', Replace);
-            _commands.Add('u', Undo);
-            _commands.Add('V', VisualLine);
-            _commands.Add('w', Word);
-            _commands.Add('x', DeleteCharacter);
-            _commands.Add('y', Yank);
-            _commands.Add('Y', YankLine);
-            _commands.Add('$', LineEnd);
-            _commands.Add('/', Find);
-            _commands.Add('<', IndentRemove);
-            _commands.Add('>', IndentAdd);
-            _commands.Add('^', LineStart);
-            _commands.Add('_', LineStart);
-            _commands.Add('%', MatchingBrace);
-        }
-
-        protected void Reset()
-        {
-            _commandBuf.Clear();
-            _countString = "";
-        }
-
-        private void CaretOffEol()
-        {
-            if (RequestedMode == Mode.Insert)
-                return;
-
-            var line = Editor.GetLine(Editor.Caret.Line);
-            if (line.EndOffset > line.Offset && Editor.Caret.Offset == line.EndOffset)
-                CaretMoveActions.Left(Editor);
+            // normal mode keys
+            KeyMap.Add("0", FirstColumn);
+            KeyMap.Add("a", Append);
+            KeyMap.Add("A", AppendEnd);
+            KeyMap.Add("b", WordBack);
+            KeyMap.Add("c", Change);
+            KeyMap.Add("C", ChangeToEnd);
+            KeyMap.Add("d", Delete);
+            KeyMap.Add("D", DeleteToEnd);
+            KeyMap.Add("g", Go);
+            KeyMap.Add("G", GoToLine);
+            KeyMap.Add("i", Insert);
+            KeyMap.Add("I", InsertStart);
+            KeyMap.Add("J", Join);
+            KeyMap.Add("o", OpenBelow);
+            KeyMap.Add("O", OpenAbove);
+            KeyMap.Add("p", PasteAppend);
+            KeyMap.Add("P", PasteInsert);
+            KeyMap.Add("r", Replace);
+            KeyMap.Add("u", Undo);
+            KeyMap.Add("V", VisualLine);
+            KeyMap.Add("w", Word);
+            KeyMap.Add("x", DeleteCharacter);
+            KeyMap.Add("y", Yank);
+            KeyMap.Add("Y", YankLine);
+            KeyMap.Add("$", LineEnd);
+            KeyMap.Add("/", Find);
+            KeyMap.Add("<", IndentRemove);
+            KeyMap.Add(">", IndentAdd);
+            KeyMap.Add("^", LineStart);
+            KeyMap.Add("_", LineStart);
+            KeyMap.Add("%", MatchingBrace);
         }
 
         private bool FirstColumn(int count, char[] args)
@@ -275,29 +248,6 @@ namespace JustEnoughVi
             return true;
         }
 
-        private bool Down(int count, char[] args)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                CaretMoveActions.Down(Editor);
-            }
-
-            return true;
-        }
-
-        private bool Left(int count, char[] args)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                if (DocumentLocation.MinColumn < Editor.Caret.Column)
-                    CaretMoveActions.Left(Editor);
-            }
-
-            return true;
-        }
-
         private bool Insert(int count, char[] args)
         {
             RequestedMode = Mode.Insert;
@@ -308,29 +258,6 @@ namespace JustEnoughVi
         {
             CaretMoveActions.Left(Editor);
             RequestedMode = Mode.Insert;
-            return true;
-        }
-
-        private bool Up(int count, char[] args)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                CaretMoveActions.Up(Editor);
-            }
-
-            return true;
-        }
-
-        private bool Right(int count, char[] args)
-        {
-            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset - 1);
-
-            for (int i = 0; i < count; i++)
-            {
-                CaretMoveActions.Right(Editor);
-            }
-
             return true;
         }
 
@@ -375,7 +302,7 @@ namespace JustEnoughVi
                 Editor.Caret.Offset++;
                 Editor.InsertAtCaret(text);
                 Editor.Caret.Offset = oldOffset;
-                Down(1, new char[]{});
+                MotionDown();
                 CaretMoveActions.LineStart(Editor);
             }
             else
@@ -409,7 +336,7 @@ namespace JustEnoughVi
                 }
                 else
                 {
-                    Up(1, new char[]{});
+                    MotionUp();
                     LineEnd(1, new char[]{ });
                     Editor.Caret.Offset++;
                     int oldOffset = Editor.Caret.Offset;
@@ -575,88 +502,19 @@ namespace JustEnoughVi
 
         #region implemented abstract members of ViMode
 
-        public override void Activate()
+        protected override void Activate()
         {
             MiscActions.SwitchCaretMode(Editor);
         }
 
-        public override void Deactivate()
+        protected override void Deactivate()
         {
             MiscActions.SwitchCaretMode(Editor);
-            Reset();
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)
         {
-            if ((descriptor.ModifierKeys == ModifierKeys.Control && (descriptor.KeyChar == 'f' || descriptor.KeyChar == 'd')) ||
-                (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageDown))
-            {
-                // This isn't quite right. Ctrl-f should be full page down, Ctrl-d should be half page down
-                Editor.Caret.Line += Math.Min(Editor.LineCount - Editor.Caret.Line, 20);
-                CaretMoveActions.LineStart(Editor);
-                Editor.CenterToCaret();
-                return false;
-            }
-
-            if ((descriptor.ModifierKeys == ModifierKeys.Control && (descriptor.KeyChar == 'b' || descriptor.KeyChar == 'u')) ||
-                (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageUp))
-            {
-                Editor.Caret.Line -= Math.Min(Editor.Caret.Line - 1, 20);
-                CaretMoveActions.LineStart(Editor);
-                Editor.CenterToCaret();
-                return false;
-            }
-
-            if (descriptor.ModifierKeys == 0)
-            {
-                char unicodeKey = descriptor.KeyChar;
-
-                // remap some function keys to Vi commands
-                if (descriptor.SpecialKey == SpecialKey.Home)
-                    unicodeKey = '0';
-                else if (descriptor.SpecialKey == SpecialKey.End)
-                    unicodeKey = '$';
-                else if (descriptor.SpecialKey == SpecialKey.Left)
-                    unicodeKey = 'h';
-                else if (descriptor.SpecialKey == SpecialKey.Right)
-                    unicodeKey = 'l';
-                else if (descriptor.SpecialKey == SpecialKey.Up)
-                    unicodeKey = 'k';
-                else if (descriptor.SpecialKey == SpecialKey.Down)
-                    unicodeKey = 'j';
-                else if (descriptor.SpecialKey == SpecialKey.Delete)
-                    unicodeKey = 'x';
-                //else if (descriptor.SpecialKey == SpecialKey.Insert)
-                //    unicodeKey = 'i';
-                else if (descriptor.SpecialKey == SpecialKey.BackSpace)
-                    unicodeKey = 'h';
-
-                // build repeat buffer
-                if (_commandBuf.Count == 0 && (_countString.Length > 0 || unicodeKey > '0') && unicodeKey >= '0' && unicodeKey <= '9')
-                {
-                    _countString += Char.ToString((char)unicodeKey);
-                    return false;
-                }
-
-                _commandBuf.Add(unicodeKey);
-
-                if (!_commands.ContainsKey(_commandBuf[0]))
-                {
-                    _commandBuf.Clear();
-                    return false;
-                }
-
-                CaretOffEol();
-
-                if (_commands[_commandBuf[0]](Count, _commandBuf.GetRange(1, _commandBuf.Count - 1).ToArray()))
-                {
-                    Reset();
-                }
-
-                CaretOffEol();
-            }
-
-            return false;
+            return base.KeyPress(descriptor);
         }
 
         #endregion

@@ -35,7 +35,7 @@ namespace JustEnoughVi
 
             // start in normal mode
             CurrentMode = _requestedMode = _normalMode;
-            CurrentMode.Activate();
+            CurrentMode.InternalActivate();
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)
@@ -46,9 +46,9 @@ namespace JustEnoughVi
                 (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == '[') ||
                 (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == 'c'))
             {
-                CurrentMode.Deactivate();
+                CurrentMode.InternalDeactivate();
                 CurrentMode = _requestedMode = _normalMode;
-                CurrentMode.Activate();
+                CurrentMode.InternalActivate();
                 return false;
             }
 
@@ -65,8 +65,8 @@ namespace JustEnoughVi
             if (_requestedMode != CurrentMode)
             {
                 CurrentMode.RequestedMode = Mode.None;
-                CurrentMode.Deactivate();
-                _requestedMode.Activate();
+                CurrentMode.InternalDeactivate();
+                _requestedMode.InternalActivate();
                 CurrentMode = _requestedMode;
             }
 

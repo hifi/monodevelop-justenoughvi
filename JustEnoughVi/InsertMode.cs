@@ -12,11 +12,11 @@ namespace JustEnoughVi
 
         #region implemented abstract members of ViMode
 
-        public override void Activate()
+        protected override void Activate()
         {
         }
 
-        public override void Deactivate()
+        protected override void Deactivate()
         {
             if (Editor.Caret.Column > MonoDevelop.Ide.Editor.DocumentLocation.MinColumn)
                 CaretMoveActions.Left(Editor);
