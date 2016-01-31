@@ -11,7 +11,9 @@ namespace JustEnoughViTests
     {
         public void Test(string source, string keys, string expected, Type expectedMode)
         {
-            var editor = Create(source);
+            var options = new TextEditorOptions();
+            options.TabsToSpaces = true;
+            var editor = Create(source, options);
             var plugin = new JustEnoughVi.JustEnoughVi();
             plugin.Initialize(editor);
 

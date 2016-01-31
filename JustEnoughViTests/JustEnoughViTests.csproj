@@ -47,6 +47,8 @@
     <Compile Include="DeleteTests.cs" />
     <Compile Include="NavigationTests.cs" />
     <Compile Include="InsertTests.cs" />
+    <Compile Include="YankAndPasteTests.cs" />
+    <Compile Include="IndentTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JustEnoughVi\JustEnoughVi.csproj">

@@ -25,6 +25,16 @@ namespace JustEnoughViTests
             Test(source, "C", expected, typeof(InsertMode));
         }
 
+
+        [TestCase("abc$efg", "cc", "$")]
+        [TestCase("abc$efg", "c$", "ab$")]
+        [TestCase("a l$ong sentence", "cw", "a $sentence")]
+        //TODO: 2cw & c2w
+        public void Change_tests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(InsertMode));
+        }
+
         [TestCase("s$at", "rc", "c$at")]
         public void R_should_replace_char(string source, string keys, string expected)
         {
