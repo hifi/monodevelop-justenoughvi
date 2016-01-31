@@ -14,6 +14,7 @@ namespace JustEnoughVi
 
         private readonly List<char> _commandBuf;
         private int _count;
+        private bool _countReset;
 
         protected ViMode(TextEditorData editor)
         {
@@ -66,6 +67,7 @@ namespace JustEnoughVi
         {
             _commandBuf.Clear();
             _count = 0;
+            _countReset = false;
         }
 
         private void CaretOffEol()
@@ -172,12 +174,25 @@ namespace JustEnoughVi
             {
                 command = descriptor.SpecialKey.ToString();
                 _commandBuf.Clear();
+                _count = 0;
             }
             else
             {
                 // build repeat buffer
                 if (_commandBuf.Count == 0 && (_count > 0 || descriptor.KeyChar > '0') && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
                 {
+                    _count = (_count * 10) + (descriptor.KeyChar - 48);
+                    return false;
+                }
+                // secondary run if command is waiting for arguments
+                else if (_commandBuf.Count == 1 && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
+                {
+                    if (!_countReset)
+                    {
+                        _count = 0;
+                        _countReset = true;
+                    }
+
                     _count = (_count * 10) + (descriptor.KeyChar - 48);
                     return false;
                 }
