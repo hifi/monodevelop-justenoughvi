@@ -13,15 +13,7 @@ namespace JustEnoughVi
         protected Dictionary<string , Func<int, char[], bool>> KeyMap { get; private set; }
 
         private readonly List<char> _commandBuf;
-        private string _countString;
-
-        protected int Count {
-            get {
-                var count = 0;
-                int.TryParse(_countString, out count);
-                return count;
-            }
-        }
+        private int _count;
 
         protected ViMode(TextEditorData editor)
         {
@@ -73,7 +65,7 @@ namespace JustEnoughVi
         private void Reset()
         {
             _commandBuf.Clear();
-            _countString = "";
+            _count = 0;
         }
 
         private void CaretOffEol()
@@ -184,9 +176,9 @@ namespace JustEnoughVi
             else
             {
                 // build repeat buffer
-                if (_commandBuf.Count == 0 && (_countString.Length > 0 || descriptor.KeyChar > '0') && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
+                if (_commandBuf.Count == 0 && (_count > 0 || descriptor.KeyChar > '0') && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
                 {
-                    _countString += Char.ToString(descriptor.KeyChar);
+                    _count = (_count * 10) + (descriptor.KeyChar - 48);
                     return false;
                 }
 
@@ -205,7 +197,7 @@ namespace JustEnoughVi
 
             CaretOffEol();
 
-            if (KeyMap[command](Count, (_commandBuf.Count > 1 ? _commandBuf.GetRange(1, _commandBuf.Count - 1).ToArray() : new char[] { })))
+            if (KeyMap[command](_count, (_commandBuf.Count > 1 ? _commandBuf.GetRange(1, _commandBuf.Count - 1).ToArray() : new char[] { })))
             {
                 Reset();
             }
