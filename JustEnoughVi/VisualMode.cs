@@ -5,9 +5,17 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
+    public enum SelectMode
+    {
+        Normal,
+        Line
+    }
+
     public class VisualMode : ViMode
     {
-        private int _startLine;
+        private int _startOffset;
+
+        public SelectMode Select { get; set; }
 
         public VisualMode(TextEditorData editor) : base(editor)
         {
@@ -24,6 +32,7 @@ namespace JustEnoughVi
 
             // visual mode keys
             KeyMap.Add("d", SelectionCut);
+            KeyMap.Add("x", SelectionCut);
             KeyMap.Add("<", IndentRemove);
             KeyMap.Add(">", IndentAdd);
             KeyMap.Add("y", Yank);
@@ -70,14 +79,30 @@ namespace JustEnoughVi
 
         #region implemented abstract members of ViMode
 
+        private void UpdateSelection()
+        {
+            if (Select == SelectMode.Line)
+            {
+                var startLine = Editor.GetLineByOffset(_startOffset);
+                var endLine = Editor.GetLineByOffset(Editor.Caret.Offset);
+                SetSelectLines(startLine.LineNumber, endLine.LineNumber);
+            }
+            else
+            {
+                Editor.SetSelection(_startOffset, Editor.Caret.Offset);
+            }
+        }
+
         protected override void Activate()
         {
-            _startLine = Editor.Caret.Line;
-            SetSelectLines(_startLine, _startLine);
+            _startOffset = Editor.Caret.Offset;
+            MiscActions.SwitchCaretMode(Editor);
+            UpdateSelection();
         }
 
         protected override void Deactivate()
         {
+            MiscActions.SwitchCaretMode(Editor);
             Editor.ClearSelection();
         }
 
@@ -86,7 +111,9 @@ namespace JustEnoughVi
             var ret = base.KeyPress(descriptor);
 
             if (RequestedMode == Mode.None)
-                SetSelectLines(_startLine, Editor.Caret.Line);
+            {
+                UpdateSelection();
+            }
 
             return ret;
         }

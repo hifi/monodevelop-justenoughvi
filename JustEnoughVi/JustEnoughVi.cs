@@ -8,7 +8,8 @@ namespace JustEnoughVi
         None,
         Normal,
         Insert,
-        Visual
+        Visual,
+        VisualLine
     }
 
     public class JustEnoughVi : TextEditorExtension
@@ -60,7 +61,15 @@ namespace JustEnoughVi
             else if (newMode == Mode.Insert)
                 _requestedMode = _insertMode;
             else if (newMode == Mode.Visual)
+            {
+                _visualMode.Select = SelectMode.Normal;
                 _requestedMode = _visualMode;
+            }
+            else if (newMode == Mode.VisualLine)
+            {
+                _visualMode.Select = SelectMode.Line;
+                _requestedMode = _visualMode;
+            }
 
             if (_requestedMode != CurrentMode)
             {

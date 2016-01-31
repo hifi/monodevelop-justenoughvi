@@ -40,6 +40,7 @@ namespace JustEnoughVi
             KeyMap.Add("P", PasteInsert);
             KeyMap.Add("r", Replace);
             KeyMap.Add("u", Undo);
+            KeyMap.Add("v", Visual);
             KeyMap.Add("V", VisualLine);
             KeyMap.Add("w", Word);
             KeyMap.Add("x", DeleteCharacter);
@@ -380,9 +381,15 @@ namespace JustEnoughVi
             return true;
         }
 
-        private bool VisualLine(int count, char[] args)
+        private bool Visual(int count, char[] args)
         {
             RequestedMode = Mode.Visual;
+            return true;
+        }
+
+        private bool VisualLine(int count, char[] args)
+        {
+            RequestedMode = Mode.VisualLine;
             return true;
         }
 
