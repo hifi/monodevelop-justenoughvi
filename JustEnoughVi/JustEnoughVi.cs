@@ -1,5 +1,4 @@
 ﻿using Mono.TextEditor;
-using MonoDevelop.Ide;
 using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
@@ -18,25 +17,25 @@ namespace JustEnoughVi
         private InsertMode _insertMode;
         private VisualMode _visualMode;
 
-        private ViMode _currentMode;
         private ViMode _requestedMode;
 
-        public JustEnoughVi()
-        {
-
-        }
+        public ViMode CurrentMode { get; private set; }
 
         protected override void Initialize()
         {
-            var textEditorData = Editor.GetContent<ITextEditorDataProvider>().GetTextEditorData ();
+            var textEditorData = Editor.GetContent<ITextEditorDataProvider>().GetTextEditorData();
+            Initialize(textEditorData);
+        }
 
+        public void Initialize(TextEditorData textEditorData)
+        {
             _normalMode = new NormalMode(textEditorData);
             _insertMode = new InsertMode(textEditorData);
             _visualMode = new VisualMode(textEditorData);
 
             // start in normal mode
-            _currentMode = _requestedMode = _normalMode;
-            _currentMode.Activate();
+            CurrentMode = _requestedMode = _normalMode;
+            CurrentMode.Activate();
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)
@@ -47,15 +46,15 @@ namespace JustEnoughVi
                 (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == '[') ||
                 (descriptor.ModifierKeys == ModifierKeys.Control && descriptor.KeyChar == 'c'))
             {
-                _currentMode.Deactivate();
-                _currentMode = _requestedMode = _normalMode;
-                _currentMode.Activate();
+                CurrentMode.Deactivate();
+                CurrentMode = _requestedMode = _normalMode;
+                CurrentMode.Activate();
                 return false;
             }
 
-            var pass = _currentMode.KeyPress (descriptor);
+            var pass = CurrentMode.KeyPress (descriptor);
 
-            var newMode = _currentMode.RequestedMode;
+            var newMode = CurrentMode.RequestedMode;
             if (newMode == Mode.Normal)
                 _requestedMode = _normalMode;
             else if (newMode == Mode.Insert)
@@ -63,12 +62,12 @@ namespace JustEnoughVi
             else if (newMode == Mode.Visual)
                 _requestedMode = _visualMode;
 
-            if (_requestedMode != _currentMode)
+            if (_requestedMode != CurrentMode)
             {
-                _currentMode.RequestedMode = Mode.None;
-                _currentMode.Deactivate();
+                CurrentMode.RequestedMode = Mode.None;
+                CurrentMode.Deactivate();
                 _requestedMode.Activate();
-                _currentMode = _requestedMode;
+                CurrentMode = _requestedMode;
             }
 
             return pass && base.KeyPress(descriptor);

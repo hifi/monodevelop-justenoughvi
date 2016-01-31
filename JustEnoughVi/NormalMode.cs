@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.TextEditor;
-using MonoDevelop.Ide;
-using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
@@ -19,7 +17,7 @@ namespace JustEnoughVi
             get {
                 var count = 0;
                 int.TryParse(_countString, out count);
-                return count;   
+                return count;
             }
         }
 
@@ -293,7 +291,7 @@ namespace JustEnoughVi
             count = Math.Max(1, count);
             for (int i = 0; i < count; i++)
             {
-                if (Mono.TextEditor.DocumentLocation.MinColumn < Editor.Caret.Column)
+                if (DocumentLocation.MinColumn < Editor.Caret.Column)
                     CaretMoveActions.Left(Editor);
             }
 
@@ -593,8 +591,8 @@ namespace JustEnoughVi
                 (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageDown))
             {
                 // This isn't quite right. Ctrl-f should be full page down, Ctrl-d should be half page down
-                Editor.CaretLine += Math.Min(Editor.LineCount - Editor.CaretLine, 20);
-                EditActions.MoveCaretToLineStart(Editor);
+                Editor.Caret.Line += Math.Min(Editor.LineCount - Editor.Caret.Line, 20);
+                CaretMoveActions.LineStart(Editor);
                 Editor.CenterToCaret();
                 return false;
             }
@@ -602,8 +600,8 @@ namespace JustEnoughVi
             if ((descriptor.ModifierKeys == ModifierKeys.Control && (descriptor.KeyChar == 'b' || descriptor.KeyChar == 'u')) ||
                 (descriptor.ModifierKeys == 0 && descriptor.SpecialKey == SpecialKey.PageUp))
             {
-                Editor.CaretLine -= Math.Min(Editor.CaretLine - 1, 20);
-                EditActions.MoveCaretToLineStart(Editor);
+                Editor.Caret.Line -= Math.Min(Editor.Caret.Line - 1, 20);
+                CaretMoveActions.LineStart(Editor);
                 Editor.CenterToCaret();
                 return false;
             }

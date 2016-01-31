@@ -9,6 +9,8 @@
     <RootNamespace>JustEnoughViTests</RootNamespace>
     <AssemblyName>JustEnoughViTests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TestRunnerCommand>..\..\monodevelop\main\build\bin\mdtool.exe</TestRunnerCommand>
+    <TestRunnerArgs>run-md-tests</TestRunnerArgs>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -19,6 +21,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
+    <CustomCommands>
+      <CustomCommands>
+        <Command type="Execute" command="../../monodevelop/main/build/bin/mdtool.exe run-md-tests bin/Debug/JustEnoughViTests.dll" />
+      </CustomCommands>
+    </CustomCommands>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -38,6 +45,7 @@
     <Compile Include="ChangeTests.cs" />
     <Compile Include="TextEditorTestBase.cs" />
     <Compile Include="DeleteTests.cs" />
+    <Compile Include="NavigationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JustEnoughVi\JustEnoughVi.csproj">

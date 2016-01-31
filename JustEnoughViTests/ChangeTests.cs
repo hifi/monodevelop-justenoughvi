@@ -9,23 +9,26 @@ namespace JustEnoughViTests
         [Test]
         public void C_should_delete_to_end_of_line()
         {
-            var editor = Create(
+            var source =
                 @"aaaaaa
                   bbbbbb
                   ccc$ccc
                   dddddd
-                  eeeeee");
-            
-            var mode = new NormalMode(editor);
-            ProcessKeys("C", mode);
+                  eeeeee";
 
-            Check (editor, 
+            var expected = 
                 @"aaaaaa
                   bbbbbb
-                  ccc$
+                  cc$
                   dddddd
-                  eeeeee" );
-            // failing Assert.IsInstanceOf<InsertMode>(mode.RequestedMode);
+                  eeeeee";
+            Test(source, "C", expected, typeof(InsertMode));
+        }
+
+        [TestCase("s$at", "rc", "c$at")]
+        public void R_should_replace_char(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
         }
     }
 }

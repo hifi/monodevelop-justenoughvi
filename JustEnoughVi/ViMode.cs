@@ -7,7 +7,7 @@ namespace JustEnoughVi
 {
     public abstract class ViMode
     {
-        protected TextEditorData Editor { get; set; }
+        public TextEditorData Editor { get; set; }
         public Mode RequestedMode { get; internal set; }
 
         protected ViMode(TextEditorData editor)

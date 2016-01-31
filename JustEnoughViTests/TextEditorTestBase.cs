@@ -9,19 +9,27 @@ namespace JustEnoughViTests
 {
     public class TextEditorTestBase
     {
-        static int x = GuiUnit.TestRunner.ExitCode;// hack to get GuiUnit into the AppDomain
+        public void Test(string source, string keys, string expected, Type expectedMode)
+        {
+            var editor = Create(source);
+            var plugin = new JustEnoughVi.JustEnoughVi();
+            plugin.Initialize(editor);
 
-        public void ProcessKeys(string keyPresses, ViMode mode)
+            ProcessKeys(keys, plugin);
+            Check(plugin, expected, expectedMode);
+        }
+
+        public void ProcessKeys(string keyPresses, JustEnoughVi.JustEnoughVi plugin)
         {
             foreach (var c in keyPresses)
             {
                 // TODO: modifier parsing
                 var descriptor = KeyDescriptor.FromGtk(Gdk.Key.a /* important? */, c, Gdk.ModifierType.None);
-                mode.KeyPress(descriptor);
+                plugin.KeyPress(descriptor);
             }
         }
 
-        public static TextEditorData Create(string content, ITextEditorOptions options = null)
+        static TextEditorData Create(string content, ITextEditorOptions options = null)
         {
             var sb = new StringBuilder();
             int caretIndex = -1, selectionStart = -1, selectionEnd = -1;
@@ -32,7 +40,7 @@ namespace JustEnoughViTests
                 switch (ch)
                 {
                 case '$':
-                    caretIndex = sb.Length;
+                    caretIndex = sb.Length - 1;
                     break;
                 case '<':
                     if (i + 1 < content.Length)
@@ -47,8 +55,7 @@ namespace JustEnoughViTests
                     goto default;
                 case '-':
                     if (i + 1 < content.Length)
-                    {
-                        var next = content[i + 1];
+                    { var next = content[i + 1];
                         if (next == '>')
                         {
                             selectionEnd = sb.Length;
@@ -84,8 +91,10 @@ namespace JustEnoughViTests
             return editor;
         }
 
-        public static void Check(TextEditorData editor, string content)
+        static void Check(JustEnoughVi.JustEnoughVi plugin, string content, Type expectedMode)
         {
+            var mode = plugin.CurrentMode;
+            var editor = mode.Editor;
             var checkDocument = Create(content);
             if (checkDocument.Text != editor.Text)
             {
@@ -95,7 +104,12 @@ namespace JustEnoughViTests
                 Console.WriteLine(checkDocument.Text);
             }
             Assert.AreEqual(checkDocument.Text, editor.Text);
-            Assert.AreEqual(checkDocument.Caret.Offset, editor.Caret.Offset, "Caret offset mismatch.");
+            Assert.That(mode, Is.TypeOf(expectedMode));
+            var offsetFix = (mode is NormalMode) ? 0 : 1;
+            if (checkDocument.Caret.Offset != 0)
+            {
+                Assert.AreEqual(checkDocument.Caret.Offset, mode.Editor.Caret.Offset - offsetFix, "Caret offset mismatch.");
+            }
             if (editor.IsSomethingSelected || checkDocument.IsSomethingSelected)
                 Assert.AreEqual(checkDocument.SelectionRange, editor.SelectionRange, "Selection mismatch.");
         }
