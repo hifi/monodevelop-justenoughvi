@@ -178,7 +178,7 @@ namespace JustEnoughVi
 
                 SetSelectLines(Editor.Caret.Line, Editor.Caret.Line + count + (count > 0 ? -1 : 0));
                 ClipboardActions.Cut(Editor);
-                CaretMoveActions.LineStart(Editor);
+                MotionLineStart();
             }
             else if (args[0] == 'w')
             {
@@ -257,7 +257,7 @@ namespace JustEnoughVi
 
         private bool InsertStart(int count, char[] args)
         {
-            CaretMoveActions.Left(Editor);
+            MotionLineStart();
             RequestedMode = Mode.Insert;
             return true;
         }
