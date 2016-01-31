@@ -14,6 +14,9 @@ namespace JustEnoughVi
             KeyMap.Add("j", MotionDown);
             KeyMap.Add("h", MotionLeft);
             KeyMap.Add("l", MotionRight);
+            KeyMap.Add("^", MotionLineStart);
+            KeyMap.Add("_", MotionLineStart);
+            KeyMap.Add("$", MotionLineEnd);
 
             KeyMap.Add("^b", MotionPageUp);
             KeyMap.Add("^f", MotionPageDown);
@@ -46,12 +49,9 @@ namespace JustEnoughVi
             KeyMap.Add("x", DeleteCharacter);
             KeyMap.Add("y", Yank);
             KeyMap.Add("Y", YankLine);
-            KeyMap.Add("$", LineEnd);
             KeyMap.Add("/", Find);
             KeyMap.Add("<", IndentRemove);
             KeyMap.Add(">", IndentAdd);
-            KeyMap.Add("^", LineStart);
-            KeyMap.Add("_", LineStart);
             KeyMap.Add("%", MatchingBrace);
         }
 
@@ -88,9 +88,9 @@ namespace JustEnoughVi
 
             if (args[0] == 'c')
             {
-                CaretMoveActions.LineStart(Editor);
+                MotionLineStart();
                 int start = Editor.Caret.Offset;
-                CaretMoveActions.LineEnd(Editor);
+                MotionLineEnd();
                 Editor.SetSelection(start, Editor.Caret.Offset);
                 ClipboardActions.Cut(Editor);
                 RequestedMode = Mode.Insert;
@@ -225,8 +225,8 @@ namespace JustEnoughVi
             {
                 Editor.Caret.Line = count;
             }
-            CaretMoveActions.LineStart(Editor);
 
+            MotionLineStart();
             return true;
         }
 
@@ -304,7 +304,7 @@ namespace JustEnoughVi
                 Editor.InsertAtCaret(text);
                 Editor.Caret.Offset = oldOffset;
                 MotionDown();
-                CaretMoveActions.LineStart(Editor);
+                MotionLineStart();
             }
             else
             {
@@ -333,17 +333,17 @@ namespace JustEnoughVi
                     Editor.Caret.Offset = 0;
                     Editor.InsertAtCaret(text);
                     Editor.Caret.Offset = 0;
-                    CaretMoveActions.LineStart(Editor);
+                    MotionLineStart();
                 }
                 else
                 {
                     MotionUp();
-                    LineEnd(1, new char[]{ });
+                    MotionLineEnd();
                     Editor.Caret.Offset++;
                     int oldOffset = Editor.Caret.Offset;
                     Editor.InsertAtCaret(text);
                     Editor.Caret.Offset = oldOffset;
-                    CaretMoveActions.LineStart(Editor);
+                    MotionLineStart();
                 }
             }
             else
@@ -485,19 +485,6 @@ namespace JustEnoughVi
                 Editor.ClearSelection();
             }
 
-            return true;
-        }
-
-        private bool LineEnd(int count, char[] args)
-        {
-            CaretMoveActions.LineEnd(Editor);
-            return true;
-        }
-
-        private bool LineStart(int count, char[] args)
-        {
-            CaretMoveActions.LineStart(Editor);
-            Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
             return true;
         }
 

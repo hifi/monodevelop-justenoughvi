@@ -24,7 +24,9 @@ namespace JustEnoughVi
             KeyMap.Add("j", MotionDown);
             KeyMap.Add("h", MotionLeft);
             KeyMap.Add("l", MotionRight);
-
+            KeyMap.Add("^", MotionLineStart);
+            KeyMap.Add("_", MotionLineStart);
+            KeyMap.Add("$", MotionLineEnd);
             KeyMap.Add("^b", MotionPageUp);
             KeyMap.Add("^f", MotionPageDown);
             KeyMap.Add("^d", MotionPageUp);

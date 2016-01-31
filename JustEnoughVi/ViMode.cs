@@ -126,6 +126,24 @@ namespace JustEnoughVi
             return true;
         }
 
+        protected bool MotionLineEnd(int count = 1, char[] args = null)
+        {
+            CaretMoveActions.LineEnd(Editor);
+            return true;
+        }
+
+        protected bool MotionLineStart(int count = 1, char[] args = null)
+        {
+            CaretMoveActions.LineStart(Editor);
+
+            var line = Editor.GetLine(Editor.Caret.Line);
+
+            while (Char.IsWhiteSpace(Editor.Text[Editor.Caret.Offset]) && Editor.Caret.Offset < line.EndOffset)
+                   Editor.Caret.Offset++;
+
+            return true;
+        }
+
         public virtual bool KeyPress(KeyDescriptor descriptor)
         {
             // remap some function keys to Vi keys
