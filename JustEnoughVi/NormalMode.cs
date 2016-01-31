@@ -271,7 +271,6 @@ namespace JustEnoughVi
 
         private bool OpenAbove(int count, char[] args)
         {
-            CaretMoveActions.Up(Editor);
             if (Editor.Caret.Line == Mono.TextEditor.DocumentLocation.MinLine)
             {
                 Editor.Caret.Column = 1;
@@ -280,6 +279,7 @@ namespace JustEnoughVi
             }
             else
             {
+                CaretMoveActions.Up(Editor);
                 MiscActions.InsertNewLineAtEnd(Editor);
             }
             RequestedMode = Mode.Insert;
