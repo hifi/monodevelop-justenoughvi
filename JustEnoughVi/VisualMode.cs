@@ -81,7 +81,7 @@ namespace JustEnoughVi
             }
             else
             {
-                Editor.SetSelection(_startOffset, Editor.Caret.Offset);
+                Editor.SetSelection(_startOffset + (Editor.Caret.Offset < _startOffset ? 1 : 0), Editor.Caret.Offset + (Editor.Caret.Offset >= _startOffset ? 1 : 0));
             }
         }
 
