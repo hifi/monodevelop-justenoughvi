@@ -25,6 +25,8 @@ namespace JustEnoughVi
             KeyMap.Add("i", Insert);
             KeyMap.Add("I", InsertStart);
             KeyMap.Add("J", Join);
+            KeyMap.Add("n", SearchNext);
+            KeyMap.Add("N", SearchPrevious);
             KeyMap.Add("o", OpenBelow);
             KeyMap.Add("O", OpenAbove);
             KeyMap.Add("p", PasteAppend);
@@ -422,6 +424,18 @@ namespace JustEnoughVi
         private bool Search(int count, char[] args)
         {
             Dispatch(SearchCommands.Find);
+            return true;
+        }
+
+        private bool SearchNext(int count, char[] args)
+        {
+            Dispatch(SearchCommands.FindNext);
+            return true;
+        }
+
+        private bool SearchPrevious(int count, char[] args)
+        {
+            Dispatch(SearchCommands.FindPrevious);
             return true;
         }
 
