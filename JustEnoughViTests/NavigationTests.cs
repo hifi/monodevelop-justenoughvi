@@ -35,6 +35,9 @@ namespace JustEnoughViTests
         [TestCase("   12345$67890", "^", "   1$234567890")]
         [TestCase("   12345$67890", "0", "$   1234567890")]
         [TestCase("abcd$efghijk", "fg", "abcdefg$hijk")]
+        [TestCase("abcd$efghijk", "fz", "abcd$efghijk")]
+        [TestCase("abcd$efghijk", "Fa", "a$bcdefghijk")]
+        [TestCase("abcd$efghijk", "Fz", "abcd$efghijk")]
         [TestCase("123$45678", "f6", "123456$78")] //TODO: Fails because it thinks 6 is a count
         public void MiscTests(string source, string keys, string expected)
         {

@@ -19,6 +19,7 @@ namespace JustEnoughVi
             KeyMap.Add("d", Delete);
             KeyMap.Add("D", DeleteToEnd);
             KeyMap.Add("f", Find);
+            KeyMap.Add("F", FindPrevious);
             KeyMap.Add("g", Go);
             KeyMap.Add("G", GoToLine);
             KeyMap.Add("i", Insert);
@@ -172,7 +173,7 @@ namespace JustEnoughVi
             }
             else if (args[0] == '$')
             {
-                DeleteToEnd(1, new char[]{ });
+                DeleteToEnd(1, new char[] { });
             }
 
             return true;
@@ -192,7 +193,19 @@ namespace JustEnoughVi
                 return false;
 
             var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, args[0]);
-            Editor.Caret.Offset = offset;
+            if (offset > -1)
+                Editor.Caret.Offset = offset;
+            return true;
+        }
+
+        private bool FindPrevious(int count, char[] args)
+        {
+            if (args.Length == 0)
+                return false;
+
+            var offset = StringUtils.FindPreviousInLine(Editor.Text, Editor.Caret.Offset, args[0]);
+            if (offset > -1)
+                Editor.Caret.Offset = offset;
             return true;
         }
 
@@ -203,7 +216,7 @@ namespace JustEnoughVi
 
             if (args[0] == 'g')
             {
-                GoToLine(Math.Max(1, count), new char[]{ });
+                GoToLine(Math.Max(1, count), new char[] { });
             }
 
             if (args[0] == 'd')
@@ -271,7 +284,7 @@ namespace JustEnoughVi
 
         private bool OpenAbove(int count, char[] args)
         {
-            if (Editor.Caret.Line == Mono.TextEditor.DocumentLocation.MinLine)
+            if (Editor.Caret.Line == DocumentLocation.MinLine)
             {
                 Editor.Caret.Column = 1;
                 MiscActions.InsertNewLine(Editor);
@@ -289,14 +302,14 @@ namespace JustEnoughVi
         private bool PasteAppend(int count, char[] args)
         {
             // can the clipboard content be pulled without Gtk?
-            var clipboard = Gtk.Clipboard.Get(Mono.TextEditor.ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
+            var clipboard = Gtk.Clipboard.Get(ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
 
             if (!clipboard.WaitIsTextAvailable())
                 return true;
 
             string text = clipboard.WaitForText();
 
-            if (text.IndexOfAny(new char[]{ '\r', '\n' }) > 0)
+            if (text.IndexOfAny(new char[] { '\r', '\n' }) > 0)
             {
                 int oldOffset = Editor.Caret.Offset;
                 CaretMoveActions.LineEnd(Editor);
@@ -319,14 +332,14 @@ namespace JustEnoughVi
         private bool PasteInsert(int count, char[] args)
         {
             // can the clipboard content be pulled without Gtk?
-            var clipboard = Gtk.Clipboard.Get(Mono.TextEditor.ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
+            var clipboard = Gtk.Clipboard.Get(ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
 
             if (!clipboard.WaitIsTextAvailable())
                 return true;
 
             string text = clipboard.WaitForText();
 
-            if (text.IndexOfAny(new char[]{ '\r', '\n' }) > 0)
+            if (text.IndexOfAny(new char[] { '\r', '\n' }) > 0)
             {
                 if (Editor.Caret.Line == 1)
                 {
@@ -470,7 +483,7 @@ namespace JustEnoughVi
                 return false;
 
             if (args[0] == 'y')
-                YankLine(1, new char[]{});
+                YankLine(1, new char[] { });
 
             return true;
         }
