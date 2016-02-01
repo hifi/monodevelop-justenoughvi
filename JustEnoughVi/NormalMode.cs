@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using Mono.TextEditor;
+using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
@@ -228,13 +228,13 @@ namespace JustEnoughVi
 
             if (args[0] == 't')
             {
-                Dispatch(MonoDevelop.Ide.Commands.WindowCommands.NextDocument);
+                Dispatch(WindowCommands.NextDocument);
                 return true;
             }
 
             if (args[0] == 'T')
             {
-                Dispatch(MonoDevelop.Ide.Commands.WindowCommands.PrevDocument);
+                Dispatch(WindowCommands.PrevDocument);
                 return true;
             }
 
@@ -421,7 +421,7 @@ namespace JustEnoughVi
 
         private bool Search(int count, char[] args)
         {
-            Dispatch(MonoDevelop.Ide.Commands.SearchCommands.Find);
+            Dispatch(SearchCommands.Find);
             return true;
         }
 
@@ -520,7 +520,7 @@ namespace JustEnoughVi
                 return false;
 
             if (args[0] == 'z')
-                Dispatch(MonoDevelop.Ide.Commands.TextEditorCommands.RecenterEditor);
+                Dispatch(TextEditorCommands.RecenterEditor);
 
             return true;
         }
