@@ -35,8 +35,8 @@ namespace JustEnoughVi
 
             KeyMap.Add("^b", MotionPageUp);
             KeyMap.Add("^f", MotionPageDown);
-            KeyMap.Add("^d", MotionPageUp);
-            KeyMap.Add("^u", MotionPageDown);
+            KeyMap.Add("^d", MotionPageDown);
+            KeyMap.Add("^u", MotionPageUp);
 
             // remaps
             KeyMap.Add("Home", MotionFirstColumn);
