@@ -37,6 +37,7 @@ namespace JustEnoughVi
             KeyMap.Add("x", DeleteCharacter);
             KeyMap.Add("y", Yank);
             KeyMap.Add("Y", YankLine);
+            KeyMap.Add("z", Recenter);
             KeyMap.Add("/", Search);
             KeyMap.Add("<", IndentRemove);
             KeyMap.Add(">", IndentAdd);
@@ -221,19 +222,19 @@ namespace JustEnoughVi
 
             if (args[0] == 'd')
             {
-                MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand("MonoDevelop.Refactoring.RefactoryCommands.GotoDeclaration");
+                Dispatch("MonoDevelop.Refactoring.RefactoryCommands.GotoDeclaration");
                 return true;
             }
 
             if (args[0] == 't')
             {
-                MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.WindowCommands.NextDocument);
+                Dispatch(MonoDevelop.Ide.Commands.WindowCommands.NextDocument);
                 return true;
             }
 
             if (args[0] == 'T')
             {
-                MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.WindowCommands.PrevDocument);
+                Dispatch(MonoDevelop.Ide.Commands.WindowCommands.PrevDocument);
                 return true;
             }
 
@@ -420,7 +421,7 @@ namespace JustEnoughVi
 
         private bool Search(int count, char[] args)
         {
-            MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.SearchCommands.Find);
+            Dispatch(MonoDevelop.Ide.Commands.SearchCommands.Find);
             return true;
         }
 
@@ -513,10 +514,26 @@ namespace JustEnoughVi
             return true;
         }
 
+        private bool Recenter(int count, char[] args)
+        {
+            if (args.Length == 0)
+                return false;
+
+            if (args[0] == 'z')
+                Dispatch(MonoDevelop.Ide.Commands.TextEditorCommands.RecenterEditor);
+
+            return true;
+        }
+
         private bool MatchingBrace(int count, char[] args)
         {
             MiscActions.GotoMatchingBracket(Editor);
             return true;
+        }
+
+        private bool Dispatch(object command)
+        {
+            return MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(command);
         }
 
         #region implemented abstract members of ViMode
