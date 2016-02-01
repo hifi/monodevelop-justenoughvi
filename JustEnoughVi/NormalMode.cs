@@ -225,6 +225,18 @@ namespace JustEnoughVi
                 return true;
             }
 
+            if (args[0] == 't')
+            {
+                MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.WindowCommands.NextDocument);
+                return true;
+            }
+
+            if (args[0] == 'T')
+            {
+                MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(MonoDevelop.Ide.Commands.WindowCommands.PrevDocument);
+                return true;
+            }
+
             return true;
         }
 
