@@ -5,19 +5,32 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
+    public abstract class MoveCaretCommand : Command
+    {
+        public MoveCaretCommand(string keybind) : base(keybind)
+        {
+        }
+
+        public override CommandResult Run()
+        {
+            Editor.Caret.Offset = Motion.StartOffset;
+            return new CommandResult(true, Mode.None);
+        }
+    }
+
     public class NormalMode : ViMode
     {
         public NormalMode(TextEditorData editor) : base(editor)
         {
             // normal mode keys
             KeyMap.Add("0", MotionFirstColumn);
-            KeyMap.Add("a", Append);
+            //KeyMap.Add("a", Append);
             KeyMap.Add("A", AppendEnd);
-            KeyMap.Add("b", WordBack);
-            KeyMap.Add("c", Change);
-            KeyMap.Add("C", ChangeToEnd);
-            KeyMap.Add("d", Delete);
-            KeyMap.Add("D", DeleteToEnd);
+            //KeyMap.Add("b", WordBack);
+            //KeyMap.Add("c", Change);
+            //KeyMap.Add("C", ChangeToEnd);
+            //KeyMap.Add("d", Delete);
+            //KeyMap.Add("D", DeleteToEnd);
             KeyMap.Add("f", Find);
             KeyMap.Add("F", FindPrevious);
             KeyMap.Add("g", Go);
@@ -35,7 +48,7 @@ namespace JustEnoughVi
             KeyMap.Add("u", Undo);
             KeyMap.Add("v", Visual);
             KeyMap.Add("V", VisualLine);
-            KeyMap.Add("w", Word);
+            //KeyMap.Add("w", Word);
             KeyMap.Add("x", DeleteCharacter);
             KeyMap.Add("y", Yank);
             KeyMap.Add("Y", YankLine);
@@ -49,13 +62,126 @@ namespace JustEnoughVi
             KeyMap.Add("Delete", DeleteCharacter);
         }
 
-        private bool Append(int count, char[] args)
+        public class AppendCommand : Command
         {
-            CaretMoveActions.Right(Editor);
-            RequestedMode = Mode.Insert;
-            return true;
+            public AppendCommand() : base("a") 
+            {
+                NeedsMotion = false;
+            }
+
+            public override CommandResult Run()
+            {
+                CaretMoveActions.Right(Editor);
+                return new CommandResult(true, Mode.Insert);
+            }
         }
 
+        public class ChangeCommand : Command
+        {
+            public ChangeCommand() : base("c") 
+            {
+            }
+
+            public override CommandResult Run()
+            {
+                Editor.SelectionRange = new TextSegment(Motion.StartOffset, Motion.EndOffset - Motion.StartOffset);
+                Editor.DeleteSelectedText();
+                return new CommandResult(true, Mode.Insert);
+            }
+        }
+
+        public class ChangeToEndCommand : Command
+        {
+            public ChangeToEndCommand() : base("C") 
+            {
+                Motion = new EndOfLineMotion();
+            }
+
+            public override CommandResult Run()
+            {
+                Editor.SelectionRange = new TextSegment(Motion.StartOffset, Motion.EndOffset - Motion.StartOffset);
+                Editor.DeleteSelectedText();
+                return new CommandResult(true, Mode.Insert);
+            }
+        }
+
+        public class DeleteCommand : Command
+        {
+            public DeleteCommand() : base("d") 
+            {
+            }
+
+            public override CommandResult Run()
+            {
+                var endOffset = Motion.EndOffset;
+                if (Char.IsWhiteSpace(Editor.GetCharAt(endOffset-1)))
+                {
+                    endOffset--;
+                }
+                int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+                Editor.SetSelection(Editor.Caret.Offset, wordOffset);
+                //Editor.SelectionRange = new TextSegment(Motion.StartOffset, endOffset - Motion.StartOffset);
+
+                ClipboardActions.Cut(Editor);
+                return new CommandResult(true);
+            }
+        }
+
+        public class DeleteToEndCommand : Command
+        {
+            public DeleteToEndCommand() : base("D") 
+            {
+                NeedsMotion = false;
+                Motion = new EndOfLineMotion();
+            }
+
+            public override CommandResult Run()
+            {
+                Editor.SelectionRange = new TextSegment(Motion.StartOffset, Motion.EndOffset - Motion.StartOffset - 1);
+                ClipboardActions.Cut(Editor);
+                return new CommandResult(true);
+            }
+        }
+
+        public class WordCommand : Command
+        {
+            public WordCommand() : base("w")
+            {
+                Motion = new WordMotion();
+            }
+
+            public override CommandResult Run()
+            {
+                Editor.Caret.Offset = Motion.EndOffset;
+                return new CommandResult(true);
+            }
+        }
+
+        public class WordBackCommand : Command
+        {
+            public WordBackCommand() : base("W")
+            {
+                Motion = new WordBackMotion();
+            }
+
+            public override CommandResult Run()
+            {
+                Editor.Caret.Offset = Motion.StartOffset;
+                return new CommandResult(true, Mode.None);
+            }
+        }
+
+        //private bool Append(int count, char[] args)
+        //{
+        //    CaretMoveActions.Right(Editor);
+        //    RequestedMode = Mode.Insert;
+        //    return true;
+        //}
+        //private bool Word(int count, char[] args)
+        //{
+        //    Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+        //    return true;
+        //}
         private bool AppendEnd(int count, char[] args)
         {
             CaretMoveActions.LineEnd(Editor);
@@ -63,132 +189,132 @@ namespace JustEnoughVi
             return true;
         }
 
-        private bool WordBack(int count, char[] args)
-        {
-            Editor.Caret.Offset = StringUtils.PreviousWordOffset(Editor.Text, Editor.Caret.Offset);
-            return true;
-        }
+        //private bool WordBack(int count, char[] args)
+        //{
+        //    Editor.Caret.Offset = StringUtils.PreviousWordOffset(Editor.Text, Editor.Caret.Offset);
+        //    return true;
+        //}
 
-        private bool Change(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
+        //private bool Change(int count, char[] args)
+        //{
+        //    if (args.Length == 0)
+        //        return false;
 
-            if (args[0] == 'c')
-            {
-                MotionLineStart();
-                int start = Editor.Caret.Offset;
-                MotionLineEnd();
-                Editor.SetSelection(start, Editor.Caret.Offset);
-                ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
-            }
+        //    if (args[0] == 'c')
+        //    {
+        //        MotionLineStart();
+        //        int start = Editor.Caret.Offset;
+        //        MotionLineEnd();
+        //        Editor.SetSelection(start, Editor.Caret.Offset);
+        //        ClipboardActions.Cut(Editor);
+        //        RequestedMode = Mode.Insert;
+        //    }
 
-            if (args[0] == '$')
-            {
-                ChangeToEnd(1, new char[] { });
-                return true;
-            }
+        //    if (args[0] == '$')
+        //    {
+        //        ChangeToEnd(1, new char[] { });
+        //        return true;
+        //    }
 
-            if (args[0] == 'w')
-            {
-                Editor.SetSelection(Editor.Caret.Offset, StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset));
-                ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
-            }
+        //    if (args[0] == 'w')
+        //    {
+        //        Editor.SetSelection(Editor.Caret.Offset, StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset));
+        //        ClipboardActions.Cut(Editor);
+        //        RequestedMode = Mode.Insert;
+        //    }
 
-            else if (args[0] == 'i')
-            {
-                if (args.Length < 2)
-                    return false;
+        //    else if (args[0] == 'i')
+        //    {
+        //        if (args.Length < 2)
+        //            return false;
 
-                if (args[1] == '"')
-                {
-                    if (Editor.Text[Editor.Caret.Offset] != '"')
-                        return true;
+        //        if (args[1] == '"')
+        //        {
+        //            if (Editor.Text[Editor.Caret.Offset] != '"')
+        //                return true;
 
-                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, '"');
-                    if (offset > 0)
-                    {
-                        CaretMoveActions.Right(Editor);
-                        Editor.SetSelection(Editor.Caret.Offset, offset);
-                        ClipboardActions.Cut(Editor);
-                        RequestedMode = Mode.Insert;
-                    }
-                }
+        //            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, '"');
+        //            if (offset > 0)
+        //            {
+        //                CaretMoveActions.Right(Editor);
+        //                Editor.SetSelection(Editor.Caret.Offset, offset);
+        //                ClipboardActions.Cut(Editor);
+        //                RequestedMode = Mode.Insert;
+        //            }
+        //        }
 
-                if (args[1] == '(')
-                {
-                    if (Editor.Text[Editor.Caret.Offset] != '(')
-                        return true;
+        //        if (args[1] == '(')
+        //        {
+        //            if (Editor.Text[Editor.Caret.Offset] != '(')
+        //                return true;
 
-                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, ')');
-                    if (offset > 0)
-                    {
-                        CaretMoveActions.Right(Editor);
-                        Editor.SetSelection(Editor.Caret.Offset, offset);
-                        ClipboardActions.Cut(Editor);
-                        RequestedMode = Mode.Insert;
-                    }
-                }
-            }
+        //            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, ')');
+        //            if (offset > 0)
+        //            {
+        //                CaretMoveActions.Right(Editor);
+        //                Editor.SetSelection(Editor.Caret.Offset, offset);
+        //                ClipboardActions.Cut(Editor);
+        //                RequestedMode = Mode.Insert;
+        //            }
+        //        }
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
-        private bool ChangeToEnd(int count, char[] args)
-        {
-            int start = Editor.Caret.Offset;
-            CaretMoveActions.LineEnd(Editor);
-            Editor.SetSelection(start, Editor.Caret.Offset);
-            ClipboardActions.Cut(Editor);
-            RequestedMode = Mode.Insert;
-            return true;
-        }
+        //private bool ChangeToEnd(int count, char[] args)
+        //{
+        //    int start = Editor.Caret.Offset;
+        //    CaretMoveActions.LineEnd(Editor);
+        //    Editor.SetSelection(start, Editor.Caret.Offset);
+        //    ClipboardActions.Cut(Editor);
+        //    RequestedMode = Mode.Insert;
+        //    return true;
+        //}
 
-        private bool Delete(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
+        //private bool Delete(int count, char[] args)
+        //{
+        //    if (args.Length == 0)
+        //        return false;
 
-            if (args[0] == 'd')
-            {
-                // hack for last line, it doesn't actually cut the line though
-                if (Editor.Caret.Offset == Editor.Text.Length)
-                {
-                    var line = Editor.GetLine(Editor.Caret.Line);
-                    if (line.Offset == line.EndOffset)
-                    {
-                        DeleteActions.Backspace(Editor);
-                        return true;
-                    }
-                }
+        //    if (args[0] == 'd')
+        //    {
+        //        // hack for last line, it doesn't actually cut the line though
+        //        if (Editor.Caret.Offset == Editor.Text.Length)
+        //        {
+        //            var line = Editor.GetLine(Editor.Caret.Line);
+        //            if (line.Offset == line.EndOffset)
+        //            {
+        //                DeleteActions.Backspace(Editor);
+        //                return true;
+        //            }
+        //        }
 
-                SetSelectLines(Editor.Caret.Line, Editor.Caret.Line + count + (count > 0 ? -1 : 0));
-                ClipboardActions.Cut(Editor);
-                MotionLineStart();
-            }
-            else if (args[0] == 'w')
-            {
-                int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
-                Editor.SetSelection(Editor.Caret.Offset, wordOffset);
-                ClipboardActions.Cut(Editor);
-            }
-            else if (args[0] == '$')
-            {
-                DeleteToEnd(1, new char[] { });
-            }
+        //        SetSelectLines(Editor.Caret.Line, Editor.Caret.Line + count + (count > 0 ? -1 : 0));
+        //        ClipboardActions.Cut(Editor);
+        //        MotionLineStart();
+        //    }
+        //    else if (args[0] == 'w')
+        //    {
+        //        int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+        //        Editor.SetSelection(Editor.Caret.Offset, wordOffset);
+        //        ClipboardActions.Cut(Editor);
+        //    }
+        //    else if (args[0] == '$')
+        //    {
+        //        DeleteToEnd(1, new char[] { });
+        //    }
 
-            return true;
-        }
+        //    return true;
+        //}
 
-        private bool DeleteToEnd(int count, char[] args)
-        {
-            var line = Editor.GetLine(Editor.Caret.Line);
-            Editor.SetSelection(Editor.Caret.Offset, line.EndOffset);
-            ClipboardActions.Cut(Editor);
-            return true;
-        }
+        //private bool DeleteToEnd(int count, char[] args)
+        //{
+        //    var line = Editor.GetLine(Editor.Caret.Line);
+        //    Editor.SetSelection(Editor.Caret.Offset, line.EndOffset);
+        //    ClipboardActions.Cut(Editor);
+        //    return true;
+        //}
 
         private bool Find(int count, char[] args)
         {
@@ -487,11 +613,11 @@ namespace JustEnoughVi
             return true;
         }
 
-        private bool Word(int count, char[] args)
-        {
-            Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
-            return true;
-        }
+        //private bool Word(int count, char[] args)
+        //{
+        //    Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+        //    return true;
+        //}
 
         private bool DeleteCharacter(int count, char[] args)
         {

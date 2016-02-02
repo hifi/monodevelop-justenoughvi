@@ -29,7 +29,10 @@ namespace JustEnoughViTests
         [TestCase("abc$efg", "cc", "$")]
         [TestCase("abc$efg", "c$", "ab$")]
         [TestCase("a l$ong sentence", "cw", "a $sentence")]
-        [TestCase("( abcde$fghij )", "ci(", "($)")]
+        [TestCase("a l$ong sentence", "2cw", "a $")]
+        [TestCase("a l$ong sentence", "C", "a $")]
+        [TestCase("a lo$ng sentence", "c2w", "a l$")]
+        //[TestCase("( abcde$fghij )", "ci(", "($)")]
         //TODO: 2cw & c2w
         public void Change_tests(string source, string keys, string expected)
         {

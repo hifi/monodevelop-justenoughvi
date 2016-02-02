@@ -168,6 +168,7 @@ namespace JustEnoughVi
 
         public virtual bool KeyPress(KeyDescriptor descriptor)
         {
+            //if (_co
             string command;
 
             if (descriptor.SpecialKey > 0)

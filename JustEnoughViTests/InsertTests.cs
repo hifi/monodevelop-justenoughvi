@@ -18,6 +18,12 @@ namespace JustEnoughViTests
             Test("abcd$", "a", "abcd$", typeof(InsertMode));
         }
 
+        [TestCase("a lon$g sentence", "a", "a lon$g sentence")]
+        [TestCase("a lon$g sentence", "A", "a long sentence$")]
+        public void A_tests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(InsertMode));
+        }
         [Test] //TODO: this inserts the new line in the wrong place
         public void Should_insert_new_line_above()
         {

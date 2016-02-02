@@ -23,7 +23,7 @@
     <ConsolePause>false</ConsolePause>
     <CustomCommands>
       <CustomCommands>
-        <Command type="Execute" command="../../monodevelop/main/build/bin/mdtool.exe run-md-tests bin/Debug/JustEnoughViTests.dll" />
+        <Command type="Execute" command="../../monodevelop/main/build/bin/mdtool.exe run-md-tests bin/Debug/JustEnoughViTests.dll -labels" />
       </CustomCommands>
     </CustomCommands>
   </PropertyGroup>
