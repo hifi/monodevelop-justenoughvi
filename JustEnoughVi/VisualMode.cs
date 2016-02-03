@@ -11,6 +11,58 @@ namespace JustEnoughVi
         Line
     }
 
+    public class CutSelectionCommand : Command
+    {
+        public CutSelectionCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            ClipboardActions.Cut(Editor);
+            RequestedMode = Mode.Normal;
+        }
+    }
+
+    public class YankSelectionCommand : Command
+    {
+        public YankSelectionCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            ClipboardActions.Copy(Editor);
+            RequestedMode = Mode.Normal;
+        }
+    }
+
+    public class IndentSelectionCommand : Command
+    {
+        public IndentSelectionCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                MiscActions.IndentSelection(Editor);
+            }
+
+            RequestedMode = Mode.Normal;
+        }
+    }
+
+    public class RemoveIndentSelectionCommand : Command
+    {
+        public RemoveIndentSelectionCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                MiscActions.RemoveIndentSelection(Editor);
+            }
+
+            RequestedMode = Mode.Normal;
+        }
+    }
+
     public class VisualMode : ViMode
     {
         private int _startOffset;
@@ -20,53 +72,15 @@ namespace JustEnoughVi
         public VisualMode(TextEditorData editor) : base(editor)
         {
             // visual mode keys
-            KeyMap.Add("d", SelectionCut);
-            KeyMap.Add("x", SelectionCut);
-            KeyMap.Add("<", IndentRemove);
-            KeyMap.Add(">", IndentAdd);
-            KeyMap.Add("y", Yank);
-            KeyMap.Add("Y", Yank);
+            CommandMap.Add("d", new CutSelectionCommand(editor));
+            CommandMap.Add("x", new CutSelectionCommand(editor));
+            CommandMap.Add("y", new YankSelectionCommand(editor));
+            CommandMap.Add("Y", new YankSelectionCommand(editor));
+            CommandMap.Add(">", new IndentSelectionCommand(editor));
+            CommandMap.Add("<", new RemoveIndentSelectionCommand(editor));
 
             // function key remaps
-            KeyMap.Add("Delete", SelectionCut);
-        }
-
-        private bool SelectionCut(int count = 0, char[] args = null)
-        {
-            ClipboardActions.Cut(Editor);
-            RequestedMode = Mode.Normal;
-            return true;
-        }
-
-        private bool IndentRemove(int count = 0, char[] args = null)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                MiscActions.RemoveIndentSelection(Editor);
-            }
-
-            RequestedMode = Mode.Normal;
-            return true;
-        }
-
-        private bool IndentAdd(int count = 0, char[] args = null)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                MiscActions.IndentSelection(Editor);
-            }
-
-            RequestedMode = Mode.Normal;
-            return true;
-        }
-
-        private bool Yank(int count = 0, char[] args = null)
-        {
-            ClipboardActions.Copy(Editor);
-            RequestedMode = Mode.Normal;
-            return true;
+            //KeyMap.Add("Delete", SelectionCut);
         }
 
         #region implemented abstract members of ViMode
