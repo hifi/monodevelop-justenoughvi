@@ -5,20 +5,64 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
+    public class AppendCommand : Command
+    {
+        public AppendCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            CaretMoveActions.Right(Editor);
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class ChangeLineCommand : Command
+    {
+        public ChangeLineCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.LineStart(Editor);
+            int start = Editor.Caret.Offset;
+            Motion.LineEnd(Editor);
+            Editor.SetSelection(start, Editor.Caret.Offset);
+            ClipboardActions.Cut(Editor);
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class FindCommand : Command
+    {
+        public FindCommand(TextEditorData editor) : base(editor)
+        {
+            TakeArgument = true;
+        }
+
+        protected override void Run()
+        {
+            var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
+            if (offset > -1)
+                Editor.Caret.Offset = offset;
+        }
+    }
+
     public class NormalMode : ViMode
     {
         public NormalMode(TextEditorData editor) : base(editor)
         {
+            // normal mode commands
+            CommandMap.Add("a", new AppendCommand(editor));
+            CommandMap.Add("cc", new ChangeLineCommand(editor));
+            CommandMap.Add("f", new FindCommand(editor));
+
             // normal mode keys
             KeyMap.Add("0", MotionFirstColumn);
-            KeyMap.Add("a", Append);
             KeyMap.Add("A", AppendEnd);
             KeyMap.Add("b", WordBack);
             KeyMap.Add("c", Change);
             KeyMap.Add("C", ChangeToEnd);
             KeyMap.Add("d", Delete);
             KeyMap.Add("D", DeleteToEnd);
-            KeyMap.Add("f", Find);
             KeyMap.Add("F", FindPrevious);
             KeyMap.Add("g", Go);
             KeyMap.Add("G", GoToLine);
@@ -49,13 +93,6 @@ namespace JustEnoughVi
             KeyMap.Add("Delete", DeleteCharacter);
         }
 
-        private bool Append(int count, char[] args)
-        {
-            CaretMoveActions.Right(Editor);
-            RequestedMode = Mode.Insert;
-            return true;
-        }
-
         private bool AppendEnd(int count, char[] args)
         {
             CaretMoveActions.LineEnd(Editor);
@@ -73,16 +110,6 @@ namespace JustEnoughVi
         {
             if (args.Length == 0)
                 return false;
-
-            if (args[0] == 'c')
-            {
-                MotionLineStart();
-                int start = Editor.Caret.Offset;
-                MotionLineEnd();
-                Editor.SetSelection(start, Editor.Caret.Offset);
-                ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
-            }
 
             if (args[0] == '$')
             {

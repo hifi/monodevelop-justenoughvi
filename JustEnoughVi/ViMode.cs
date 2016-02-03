@@ -11,18 +11,23 @@ namespace JustEnoughVi
         public TextEditorData Editor { get; set; }
         public Mode RequestedMode { get; internal set; }
         protected Dictionary<string , Func<int, char[], bool>> KeyMap { get; private set; }
+        protected Dictionary<string , Command> CommandMap { get; private set; }
 
         private readonly List<char> _commandBuf;
         private int _count;
         private bool _countReset;
+        private Command _command;
+        private string _buf;
 
         protected ViMode(TextEditorData editor)
         {
             Editor = editor;
             RequestedMode = Mode.None;
             KeyMap = new Dictionary<string, Func<int, char[], bool>>();
+            CommandMap = new Dictionary<string, Command>();
 
             _commandBuf = new List<char>();
+            _buf = "";
 
             // standard motion keys
             KeyMap.Add("k", MotionUp);
@@ -68,6 +73,7 @@ namespace JustEnoughVi
             _commandBuf.Clear();
             _count = 0;
             _countReset = false;
+            _buf = "";
         }
 
         private void CaretOffEol()
@@ -166,8 +172,68 @@ namespace JustEnoughVi
             return true;
         }
 
+        private bool CommandKeyPress(KeyDescriptor descriptor)
+        {
+            // build repeat buffer
+            if (_command == null && (_count > 0 || descriptor.KeyChar > '0') && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
+            {
+                _count = (_count * 10) + (descriptor.KeyChar - 48);
+                return false;
+            }
+            // secondary run if command supports secondary count
+            else if (_command != null && _command.SecondaryCount && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
+            {
+                if (!_countReset)
+                {
+                    _count = 0;
+                    _countReset = true;
+                }
+
+                _count = (_count * 10) + (descriptor.KeyChar - 48);
+                return false;
+            }
+
+            _buf += Char.ToString(descriptor.KeyChar);
+
+            if (_command == null)
+            {
+
+                if (descriptor.ModifierKeys == ModifierKeys.Control)
+                    _buf = "^" + _buf;
+
+                if (!CommandMap.ContainsKey(_buf))
+                {
+                    if (_buf.Length > 2)
+                    {
+                        _count = 0;
+                        _buf = "";
+                        Reset();
+                    }
+                    return true;
+                }
+
+                _command = CommandMap[_buf];
+                _buf = "";
+                if (_command.TakeArgument)
+                    return false;
+            }
+
+            CaretOffEol();
+
+            RequestedMode = _command.RunCommand(_count, (char)(_buf.Length > 0 ? _buf[0] : 0));
+            _command = null;
+            Reset();
+
+            CaretOffEol();
+            return false;
+        }
+
         public virtual bool KeyPress(KeyDescriptor descriptor)
         {
+            // glue this here for now
+            if (!CommandKeyPress(descriptor))
+                return false;
+
             string command;
 
             if (descriptor.SpecialKey > 0)
