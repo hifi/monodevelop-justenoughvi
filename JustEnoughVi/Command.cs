@@ -6,7 +6,6 @@ namespace JustEnoughVi
     public abstract class Command
     {
         public bool TakeArgument { get; protected set; }
-        public bool SecondaryCount { get; protected set; }
         public int MinCount { get; protected set; }
         protected Mode RequestedMode { private get; set; }
 
@@ -17,7 +16,6 @@ namespace JustEnoughVi
         protected Command(TextEditorData editor)
         {
             TakeArgument = false;
-            SecondaryCount = false;
             MinCount = 1;
             Editor = editor;
         }

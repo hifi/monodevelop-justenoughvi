@@ -101,7 +101,6 @@ namespace JustEnoughVi
         protected Dictionary<string , Command> CommandMap { get; private set; }
 
         private int _count;
-        private bool _countReset;
         private Command _command;
         private string _buf;
 
@@ -155,7 +154,6 @@ namespace JustEnoughVi
         private void Reset()
         {
             _count = 0;
-            _countReset = false;
             _buf = "";
         }
 
@@ -177,18 +175,6 @@ namespace JustEnoughVi
                 _count = (_count * 10) + (descriptor.KeyChar - 48);
                 return false;
             }
-            // secondary run if command supports secondary count
-            else if (_command != null && _command.SecondaryCount && descriptor.KeyChar >= '0' && descriptor.KeyChar <= '9')
-            {
-                if (!_countReset)
-                {
-                    _count = 0;
-                    _countReset = true;
-                }
-
-                _count = (_count * 10) + (descriptor.KeyChar - 48);
-                return false;
-            }
 
             _buf += Char.ToString(descriptor.KeyChar);
 
@@ -200,10 +186,9 @@ namespace JustEnoughVi
 
                 if (!CommandMap.ContainsKey(_buf))
                 {
+                    _count = 0;
                     if (_buf.Length > 2)
                     {
-                        _count = 0;
-                        _buf = "";
                         Reset();
                     }
                     return false;
