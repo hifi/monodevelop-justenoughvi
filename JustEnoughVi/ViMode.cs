@@ -187,10 +187,14 @@ namespace JustEnoughVi
                 if (!CommandMap.ContainsKey(_buf))
                 {
                     _count = 0;
-                    if (_buf.Length > 2)
+
+                    foreach (var k in CommandMap.Keys)
                     {
-                        Reset();
+                        if (k.StartsWith(_buf, StringComparison.Ordinal))
+                            return false;
                     }
+
+                    Reset();
                     return false;
                 }
 
