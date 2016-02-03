@@ -34,6 +34,12 @@ namespace JustEnoughVi
         }
 
         protected abstract void Run();
+
+        // FIXME: refactor somewhere else?
+        protected bool Dispatch(object command)
+        {
+            return MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(command);
+        }
     }
 }
 

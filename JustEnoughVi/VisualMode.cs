@@ -91,7 +91,7 @@ namespace JustEnoughVi
             {
                 var startLine = Editor.GetLineByOffset(_startOffset);
                 var endLine = Editor.GetLineByOffset(Editor.Caret.Offset);
-                SetSelectLines(startLine.LineNumber, endLine.LineNumber);
+                Motion.SetSelectLines(Editor, startLine.LineNumber, endLine.LineNumber);
             }
             else
             {

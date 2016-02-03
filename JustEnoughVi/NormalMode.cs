@@ -26,6 +26,28 @@ namespace JustEnoughVi
         }
     }
 
+    public class AppendEndCommand : Command
+    {
+        public AppendEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.LineEnd(Editor);
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class WordBackCommand : Command
+    {
+        public WordBackCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Editor.Caret.Offset = StringUtils.PreviousWordOffset(Editor.Text, Editor.Caret.Offset);
+        }
+    }
+
     public class ChangeLineCommand : Command
     {
         public ChangeLineCommand(TextEditorData editor) : base(editor) { }
@@ -41,6 +63,119 @@ namespace JustEnoughVi
         }
     }
 
+    public class ChangeInsideDoubleQuotesCommand : Command
+    {
+        public ChangeInsideDoubleQuotesCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            if (Editor.Text[Editor.Caret.Offset] != '"')
+                return;
+
+            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, '"');
+            if (offset > 0)
+            {
+                CaretMoveActions.Right(Editor);
+                Editor.SetSelection(Editor.Caret.Offset, offset);
+                ClipboardActions.Cut(Editor);
+                RequestedMode = Mode.Insert;
+            }
+        }
+    }
+
+    public class ChangeInsideParenthesesCommand : Command
+    {
+        public ChangeInsideParenthesesCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            if (Editor.Text[Editor.Caret.Offset] != '(')
+                return;
+
+            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, ')');
+            if (offset > 0)
+            {
+                CaretMoveActions.Right(Editor);
+                Editor.SetSelection(Editor.Caret.Offset, offset);
+                ClipboardActions.Cut(Editor);
+                RequestedMode = Mode.Insert;
+            }
+        }
+    }
+
+    public class ChangeWordCommand : Command
+    {
+        public ChangeWordCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Editor.SetSelection(Editor.Caret.Offset, StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset));
+            ClipboardActions.Cut(Editor);
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class ChangeToEndCommand : Command
+    {
+        public ChangeToEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            int start = Editor.Caret.Offset;
+            CaretMoveActions.LineEnd(Editor);
+            Editor.SetSelection(start, Editor.Caret.Offset);
+            ClipboardActions.Cut(Editor);
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class DeleteLineCommand : Command
+    {
+        public DeleteLineCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            // hack for last line, it doesn't actually cut the line though
+            if (Editor.Caret.Offset == Editor.Text.Length)
+            {
+                var line = Editor.GetLine(Editor.Caret.Line);
+                if (line.Offset == line.EndOffset)
+                {
+                    DeleteActions.Backspace(Editor);
+                    return;
+                }
+            }
+
+            Motion.SetSelectLines(Editor, Editor.Caret.Line, Editor.Caret.Line + Count + (Count > 0 ? -1 : 0));
+            ClipboardActions.Cut(Editor);
+            Motion.LineStart(Editor);
+        }
+    }
+
+    public class DeleteWordCommand : Command
+    {
+        public DeleteWordCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+            Editor.SetSelection(Editor.Caret.Offset, wordOffset);
+            ClipboardActions.Cut(Editor);
+        }
+    }
+
+    public class DeleteLineEndCommand : Command
+    {
+        public DeleteLineEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            var line = Editor.GetLine(Editor.Caret.Line);
+            Editor.SetSelection(Editor.Caret.Offset, line.EndOffset);
+            ClipboardActions.Cut(Editor);
+        }
+    }
+
     public class FindCommand : Command
     {
         public FindCommand(TextEditorData editor) : base(editor)
@@ -50,255 +185,117 @@ namespace JustEnoughVi
 
         protected override void Run()
         {
-            var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
-            if (offset > -1)
+            for (int i = 0; i < Count; i++)
+            {
+                var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (offset <= 0)
+                    return;
+
                 Editor.Caret.Offset = offset;
+            }
         }
     }
 
-    public class NormalMode : ViMode
+    public class FindPreviousCommand : Command
     {
-        public NormalMode(TextEditorData editor) : base(editor)
+        public FindPreviousCommand(TextEditorData editor) : base(editor)
         {
-            // normal mode commands
-            CommandMap.Add("0", new FirstColumnCommand(editor));
-            CommandMap.Add("a", new AppendCommand(editor));
-            CommandMap.Add("cc", new ChangeLineCommand(editor));
-            CommandMap.Add("f", new FindCommand(editor));
-
-            // normal mode keys
-            KeyMap.Add("A", AppendEnd);
-            KeyMap.Add("b", WordBack);
-            KeyMap.Add("c", Change);
-            KeyMap.Add("C", ChangeToEnd);
-            KeyMap.Add("d", Delete);
-            KeyMap.Add("D", DeleteToEnd);
-            KeyMap.Add("F", FindPrevious);
-            KeyMap.Add("g", Go);
-            KeyMap.Add("G", GoToLine);
-            KeyMap.Add("i", Insert);
-            KeyMap.Add("I", InsertStart);
-            KeyMap.Add("J", Join);
-            KeyMap.Add("n", SearchNext);
-            KeyMap.Add("N", SearchPrevious);
-            KeyMap.Add("o", OpenBelow);
-            KeyMap.Add("O", OpenAbove);
-            KeyMap.Add("p", PasteAppend);
-            KeyMap.Add("P", PasteInsert);
-            KeyMap.Add("r", Replace);
-            KeyMap.Add("u", Undo);
-            KeyMap.Add("v", Visual);
-            KeyMap.Add("V", VisualLine);
-            KeyMap.Add("w", Word);
-            KeyMap.Add("x", DeleteCharacter);
-            KeyMap.Add("y", Yank);
-            KeyMap.Add("Y", YankLine);
-            KeyMap.Add("z", Recenter);
-            KeyMap.Add("/", Search);
-            KeyMap.Add("<", IndentRemove);
-            KeyMap.Add(">", IndentAdd);
-            KeyMap.Add("%", MatchingBrace);
-
-            // remaps
-            KeyMap.Add("Delete", DeleteCharacter);
+            TakeArgument = true;
         }
 
-        private bool AppendEnd(int count, char[] args)
+        protected override void Run()
         {
-            CaretMoveActions.LineEnd(Editor);
-            RequestedMode = Mode.Insert;
-            return true;
-        }
-
-        private bool WordBack(int count, char[] args)
-        {
-            Editor.Caret.Offset = StringUtils.PreviousWordOffset(Editor.Text, Editor.Caret.Offset);
-            return true;
-        }
-
-        private bool Change(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
-
-            if (args[0] == '$')
+            for (int i = 0; i < Count; i++)
             {
-                ChangeToEnd(1, new char[] { });
-                return true;
-            }
+                var offset = StringUtils.FindPreviousInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (offset <= 0)
+                    return;
 
-            if (args[0] == 'w')
-            {
-                Editor.SetSelection(Editor.Caret.Offset, StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset));
-                ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
-            }
-
-            else if (args[0] == 'i')
-            {
-                if (args.Length < 2)
-                    return false;
-
-                if (args[1] == '"')
-                {
-                    if (Editor.Text[Editor.Caret.Offset] != '"')
-                        return true;
-
-                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, '"');
-                    if (offset > 0)
-                    {
-                        CaretMoveActions.Right(Editor);
-                        Editor.SetSelection(Editor.Caret.Offset, offset);
-                        ClipboardActions.Cut(Editor);
-                        RequestedMode = Mode.Insert;
-                    }
-                }
-
-                if (args[1] == '(')
-                {
-                    if (Editor.Text[Editor.Caret.Offset] != '(')
-                        return true;
-
-                    int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, ')');
-                    if (offset > 0)
-                    {
-                        CaretMoveActions.Right(Editor);
-                        Editor.SetSelection(Editor.Caret.Offset, offset);
-                        ClipboardActions.Cut(Editor);
-                        RequestedMode = Mode.Insert;
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        private bool ChangeToEnd(int count, char[] args)
-        {
-            int start = Editor.Caret.Offset;
-            CaretMoveActions.LineEnd(Editor);
-            Editor.SetSelection(start, Editor.Caret.Offset);
-            ClipboardActions.Cut(Editor);
-            RequestedMode = Mode.Insert;
-            return true;
-        }
-
-        private bool Delete(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
-
-            if (args[0] == 'd')
-            {
-                // hack for last line, it doesn't actually cut the line though
-                if (Editor.Caret.Offset == Editor.Text.Length)
-                {
-                    var line = Editor.GetLine(Editor.Caret.Line);
-                    if (line.Offset == line.EndOffset)
-                    {
-                        DeleteActions.Backspace(Editor);
-                        return true;
-                    }
-                }
-
-                SetSelectLines(Editor.Caret.Line, Editor.Caret.Line + count + (count > 0 ? -1 : 0));
-                ClipboardActions.Cut(Editor);
-                Motion.LineStart(Editor);
-            }
-            else if (args[0] == 'w')
-            {
-                int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
-                Editor.SetSelection(Editor.Caret.Offset, wordOffset);
-                ClipboardActions.Cut(Editor);
-            }
-            else if (args[0] == '$')
-            {
-                DeleteToEnd(1, new char[] { });
-            }
-
-            return true;
-        }
-
-        private bool DeleteToEnd(int count, char[] args)
-        {
-            var line = Editor.GetLine(Editor.Caret.Line);
-            Editor.SetSelection(Editor.Caret.Offset, line.EndOffset);
-            ClipboardActions.Cut(Editor);
-            return true;
-        }
-
-        private bool Find(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
-
-            var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, args[0]);
-            if (offset > -1)
                 Editor.Caret.Offset = offset;
-            return true;
+            }
+        }
+    }
+
+    public class GoToLineCommand : Command
+    {
+        public GoToLineCommand(TextEditorData editor) : base(editor)
+        {
+            MinCount = 0;
         }
 
-        private bool FindPrevious(int count, char[] args)
+        protected override void Run()
         {
-            if (args.Length == 0)
-                return false;
-
-            var offset = StringUtils.FindPreviousInLine(Editor.Text, Editor.Caret.Offset, args[0]);
-            if (offset > -1)
-                Editor.Caret.Offset = offset;
-            return true;
-        }
-
-        private bool Go(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
-
-            if (args[0] == 'g')
-            {
-                GoToLine(Math.Max(1, count), new char[] { });
-            }
-
-            if (args[0] == 'd')
-            {
-                Dispatch("MonoDevelop.Refactoring.RefactoryCommands.GotoDeclaration");
-                return true;
-            }
-
-            if (args[0] == 't')
-            {
-                Dispatch(WindowCommands.NextDocument);
-                return true;
-            }
-
-            if (args[0] == 'T')
-            {
-                Dispatch(WindowCommands.PrevDocument);
-                return true;
-            }
-
-            return true;
-        }
-
-        private bool GoToLine(int count, char[] args)
-        {
-            if (count == 0)
+            if (Count == 0)
             {
                 CaretMoveActions.ToDocumentEnd(Editor);
             }
             else
             {
-                Editor.Caret.Line = count;
+                Editor.Caret.Line = Count;
             }
 
             Motion.LineStart(Editor);
-            return true;
         }
+    }
 
-        private bool Join(int count, char[] args)
+    public class GoToDeclarationCommand : Command
+    {
+        public GoToDeclarationCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
+            Dispatch("MonoDevelop.Refactoring.RefactoryCommands.GotoDeclaration");
+        }
+    }
+
+    public class GoToNextDocumentCommand : Command
+    {
+        public GoToNextDocumentCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Dispatch(WindowCommands.NextDocument);
+        }
+    }
+
+    public class GoToPreviousDocumentCommand : Command
+    {
+        public GoToPreviousDocumentCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Dispatch(WindowCommands.PrevDocument);
+        }
+    }
+
+    public class InsertCommand : Command
+    {
+        public InsertCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class InsertLineStartCommand : Command
+    {
+        public InsertLineStartCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.LineStart(Editor);
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class JoinCommand : Command
+    {
+        public JoinCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
             {
                 CaretMoveActions.LineEnd(Editor);
                 int selectStart = Editor.Caret.Offset;
@@ -311,30 +308,45 @@ namespace JustEnoughVi
                 Editor.InsertAtCaret(" ");
                 Editor.Caret.Offset--;
             }
-            return true;
         }
+    }
 
-        private bool Insert(int count, char[] args)
+    public class SearchNextCommand : Command
+    {
+        public SearchNextCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
-            RequestedMode = Mode.Insert;
-            return true;
+            Dispatch(SearchCommands.FindNext);
         }
+    }
 
-        private bool InsertStart(int count, char[] args)
+    public class SearchPreviousCommand : Command
+    {
+        public SearchPreviousCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
-            Motion.LineStart(Editor);
-            RequestedMode = Mode.Insert;
-            return true;
+            Dispatch(SearchCommands.FindPrevious);
         }
+    }
 
-        private bool OpenBelow(int count, char[] args)
+    public class OpenBelowCommand : Command
+    {
+        public OpenBelowCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             MiscActions.InsertNewLineAtEnd(Editor);
             RequestedMode = Mode.Insert;
-            return true;
         }
+    }
 
-        private bool OpenAbove(int count, char[] args)
+    public class OpenAboveCommand : Command
+    {
+        public OpenAboveCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             if (Editor.Caret.Line == DocumentLocation.MinLine)
             {
@@ -348,16 +360,20 @@ namespace JustEnoughVi
                 MiscActions.InsertNewLineAtEnd(Editor);
             }
             RequestedMode = Mode.Insert;
-            return true;
         }
+    }
 
-        private bool PasteAppend(int count, char[] args)
+    public class PasteAppendCommand : Command
+    {
+        public PasteAppendCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             // can the clipboard content be pulled without Gtk?
             var clipboard = Gtk.Clipboard.Get(ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
 
             if (!clipboard.WaitIsTextAvailable())
-                return true;
+                return;
 
             string text = clipboard.WaitForText();
 
@@ -377,17 +393,20 @@ namespace JustEnoughVi
                 Editor.InsertAtCaret(text);
                 Editor.Caret.Offset--;
             }
-
-            return true;
         }
+    }
 
-        private bool PasteInsert(int count, char[] args)
+    public class PasteInsertCommand : Command
+    {
+        public PasteInsertCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             // can the clipboard content be pulled without Gtk?
             var clipboard = Gtk.Clipboard.Get(ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
 
             if (!clipboard.WaitIsTextAvailable())
-                return true;
+                return;
 
             string text = clipboard.WaitForText();
 
@@ -416,175 +435,233 @@ namespace JustEnoughVi
                 Editor.InsertAtCaret(text);
                 Editor.Caret.Offset--;
             }
+        }
+    }
 
-            return true;
+    public class ReplaceCommand : Command
+    {
+        public ReplaceCommand(TextEditorData editor) : base(editor)
+        {
+            TakeArgument = true;
         }
 
-        private bool Replace(int count, char[] args)
+        protected override void Run()
         {
-            if (args.Length < 1)
-                return false;
-
-            if (Char.IsControl(args[0]))
-                return true;
+            if (Char.IsControl(Argument))
+                return;
 
             Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + 1);
             DeleteActions.Delete(Editor);
-            Editor.InsertAtCaret(Char.ToString(args[0]));
+            Editor.InsertAtCaret(Char.ToString(Argument));
             Editor.Caret.Offset--;
-            return true;
         }
+    }
 
-        private bool Undo(int count, char[] args)
+    public class UndoCommand : Command
+    {
+        public UndoCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
+            for (int i = 0; i < Count; i++)
                 MiscActions.Undo(Editor);
-            }
-            Editor.ClearSelection();
-            return true;
-        }
 
-        private bool Visual(int count, char[] args)
+            Editor.ClearSelection();
+        }
+    }
+
+    public class VisualCommand : Command
+    {
+        public VisualCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             RequestedMode = Mode.Visual;
-            return true;
         }
+    }
 
-        private bool VisualLine(int count, char[] args)
+    public class VisualLineCommand : Command
+    {
+        public VisualLineCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             RequestedMode = Mode.VisualLine;
-            return true;
         }
+    }
 
-        private bool Search(int count, char[] args)
+    public class WordCommand : Command
+    {
+        public WordCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
+        }
+    }
+
+    public class DeleteCharacterCommand : Command
+    {
+        public DeleteCharacterCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            var count = Math.Min(Math.Max(Count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset);
+            Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
+            ClipboardActions.Cut(Editor);
+        }
+    }
+
+    public class YankLineCommand : Command
+    {
+        public YankLineCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.SetSelectLines(Editor, Editor.Caret.Line, Editor.Caret.Line + Count - 1);
+            ClipboardActions.Copy(Editor);
+            Editor.ClearSelection();
+        }
+    }
+
+    public class RecenterCommand : Command
+    {
+        public RecenterCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Dispatch(TextEditorCommands.RecenterEditor);
+        }
+    }
+
+    public class SearchCommand : Command
+    {
+        public SearchCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
         {
             Dispatch(SearchCommands.Find);
-            return true;
         }
+    }
 
-        private bool SearchNext(int count, char[] args)
-        {
-            Dispatch(SearchCommands.FindNext);
-            return true;
-        }
+    public class MatchingBraceCommand : Command
+    {
+        public MatchingBraceCommand(TextEditorData editor) : base(editor) { }
 
-        private bool SearchPrevious(int count, char[] args)
-        {
-            Dispatch(SearchCommands.FindPrevious);
-            return true;
-        }
-
-        private bool IndentRemove(int count, char[] args)
-        {
-            if (args.Length > 0)
-            {
-                if (args[0] == '<')
-                    count = 1;
-                else
-                    return true;
-            }
-
-            if (count < 1)
-                return false;
-
-            SetSelectLines(Editor.Caret.Line, Editor.Caret.Line);
-
-            for (int i = 0; i < count; i++)
-            {
-                MiscActions.RemoveIndentSelection(Editor);
-            }
-
-            Editor.ClearSelection();
-            return true;
-        }
-
-        private bool IndentAdd(int count, char[] args)
-        {
-            if (args.Length > 0)
-            {
-                if (args[0] == '>')
-                    count = 1;
-                else
-                    return true;
-            }
-
-            if (count < 1)
-                return false;
-
-            SetSelectLines(Editor.Caret.Line, Editor.Caret.Line);
-
-            for (int i = 0; i < count; i++)
-            {
-                MiscActions.IndentSelection(Editor);
-            }
-
-            Editor.ClearSelection();
-            return true;
-        }
-
-        private bool Word(int count, char[] args)
-        {
-            Editor.Caret.Offset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
-            return true;
-        }
-
-        private bool DeleteCharacter(int count, char[] args)
-        {
-            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset);
-            if (count > 0)
-            {
-                Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
-                ClipboardActions.Cut(Editor);
-            }
-            return true;
-        }
-
-        private bool Yank(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
-
-            if (args[0] == 'y')
-                YankLine(1, new char[] { });
-
-            return true;
-        }
-
-        private bool YankLine(int count, char[] args)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                SetSelectLines(Editor.Caret.Line, Editor.Caret.Line);
-                ClipboardActions.Copy(Editor);
-                Editor.ClearSelection();
-            }
-
-            return true;
-        }
-
-        private bool Recenter(int count, char[] args)
-        {
-            if (args.Length == 0)
-                return false;
-
-            if (args[0] == 'z')
-                Dispatch(TextEditorCommands.RecenterEditor);
-
-            return true;
-        }
-
-        private bool MatchingBrace(int count, char[] args)
+        protected override void Run()
         {
             MiscActions.GotoMatchingBracket(Editor);
-            return true;
+        }
+    }
+
+    public class IndentCommand : Command
+    {
+        public IndentCommand(TextEditorData editor) : base(editor)
+        {
+            TakeArgument = true;
         }
 
-        private bool Dispatch(object command)
+        protected override void Run()
         {
-            return MonoDevelop.Ide.IdeApp.CommandService.DispatchCommand(command);
+            Motion.SetSelectLines(Editor, Editor.Caret.Line, Editor.Caret.Line + Count - 1);
+            MiscActions.IndentSelection(Editor);
+            Editor.ClearSelection();
+        }
+    }
+
+    public class IndentOnceCommand : Command
+    {
+        public IndentOnceCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.SetSelectLines(Editor, Editor.Caret.Line, Editor.Caret.Line);
+            MiscActions.IndentSelection(Editor);
+            Editor.ClearSelection();
+        }
+    }
+
+    public class RemoveIndentCommand : Command
+    {
+        public RemoveIndentCommand(TextEditorData editor) : base(editor)
+        {
+            TakeArgument = true;
+        }
+
+        protected override void Run()
+        {
+            Motion.SetSelectLines(Editor, Editor.Caret.Line, Editor.Caret.Line + Count - 1);
+            MiscActions.RemoveIndentSelection(Editor);
+            Editor.ClearSelection();
+        }
+    }
+
+    public class RemoveIndentOnceCommand : Command
+    {
+        public RemoveIndentOnceCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.SetSelectLines(Editor, Editor.Caret.Line, Editor.Caret.Line);
+            MiscActions.RemoveIndentSelection(Editor);
+            Editor.ClearSelection();
+        }
+    }
+
+    public class NormalMode : ViMode
+    {
+        public NormalMode(TextEditorData editor) : base(editor)
+        {
+            // normal mode commands
+            CommandMap.Add("0", new FirstColumnCommand(editor));
+            CommandMap.Add("a", new AppendCommand(editor));
+            CommandMap.Add("A", new AppendEndCommand(editor));
+            CommandMap.Add("b", new WordBackCommand(editor));
+            CommandMap.Add("cc", new ChangeLineCommand(editor));
+            CommandMap.Add("ci\"", new ChangeInsideDoubleQuotesCommand(editor));
+            CommandMap.Add("ci(", new ChangeInsideParenthesesCommand(editor));
+            CommandMap.Add("cw", new ChangeWordCommand(editor));
+            CommandMap.Add("c$", new ChangeToEndCommand(editor));
+            CommandMap.Add("C", new ChangeToEndCommand(editor));
+            CommandMap.Add("dd", new DeleteLineCommand(editor));
+            CommandMap.Add("dw", new DeleteWordCommand(editor));
+            CommandMap.Add("d$", new DeleteLineEndCommand(editor));
+            CommandMap.Add("D", new DeleteLineEndCommand(editor));
+            CommandMap.Add("f", new FindCommand(editor));
+            CommandMap.Add("F", new FindPreviousCommand(editor));
+            CommandMap.Add("gg", new GoToLineCommand(editor));
+            CommandMap.Add("gd", new GoToDeclarationCommand(editor));
+            CommandMap.Add("gt", new GoToNextDocumentCommand(editor));
+            CommandMap.Add("gT", new GoToPreviousDocumentCommand(editor));
+            CommandMap.Add("G", new GoToLineCommand(editor));
+            CommandMap.Add("i", new InsertCommand(editor));
+            CommandMap.Add("I", new InsertLineStartCommand(editor));
+            CommandMap.Add("J", new JoinCommand(editor));
+            CommandMap.Add("n", new SearchNextCommand(editor));
+            CommandMap.Add("N", new SearchPreviousCommand(editor));
+            CommandMap.Add("o", new OpenBelowCommand(editor));
+            CommandMap.Add("O", new OpenAboveCommand(editor));
+            CommandMap.Add("p", new PasteAppendCommand(editor));
+            CommandMap.Add("P", new PasteInsertCommand(editor));
+            CommandMap.Add("r", new ReplaceCommand(editor));
+            CommandMap.Add("u", new UndoCommand(editor));
+            CommandMap.Add("v", new VisualCommand(editor));
+            CommandMap.Add("V", new VisualLineCommand(editor));
+            CommandMap.Add("w", new WordCommand(editor));
+            CommandMap.Add("x", new DeleteCharacterCommand(editor));
+            CommandMap.Add("yy", new YankLineCommand(editor));
+            CommandMap.Add("Y", new YankLineCommand(editor));
+            CommandMap.Add("zz", new RecenterCommand(editor));
+            CommandMap.Add("/", new SearchCommand(editor));
+            CommandMap.Add(">", new IndentCommand(editor));
+            CommandMap.Add(">>", new IndentOnceCommand(editor));
+            CommandMap.Add("<", new RemoveIndentCommand(editor));
+            CommandMap.Add("<<", new RemoveIndentOnceCommand(editor));
+            CommandMap.Add("%", new MatchingBraceCommand(editor));
+
+            // remaps
+            //KeyMap.Add("Delete", DeleteCharacter);
         }
 
         #region implemented abstract members of ViMode
