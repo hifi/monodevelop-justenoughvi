@@ -5,6 +5,16 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
+    public class FirstColumnCommand : Command
+    {
+        public FirstColumnCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.FirstColumn(Editor);
+        }
+    }
+
     public class AppendCommand : Command
     {
         public AppendCommand(TextEditorData editor) : base(editor) { }
@@ -51,12 +61,12 @@ namespace JustEnoughVi
         public NormalMode(TextEditorData editor) : base(editor)
         {
             // normal mode commands
+            CommandMap.Add("0", new FirstColumnCommand(editor));
             CommandMap.Add("a", new AppendCommand(editor));
             CommandMap.Add("cc", new ChangeLineCommand(editor));
             CommandMap.Add("f", new FindCommand(editor));
 
             // normal mode keys
-            KeyMap.Add("0", MotionFirstColumn);
             KeyMap.Add("A", AppendEnd);
             KeyMap.Add("b", WordBack);
             KeyMap.Add("c", Change);
@@ -193,7 +203,7 @@ namespace JustEnoughVi
 
                 SetSelectLines(Editor.Caret.Line, Editor.Caret.Line + count + (count > 0 ? -1 : 0));
                 ClipboardActions.Cut(Editor);
-                MotionLineStart();
+                Motion.LineStart(Editor);
             }
             else if (args[0] == 'w')
             {
@@ -281,7 +291,7 @@ namespace JustEnoughVi
                 Editor.Caret.Line = count;
             }
 
-            MotionLineStart();
+            Motion.LineStart(Editor);
             return true;
         }
 
@@ -312,7 +322,7 @@ namespace JustEnoughVi
 
         private bool InsertStart(int count, char[] args)
         {
-            MotionLineStart();
+            Motion.LineStart(Editor);
             RequestedMode = Mode.Insert;
             return true;
         }
@@ -358,8 +368,8 @@ namespace JustEnoughVi
                 Editor.Caret.Offset++;
                 Editor.InsertAtCaret(text);
                 Editor.Caret.Offset = oldOffset;
-                MotionDown();
-                MotionLineStart();
+                Motion.Down(Editor);
+                Motion.LineStart(Editor);
             }
             else
             {
@@ -388,17 +398,17 @@ namespace JustEnoughVi
                     Editor.Caret.Offset = 0;
                     Editor.InsertAtCaret(text);
                     Editor.Caret.Offset = 0;
-                    MotionLineStart();
+                    Motion.LineStart(Editor);
                 }
                 else
                 {
-                    MotionUp();
-                    MotionLineEnd();
+                    Motion.Up(Editor);
+                    Motion.LineEnd(Editor);
                     Editor.Caret.Offset++;
                     int oldOffset = Editor.Caret.Offset;
                     Editor.InsertAtCaret(text);
                     Editor.Caret.Offset = oldOffset;
-                    MotionLineStart();
+                    Motion.LineStart(Editor);
                 }
             }
             else

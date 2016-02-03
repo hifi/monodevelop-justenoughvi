@@ -6,6 +6,94 @@ using MonoDevelop.Ide.Editor.Extension;
 
 namespace JustEnoughVi
 {
+    public class UpCommand : Command
+    {
+        public UpCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Motion.Up(Editor);
+        }
+    }
+
+    public class DownCommand : Command
+    {
+        public DownCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Motion.Down(Editor);
+        }
+    }
+
+    public class LeftCommand : Command
+    {
+        public LeftCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Motion.Left(Editor);
+        }
+    }
+
+    public class RightCommand : Command
+    {
+        public RightCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Motion.Right(Editor);
+        }
+    }
+
+    public class LineStartCommand : Command
+    {
+        public LineStartCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.LineStart(Editor);
+        }
+    }
+
+    public class LineEndCommand : Command
+    {
+        public LineEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.LineEnd(Editor);
+        }
+    }
+
+    public class PageUpCommand : Command
+    {
+        public PageUpCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Editor.Caret.Line -= Math.Min(Editor.Caret.Line - 1, 20);
+            Motion.LineStart(Editor);
+            Editor.CenterToCaret();
+        }
+    }
+
+    public class PageDownCommand : Command
+    {
+        public PageDownCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Editor.Caret.Line += Math.Min(Editor.LineCount - Editor.Caret.Line, 20);
+            Motion.LineStart(Editor);
+            Editor.CenterToCaret();
+        }
+    }
+
     public abstract class ViMode
     {
         public TextEditorData Editor { get; set; }
@@ -30,20 +118,20 @@ namespace JustEnoughVi
             _buf = "";
 
             // standard motion keys
-            KeyMap.Add("k", MotionUp);
-            KeyMap.Add("j", MotionDown);
-            KeyMap.Add("h", MotionLeft);
-            KeyMap.Add("l", MotionRight);
-            KeyMap.Add("^", MotionLineStart);
-            KeyMap.Add("_", MotionLineStart);
-            KeyMap.Add("$", MotionLineEnd);
-
-            KeyMap.Add("^b", MotionPageUp);
-            KeyMap.Add("^f", MotionPageDown);
-            KeyMap.Add("^d", MotionPageDown);
-            KeyMap.Add("^u", MotionPageUp);
+            CommandMap.Add("k", new UpCommand(editor));
+            CommandMap.Add("j", new DownCommand(editor));
+            CommandMap.Add("h", new LeftCommand(editor));
+            CommandMap.Add("l", new RightCommand(editor));
+            CommandMap.Add("^", new LineStartCommand(editor));
+            CommandMap.Add("_", new LineStartCommand(editor));
+            CommandMap.Add("$", new LineEndCommand(editor));
+            CommandMap.Add("^b", new PageUpCommand(editor));
+            CommandMap.Add("^f", new PageDownCommand(editor));
+            CommandMap.Add("^d", new PageDownCommand(editor));
+            CommandMap.Add("^u", new PageUpCommand(editor));
 
             // remaps
+            /*
             KeyMap.Add("Home", MotionFirstColumn);
             KeyMap.Add("End", MotionLineEnd);
             KeyMap.Add("Left", MotionLeft);
@@ -51,6 +139,7 @@ namespace JustEnoughVi
             KeyMap.Add("Up", MotionUp);
             KeyMap.Add("Down", MotionDown);
             KeyMap.Add("BackSpace", MotionLeft);
+            */
         }
 
         public void InternalActivate()
@@ -84,92 +173,6 @@ namespace JustEnoughVi
             var line = Editor.GetLine(Editor.Caret.Line);
             if (line.EndOffset > line.Offset && Editor.Caret.Offset == line.EndOffset)
                 CaretMoveActions.Left(Editor);
-        }
-
-        protected bool MotionFirstColumn(int count = 1, char[] args = null)
-        {
-            Editor.Caret.Column = Mono.TextEditor.DocumentLocation.MinColumn;
-            return true;
-        }
-
-        protected bool MotionDown(int count = 1, char[] args = null)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                CaretMoveActions.Down(Editor);
-            }
-
-            return true;
-        }
-
-        protected bool MotionLeft(int count = 1, char[] args = null)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                if (DocumentLocation.MinColumn < Editor.Caret.Column)
-                    CaretMoveActions.Left(Editor);
-            }
-
-            return true;
-        }
-
-        protected bool MotionUp(int count = 1, char[] args = null)
-        {
-            count = Math.Max(1, count);
-            for (int i = 0; i < count; i++)
-            {
-                CaretMoveActions.Up(Editor);
-            }
-
-            return true;
-        }
-
-        protected bool MotionRight(int count = 1, char[] args = null)
-        {
-            count = Math.Min(Math.Max(count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset - 1);
-
-            for (int i = 0; i < count; i++)
-            {
-                CaretMoveActions.Right(Editor);
-            }
-
-            return true;
-        }
-
-        protected bool MotionPageDown(int count = 1, char[] args = null)
-        {
-            Editor.Caret.Line += Math.Min(Editor.LineCount - Editor.Caret.Line, 20);
-            CaretMoveActions.LineStart(Editor);
-            Editor.CenterToCaret();
-            return true;
-        }
-
-        protected bool MotionPageUp(int count = 1, char[] args = null)
-        {
-            Editor.Caret.Line -= Math.Min(Editor.Caret.Line - 1, 20);
-            CaretMoveActions.LineStart(Editor);
-            Editor.CenterToCaret();
-            return true;
-        }
-
-        protected bool MotionLineEnd(int count = 1, char[] args = null)
-        {
-            CaretMoveActions.LineEnd(Editor);
-            return true;
-        }
-
-        protected bool MotionLineStart(int count = 1, char[] args = null)
-        {
-            CaretMoveActions.LineStart(Editor);
-
-            var line = Editor.GetLine(Editor.Caret.Line);
-
-            while (Char.IsWhiteSpace(Editor.Text[Editor.Caret.Offset]) && Editor.Caret.Offset < line.EndOffset)
-                   Editor.Caret.Offset++;
-
-            return true;
         }
 
         private bool CommandKeyPress(KeyDescriptor descriptor)
