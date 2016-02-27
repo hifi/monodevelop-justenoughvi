@@ -93,6 +93,7 @@ namespace JustEnoughVi
             CommandMap.Add("w", new WordCommand(editor));
             CommandMap.Add("e", new WordEndCommand(editor));
             CommandMap.Add("b", new WordBackCommand(editor));
+            CommandMap.Add("G", new GoToLineCommand(editor));
 
             // function key remaps
             //KeyMap.Add("Delete", SelectionCut);

@@ -278,6 +278,16 @@ namespace JustEnoughVi
         }
     }
 
+    public class ReplaceModeCommand : Command
+    {
+        public ReplaceModeCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            RequestedMode = Mode.Replace;
+        }
+    }
+
     public class InsertLineStartCommand : Command
     {
         public InsertLineStartCommand(TextEditorData editor) : base(editor) { }
@@ -555,7 +565,6 @@ namespace JustEnoughVi
             Dispatch(SearchCommands.Find);
         }
     }
-
     public class MatchingBraceCommand : Command
     {
         public MatchingBraceCommand(TextEditorData editor) : base(editor) { }
@@ -671,6 +680,7 @@ namespace JustEnoughVi
             CommandMap.Add("<<", new RemoveIndentOnceCommand(editor));
             CommandMap.Add("%", new MatchingBraceCommand(editor));
             CommandMap.Add("e", new WordEndCommand(editor));
+            CommandMap.Add("R", new ReplaceModeCommand(editor));
 
             // remaps
             //KeyMap.Add("Delete", DeleteCharacter);
