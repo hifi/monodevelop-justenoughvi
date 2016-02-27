@@ -501,6 +501,17 @@ namespace JustEnoughVi
         }
     }
 
+    public class WordEndCommand : Command
+    {
+        public WordEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+                Editor.Caret.Offset = StringUtils.WordEndOffset(Editor.Text, Editor.Caret.Offset);
+        }
+    }
+
     public class DeleteCharacterCommand : Command
     {
         public DeleteCharacterCommand(TextEditorData editor) : base(editor) { }
@@ -659,6 +670,7 @@ namespace JustEnoughVi
             CommandMap.Add("<", new RemoveIndentCommand(editor));
             CommandMap.Add("<<", new RemoveIndentOnceCommand(editor));
             CommandMap.Add("%", new MatchingBraceCommand(editor));
+            CommandMap.Add("e", new WordEndCommand(editor));
 
             // remaps
             //KeyMap.Add("Delete", DeleteCharacter);
