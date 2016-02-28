@@ -66,6 +66,7 @@ namespace JustEnoughVi
     public class ChangeSelectionCommand : Command
     {
         public ChangeSelectionCommand(TextEditorData editor) : base(editor) { }
+
         protected override void Run()
         {
             ClipboardActions.Cut(Editor);
@@ -89,6 +90,10 @@ namespace JustEnoughVi
             CommandMap.Add(">", new IndentSelectionCommand(editor));
             CommandMap.Add("<", new RemoveIndentSelectionCommand(editor));
             CommandMap.Add("c", new ChangeSelectionCommand(editor));
+            CommandMap.Add("w", new WordCommand(editor));
+            CommandMap.Add("e", new WordEndCommand(editor));
+            CommandMap.Add("b", new WordBackCommand(editor));
+            CommandMap.Add("G", new GoToLineCommand(editor));
 
             // function key remaps
             //KeyMap.Add("Delete", SelectionCut);

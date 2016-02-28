@@ -34,6 +34,29 @@ namespace JustEnoughVi
             return endOffset;
         }
 
+        public static int WordEndOffset(string searchText, int offset)
+        {
+            int endOffset = offset;
+
+            if (nonWordChars.Contains(searchText[offset]))
+            {
+                if (searchText.Length > offset + 1 && !nonWordChars.Contains(searchText[offset + 1]))
+                    endOffset = StringUtils.NextWordOffset(searchText, offset);
+                else
+                {
+                    while (endOffset < searchText.Length && nonWordChars.Contains(searchText[endOffset]))
+                        endOffset++;
+                }
+            }
+            else if (Char.IsWhiteSpace(searchText[offset]))
+                endOffset = StringUtils.NextWordOffset(searchText, offset) + 1;
+            else if (searchText.Length > offset + 1 && (Char.IsWhiteSpace(searchText[offset + 1]) || nonWordChars.Contains(searchText[offset + 1])))
+                endOffset = StringUtils.NextWordOffset(searchText, offset) + 1;
+            while (endOffset < searchText.Length && !Char.IsWhiteSpace(searchText[endOffset]) && !nonWordChars.Contains(searchText[endOffset]))
+                endOffset++;
+            return --endOffset;
+        }
+
         public static int PreviousWordOffset(string searchText, int offset)
         {
             int endOffset = offset - 1;

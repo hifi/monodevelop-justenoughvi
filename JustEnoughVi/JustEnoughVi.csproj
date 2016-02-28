@@ -38,6 +38,7 @@
     <Compile Include="StringUtils.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Motion.cs" />
+    <Compile Include="ReplaceMode.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
