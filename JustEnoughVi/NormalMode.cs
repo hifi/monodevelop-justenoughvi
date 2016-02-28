@@ -63,43 +63,80 @@ namespace JustEnoughVi
         }
     }
 
-    public class ChangeInsideDoubleQuotesCommand : Command
+    public abstract class ChangeInsideCommand : Command
+    {
+        public ChangeInsideCommand(TextEditorData editor) : base(editor) { }
+
+        protected void ChangeInside(char start, char end)
+        {
+            if (Editor.Text[Editor.Caret.Offset] != start)
+                return;
+
+            // FIXME: should not be restricted inside a line
+            // FIXME: should find the *matching* character, not next
+            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, end);
+
+            if (offset <= 0)
+                return;
+
+            CaretMoveActions.Right(Editor);
+            if (Editor.Caret.Offset < offset)
+            {
+                Editor.SetSelection(Editor.Caret.Offset, offset);
+                ClipboardActions.Cut(Editor);
+            }
+
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class ChangeInsideSingleQuotesCommand : ChangeInsideCommand
+    {
+        public ChangeInsideSingleQuotesCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            ChangeInside('\'', '\'');
+        }
+    }
+
+    public class ChangeInsideDoubleQuotesCommand : ChangeInsideCommand
     {
         public ChangeInsideDoubleQuotesCommand(TextEditorData editor) : base(editor) { }
 
         protected override void Run()
         {
-            if (Editor.Text[Editor.Caret.Offset] != '"')
-                return;
-
-            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, '"');
-            if (offset > 0)
-            {
-                CaretMoveActions.Right(Editor);
-                Editor.SetSelection(Editor.Caret.Offset, offset);
-                ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
-            }
+            ChangeInside('"', '"');
         }
     }
 
-    public class ChangeInsideParenthesesCommand : Command
+    public class ChangeInsideParenthesesCommand : ChangeInsideCommand
     {
         public ChangeInsideParenthesesCommand(TextEditorData editor) : base(editor) { }
 
         protected override void Run()
         {
-            if (Editor.Text[Editor.Caret.Offset] != '(')
-                return;
+            ChangeInside('(', ')');
+        }
+    }
 
-            int offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, ')');
-            if (offset > 0)
-            {
-                CaretMoveActions.Right(Editor);
-                Editor.SetSelection(Editor.Caret.Offset, offset);
-                ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
-            }
+    public class ChangeInsideBracesCommand : ChangeInsideCommand
+    {
+        public ChangeInsideBracesCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            ChangeInside('{', '}');
+        }
+    }
+
+    public class ChangeInsideBracketsCommand : ChangeInsideCommand
+    {
+        public ChangeInsideBracketsCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            ChangeInside('[', ']');
         }
     }
 
@@ -619,8 +656,11 @@ namespace JustEnoughVi
             CommandMap.Add("A", new AppendEndCommand(editor));
             CommandMap.Add("b", new WordBackCommand(editor));
             CommandMap.Add("cc", new ChangeLineCommand(editor));
+            CommandMap.Add("ci'", new ChangeInsideSingleQuotesCommand(editor));
             CommandMap.Add("ci\"", new ChangeInsideDoubleQuotesCommand(editor));
             CommandMap.Add("ci(", new ChangeInsideParenthesesCommand(editor));
+            CommandMap.Add("ci{", new ChangeInsideBracesCommand(editor));
+            CommandMap.Add("ci[", new ChangeInsideBracketsCommand(editor));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
             CommandMap.Add("c$", new ChangeToEndCommand(editor));
             CommandMap.Add("C", new ChangeToEndCommand(editor));
