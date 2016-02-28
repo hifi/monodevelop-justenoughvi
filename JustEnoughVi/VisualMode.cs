@@ -63,6 +63,16 @@ namespace JustEnoughVi
         }
     }
 
+    public class ChangeSelectionCommand : Command
+    {
+        public ChangeSelectionCommand(TextEditorData editor) : base(editor) { }
+        protected override void Run()
+        {
+            ClipboardActions.Cut(Editor);
+            RequestedMode = Mode.Insert;        
+        }
+    }
+
     public class VisualMode : ViMode
     {
         private int _startOffset;
@@ -78,6 +88,7 @@ namespace JustEnoughVi
             CommandMap.Add("Y", new YankSelectionCommand(editor));
             CommandMap.Add(">", new IndentSelectionCommand(editor));
             CommandMap.Add("<", new RemoveIndentSelectionCommand(editor));
+            CommandMap.Add("c", new ChangeSelectionCommand(editor));
 
             // function key remaps
             //KeyMap.Add("Delete", SelectionCut);
