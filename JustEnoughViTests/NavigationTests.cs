@@ -32,6 +32,16 @@ namespace JustEnoughViTests
             Test(source, keys, expected, typeof(NormalMode));
         }
 
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "e", "public$ class NavigationTests : TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "ee", "public class$ NavigationTests : TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "2e", "public class$ NavigationTests : TextEditorTestBase")] 
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "eeee", "public class NavigationTests :$ TextEditorTestBase")]
+        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "5e", "public class NavigationTests : TextEditorTestBase$")]
+        public void E_tests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
+
         [TestCase("   12345$67890", "^", "   1$234567890")]
         [TestCase("   12345$67890", "0", "$   1234567890")]
         [TestCase("abcd$efghijk", "fg", "abcdefg$hijk")]
