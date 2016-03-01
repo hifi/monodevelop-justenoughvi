@@ -32,5 +32,23 @@ namespace JustEnoughViTests
         {
             Test(source, keys, expected, typeof(NormalMode));
         }
+
+        [TestCase("a$ksjdf alsdfklasdjf", "dw", "a$lsdfklasdjf")]
+        [TestCase("a$slkdjf alsdfklasdjf", "de", "a $alsdfklasdjf")]
+        [TestCase("aa$lkdjf alsdfklasdjf", "D", "a$")]
+        [TestCase("aas$kdjf alsdfklasdjf", "d$", "aa$")]
+        [TestCase("aaa$aaa\nbbbbb\nccccc\n", "dd","b$bbbb\nccccc\n")]
+        [TestCase("( asl$kdjf )", "di(", "()$")]
+        [TestCase("($ aslkdjf )", "di(", "()$")]
+        [TestCase("{ aaa$aaaa; }", "di{", "{}$")]
+        [TestCase("{\n\tint$ a;\n\tint b;\n}\n", "di{", "{\n}$\n")]
+        [TestCase("(int $a,\n int b)\n", "di(", "()$\n")]
+        [TestCase("\"as$ldkjfasf bbb\"", "di\"", "\"\"$")]
+        [TestCase("'$a'", "di'", "''$")]
+        [TestCase("'a$'", "di'","''$")] 
+        public void D_tests(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
     }
 }
