@@ -12,6 +12,9 @@ namespace JustEnoughVi
 
         public static int NextWordOffset(string searchText, int offset)
         {
+            if (offset >= searchText.Length)
+                return searchText.Length;
+
             int endOffset = offset;
 
             if (nonWordChars.Contains(searchText[offset]))
@@ -36,6 +39,9 @@ namespace JustEnoughVi
 
         public static int WordEndOffset(string searchText, int offset)
         {
+            if (offset >= searchText.Length)
+                return searchText.Length;
+
             int endOffset = offset;
 
             if (nonWordChars.Contains(searchText[offset]))
@@ -60,6 +66,9 @@ namespace JustEnoughVi
         public static int PreviousWordOffset(string searchText, int offset)
         {
             int endOffset = offset - 1;
+
+            if (endOffset <= 0)
+                return 0;
 
             if (Char.IsWhiteSpace(searchText[endOffset]) || Char.IsControl(searchText[endOffset]))
             {
@@ -106,4 +115,5 @@ namespace JustEnoughVi
         }
     }
 }
+
 
