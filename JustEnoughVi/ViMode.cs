@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using Mono.TextEditor;
 //using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
-
+    
 namespace JustEnoughVi
 {
+
     public class UpCommand : Command
     {
         public UpCommand(TextEditorData editor) : base(editor) { }
@@ -186,8 +187,6 @@ namespace JustEnoughVi
 
                 if (!CommandMap.ContainsKey(_buf))
                 {
-                    _count = 0;
-
                     foreach (var k in CommandMap.Keys)
                     {
                         if (k.StartsWith(_buf, StringComparison.Ordinal))

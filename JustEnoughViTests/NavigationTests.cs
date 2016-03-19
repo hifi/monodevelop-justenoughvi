@@ -27,16 +27,21 @@ namespace JustEnoughViTests
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "2w", "public class N$avigationTests : TextEditorTestBase")] //TODO
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "www", "public class NavigationTests :$ TextEditorTestBase")]
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "wwww", "public class NavigationTests : T$extEditorTestBase")]
+        [TestCase("w$hile (endOffset < searchText.Length", "4w", "while (endOffset < s$earchText.Length")]
         public void W_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));
         }
 
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "e", "public$ class NavigationTests : TextEditorTestBase")]
-        [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "ee", "public class$ NavigationTests : TextEditorTestBase")]
+        [TestCase("while$ (asdf)", "e", "while ($asdf)")]
+        [TestCase("($ (alsdkjf(asdf)", "e", "( ($alsdkjf(asdf)")]
+        [TestCase("( $(alsdkjf(asdf)", "e", "( ($alsdkjf(asdf)")]
+        [TestCase(" $  class NavigationTests : TextEditorTestBase", "ee", "   class NavigationTests$ : TextEditorTestBase")]
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "2e", "public class$ NavigationTests : TextEditorTestBase")] 
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "eeee", "public class NavigationTests :$ TextEditorTestBase")]
         [TestCase("p$ublic class NavigationTests : TextEditorTestBase", "5e", "public class NavigationTests : TextEditorTestBase$")]
+        [TestCase("w$hile (endOffset < searchText.Length", "4e", "while (endOffset <$ searchText.Length")]
         public void E_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));

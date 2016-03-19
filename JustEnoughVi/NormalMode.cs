@@ -140,14 +140,24 @@ namespace JustEnoughVi
         }
     }
 
-    public class ChangeWordCommand : Command
+    public class ChangeWordCommand : DeleteWordEndCommand
     {
         public ChangeWordCommand(TextEditorData editor) : base(editor) { }
 
         protected override void Run()
         {
-            Editor.SetSelection(Editor.Caret.Offset, StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset));
-            ClipboardActions.Cut(Editor);
+            base.Run();
+            RequestedMode = Mode.Insert;
+        }
+    }
+
+    public class ChangeWordEndCommand : DeleteWordEndCommand
+    {
+        public ChangeWordEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            base.Run();
             RequestedMode = Mode.Insert;
         }
     }
@@ -195,10 +205,29 @@ namespace JustEnoughVi
 
         protected override void Run()
         {
-            int wordOffset = StringUtils.NextWordOffset(Editor.Text, Editor.Caret.Offset);
-            Editor.SetSelection(Editor.Caret.Offset, wordOffset);
-            ClipboardActions.Cut(Editor);
+            int offset = Editor.Caret.Offset;
+            for (int i = 0; i < Count && offset < Editor.Length; i++)
+                offset = StringUtils.NextWordOffset(Editor.Text, offset);
+
+            Editor.SetSelection(Editor.Caret.Offset, offset);
+            ClipboardActions.Cut(Editor);        
         }
+    }
+
+    public class DeleteWordEndCommand : Command
+    {
+        public DeleteWordEndCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            int offset = Editor.Caret.Offset;
+            for (int i = 0; i < Count && offset < Editor.Length; i++)
+                offset = StringUtils.WordEndOffset(Editor.Text, offset);
+
+            offset = (offset < Editor.Length) ? offset + 1 : offset;
+            Editor.SetSelection(Editor.Caret.Offset, offset);
+            ClipboardActions.Cut(Editor);                    
+        }           
     }
 
     public class DeleteLineEndCommand : Command
@@ -682,10 +711,12 @@ namespace JustEnoughVi
             CommandMap.Add("ci{", new ChangeInsideBracesCommand(editor));
             CommandMap.Add("ci[", new ChangeInsideBracketsCommand(editor));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
+            CommandMap.Add("ce", new ChangeWordEndCommand(editor));
             CommandMap.Add("c$", new ChangeToEndCommand(editor));
             CommandMap.Add("C", new ChangeToEndCommand(editor));
             CommandMap.Add("dd", new DeleteLineCommand(editor));
             CommandMap.Add("dw", new DeleteWordCommand(editor));
+            CommandMap.Add("de", new DeleteWordEndCommand(editor));
             CommandMap.Add("d$", new DeleteLineEndCommand(editor));
             CommandMap.Add("D", new DeleteLineEndCommand(editor));
             CommandMap.Add("f", new FindCommand(editor));

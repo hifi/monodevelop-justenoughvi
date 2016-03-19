@@ -43,11 +43,16 @@ namespace JustEnoughVi
                 return searchText.Length;
 
             int endOffset = offset;
+            //while  (a) alsdkjf (((  ( aasdf (alsdkjf(asdf)
 
             if (nonWordChars.Contains(searchText[offset]))
             {
                 if (searchText.Length > offset + 1 && !nonWordChars.Contains(searchText[offset + 1]))
+                {
                     endOffset = StringUtils.NextWordOffset(searchText, offset);
+                    if (nonWordChars.Contains(searchText[endOffset]))
+                        return endOffset;
+                }
                 else
                 {
                     while (endOffset < searchText.Length && nonWordChars.Contains(searchText[endOffset]))
@@ -55,9 +60,18 @@ namespace JustEnoughVi
                 }
             }
             else if (Char.IsWhiteSpace(searchText[offset]))
-                endOffset = StringUtils.NextWordOffset(searchText, offset) + 1;
+            {
+                endOffset = StringUtils.NextWordOffset(searchText, offset);
+                if (nonWordChars.Contains(searchText[endOffset]))
+                    return endOffset;
+            }
             else if (searchText.Length > offset + 1 && (Char.IsWhiteSpace(searchText[offset + 1]) || nonWordChars.Contains(searchText[offset + 1])))
-                endOffset = StringUtils.NextWordOffset(searchText, offset) + 1;
+            {
+                endOffset = StringUtils.NextWordOffset(searchText, offset);
+                if (nonWordChars.Contains(searchText[endOffset]))
+                    return endOffset;
+            }
+
             while (endOffset < searchText.Length && !Char.IsWhiteSpace(searchText[endOffset]) && !nonWordChars.Contains(searchText[endOffset]))
                 endOffset++;
             return --endOffset;
@@ -99,6 +113,13 @@ namespace JustEnoughVi
                     return -1;
             } while (searchText[offset] != c);
 
+            return offset;
+        }
+
+        public static int FindLineEnd(string searchText, int offset)
+        {
+            while (offset < searchText.Length && !Char.IsControl(searchText[offset]))
+                offset++;
             return offset;
         }
 

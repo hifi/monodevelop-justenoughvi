@@ -34,7 +34,9 @@ namespace JustEnoughViTests
         }
 
         [TestCase("a$ksjdf alsdfklasdjf", "dw", "a$lsdfklasdjf")]
-        [TestCase("a$slkdjf alsdfklasdjf", "de", "a $alsdfklasdjf")]
+        [TestCase("a$slkdjf alsdfklasdjf", "de", " $alsdfklasdjf")]
+        [TestCase("while (endOffset < searchText.Length", "5dw", ".$Length")]
+        [TestCase("while (endOffset < searchText.Length", "5de", ".$Length")]
         [TestCase("aa$lkdjf alsdfklasdjf", "D", "a$")]
         [TestCase("aas$kdjf alsdfklasdjf", "d$", "aa$")]
         [TestCase("aaa$aaa\nbbbbb\nccccc\n", "dd","b$bbbb\nccccc\n")]
