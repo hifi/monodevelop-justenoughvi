@@ -43,7 +43,6 @@ namespace JustEnoughVi
                 return searchText.Length;
 
             int endOffset = offset;
-            //while  (a) alsdkjf (((  ( aasdf (alsdkjf(asdf)
 
             if (nonWordChars.Contains(searchText[offset]))
             {
@@ -109,11 +108,80 @@ namespace JustEnoughVi
             do
             {
                 offset++;
-                if (offset == searchText.Length || Char.IsControl(searchText[offset]))
+                if (offset >= searchText.Length || searchText[offset] == '\n')
                     return -1;
             } while (searchText[offset] != c);
 
             return offset;
+        }
+
+        public static Tuple<int, int> FindMatchingOffsetsInLine(string searchText, int offset, char ch)
+        {
+            int firstOffset = offset;
+            int secondOffset = offset;
+            if (searchText[offset] != ch)
+            {
+                firstOffset = FindPreviousInLine(searchText, offset, ch);
+                if (firstOffset < 0)
+                    return Tuple.Create(-1, -1);
+
+                secondOffset = FindNextInLine(searchText, offset, ch);
+                if (secondOffset < 0)
+                    return Tuple.Create(-1, -1);
+            }
+            else
+            {
+                int offs = offset - 1;
+                int count = 0;
+                while (offs >= 0 && searchText[offs] != '\n')
+                {
+                    if (searchText[offs] == ch)
+                    {
+                        if (count == 0)
+                            firstOffset = offs;
+                        count++;
+                    }
+                    offs--;
+                }
+                if (count % 2 != 0)
+                    return Tuple.Create(firstOffset, offset);
+
+                firstOffset = offset;
+                secondOffset = FindNextInLine(searchText, offset, ch);
+                if (secondOffset < 0)
+                    return Tuple.Create(-1, -1);
+            }
+            return Tuple.Create(firstOffset, secondOffset);
+        }
+
+        public static Tuple<int, int> FindMatchingOffsets(string searchText, int offset, char start, char end)
+        {
+            int ignore = 0;
+            int firstOffset = (searchText[offset] != end) ? offset : offset-1;
+            while (firstOffset >= 0 && (ignore > 0 || searchText[firstOffset] != start))
+            {
+                if (searchText[firstOffset] == end)
+                    ignore++;
+                if (searchText[firstOffset] == start)
+                    ignore--;
+                firstOffset--;
+            }
+            if (firstOffset < 0)
+                return Tuple.Create(-1, -1);
+
+            int secondOffset = (firstOffset != offset) ? offset : offset + 1;
+            while (secondOffset < searchText.Length && (ignore > 0 || searchText[secondOffset] != end))
+            {
+                if (searchText[secondOffset] == start)
+                    ignore++;
+                if (searchText[secondOffset] == end)
+                    ignore--;
+                secondOffset++;
+            }
+            if (secondOffset >= searchText.Length)
+                return Tuple.Create(-1, -1);
+
+            return Tuple.Create(firstOffset, secondOffset);
         }
 
         public static int FindLineEnd(string searchText, int offset)
@@ -128,7 +196,7 @@ namespace JustEnoughVi
             do
             {
                 offset--;
-                if (offset == 0 || Char.IsControl(searchText[offset]))
+                if (offset < 0 || searchText[offset] == '\n')
                     return -1;
             } while (searchText[offset] != c);
 
