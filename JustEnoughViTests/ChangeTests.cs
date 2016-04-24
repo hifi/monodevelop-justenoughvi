@@ -57,6 +57,62 @@ namespace JustEnoughViTests
             Test(source, keys, expected, typeof(InsertMode));
         }
 
+        // http://vimdoc.sourceforge.net/htmldoc/motion.html#a]
+        [TestCase("on($opening)", "on$")]
+        [TestCase("on(closing)$", "on$")]
+        [TestCase("(inside$)", "$")]
+        [TestCase("nested(inside$(outer))", "nested$")]
+        [TestCase("nested(inside($inner))", "nested(inside$)")]
+        [TestCase("multi(\nline$\n)", "multi$")]
+        public void should_change_a_block(string source, string expected)
+        {
+            Test(source, "ca)", expected, typeof(InsertMode));
+            Test(source, "ca(", expected, typeof(InsertMode));
+            Test(source, "cab", expected, typeof(InsertMode));
+
+            source = source.Replace('(', '{').Replace(')', '}');
+            expected = expected.Replace('(', '{').Replace(')', '}');
+
+            Test(source, "ca{", expected, typeof(InsertMode));
+            Test(source, "ca}", expected, typeof(InsertMode));
+            Test(source, "caB", expected, typeof(InsertMode));
+
+            source = source.Replace('{', '[').Replace('}', ']');
+            expected = expected.Replace('{', '[').Replace('}', ']');
+
+            Test(source, "ca[", expected, typeof(InsertMode));
+            Test(source, "ca]", expected, typeof(InsertMode));
+
+            source = source.Replace('[', '<').Replace(']', '>');
+            expected = expected.Replace('[', '<').Replace(']', '>');
+
+            Test(source, "ca<", expected, typeof(InsertMode));
+            Test(source, "ca>", expected, typeof(InsertMode));
+        }
+
+        // http://vimdoc.sourceforge.net/htmldoc/motion.html#a'
+        [TestCase("`simple$ case`", "$")]
+        [TestCase("`must work`\n`on$ single line only`\n", "`must work`\n\n")]
+        [TestCase("`if``on quote must search from line start`$", "`if`")]
+        [TestCase("`if``$on quote must search from line start`", "`if`")]
+        [TestCase("trailing white space `included$`\t   ", "trailing white space $")]
+        [TestCase("...unless there's none,    `then$ leading white space is included`", "...unless there's none,$")]
+        public void should_change_quoted_string(string source, string expected)
+        {
+            Test(source, "ca`", expected, typeof(InsertMode));
+
+            source = source.Replace('`', '"');
+            expected = expected.Replace('`', '"');
+
+            Test(source, "ca\"", expected, typeof(InsertMode));
+
+            source = source.Replace('"', '\'');
+            expected = expected.Replace('"', '\'');
+
+            Test(source, "ca'", expected, typeof(InsertMode));
+
+        }
+
         [TestCase("s$at", "rc", "c$at")]
         public void R_should_replace_char(string source, string keys, string expected)
         {

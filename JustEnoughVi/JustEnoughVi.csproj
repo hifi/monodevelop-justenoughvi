@@ -39,9 +39,15 @@
     <Compile Include="Command.cs" />
     <Compile Include="Motion.cs" />
     <Compile Include="ReplaceMode.cs" />
+    <Compile Include="CommandRange.cs" />
+    <Compile Include="TextObject.cs" />
+    <Compile Include="ChangeCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MonoDevelop.Addins.0.3.0\build\net40\MonoDevelop.Addins.targets" Condition="Exists('..\packages\MonoDevelop.Addins.0.3.0\build\net40\MonoDevelop.Addins.targets')" />
@@ -52,7 +58,4 @@
       </Properties>
     </MonoDevelop>
   </ProjectExtensions>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
 </Project>
