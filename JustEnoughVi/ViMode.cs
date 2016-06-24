@@ -100,6 +100,7 @@ namespace JustEnoughVi
         public TextEditorData Editor { get; set; }
         public Mode RequestedMode { get; internal set; }
         protected Dictionary<string , Command> CommandMap { get; private set; }
+        protected Dictionary<SpecialKey, Command> SpecialKeyCommandMap { get; private set; }
 
         private int _count;
         private Command _command;
@@ -110,6 +111,7 @@ namespace JustEnoughVi
             Editor = editor;
             RequestedMode = Mode.None;
             CommandMap = new Dictionary<string, Command>();
+            SpecialKeyCommandMap = new Dictionary<SpecialKey, Command>();
             _buf = "";
 
             // standard motion keys
@@ -129,12 +131,12 @@ namespace JustEnoughVi
             /*
             KeyMap.Add("Home", MotionFirstColumn);
             KeyMap.Add("End", MotionLineEnd);
-            KeyMap.Add("Left", MotionLeft);
-            KeyMap.Add("Right", MotionRight);
-            KeyMap.Add("Up", MotionUp);
-            KeyMap.Add("Down", MotionDown);
             KeyMap.Add("BackSpace", MotionLeft);
             */
+            SpecialKeyCommandMap.Add(SpecialKey.Left, new LeftCommand(editor));
+            SpecialKeyCommandMap.Add(SpecialKey.Right, new RightCommand(editor));
+            SpecialKeyCommandMap.Add(SpecialKey.Up, new UpCommand(editor));
+            SpecialKeyCommandMap.Add(SpecialKey.Down, new DownCommand(editor));
         }
 
         public void InternalActivate()
@@ -185,19 +187,23 @@ namespace JustEnoughVi
                 if (descriptor.ModifierKeys == ModifierKeys.Control)
                     _buf = "^" + _buf;
 
-                if (!CommandMap.ContainsKey(_buf))
+                if (!SpecialKeyCommandMap.TryGetValue(descriptor.SpecialKey, out _command))
                 {
-                    foreach (var k in CommandMap.Keys)
+                    if (!CommandMap.ContainsKey(_buf))
                     {
-                        if (k.StartsWith(_buf, StringComparison.Ordinal))
-                            return false;
+                        foreach (var k in CommandMap.Keys)
+                        {
+                            if (k.StartsWith(_buf, StringComparison.Ordinal))
+                                return false;
+                        }
+
+                        Reset();
+                        return false;
                     }
 
-                    Reset();
-                    return false;
+                    _command = CommandMap[_buf];
                 }
 
-                _command = CommandMap[_buf];
                 _buf = "";
                 if (_command.TakeArgument)
                     return false;
