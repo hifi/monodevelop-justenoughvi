@@ -96,7 +96,7 @@ namespace JustEnoughVi
             CommandMap.Add("G", new GoToLineCommand(editor));
 
             // function key remaps
-            //KeyMap.Add("Delete", SelectionCut);
+            SpecialKeyCommandMap.Add(SpecialKey.Delete, new CutSelectionCommand(editor));
         }
 
         #region implemented abstract members of ViMode

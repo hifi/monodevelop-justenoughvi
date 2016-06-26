@@ -833,7 +833,7 @@ namespace JustEnoughVi
             CommandMap.Add("R", new ReplaceModeCommand(editor));
 
             // remaps
-            //KeyMap.Add("Delete", DeleteCharacter);
+            SpecialKeyCommandMap.Add(SpecialKey.Delete, new DeleteCharacterCommand(editor));
         }
 
         #region implemented abstract members of ViMode
