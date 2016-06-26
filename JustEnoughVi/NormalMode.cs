@@ -343,6 +343,17 @@ namespace JustEnoughVi
         }
     }
 
+    public class GoToFirstLineCommand : Command
+    {
+        public GoToFirstLineCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Editor.Caret.Line = 1;
+            Motion.LineStart(Editor);
+        }
+    }
+
     public class GoToLineCommand : Command
     {
         public GoToLineCommand(TextEditorData editor) : base(editor)
@@ -800,7 +811,7 @@ namespace JustEnoughVi
             CommandMap.Add("D", new DeleteLineEndCommand(editor));
             CommandMap.Add("f", new FindCommand(editor));
             CommandMap.Add("F", new FindPreviousCommand(editor));
-            CommandMap.Add("gg", new GoToLineCommand(editor));
+            CommandMap.Add("gg", new GoToFirstLineCommand(editor));
             CommandMap.Add("gd", new GoToDeclarationCommand(editor));
             CommandMap.Add("gt", new GoToNextDocumentCommand(editor));
             CommandMap.Add("gT", new GoToPreviousDocumentCommand(editor));
