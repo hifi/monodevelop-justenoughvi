@@ -360,8 +360,10 @@ namespace JustEnoughVi
                 if (offset <= 0)
                     return;
 
-                Editor.Caret.Offset = offset + findResultShift;
+                Editor.Caret.Offset = offset;
             }
+
+            Editor.Caret.Offset += findResultShift;
         }
     }
 
@@ -382,8 +384,10 @@ namespace JustEnoughVi
                 if (offset <= 0)
                     return;
 
-                Editor.Caret.Offset = offset + findResultShift;
+                Editor.Caret.Offset = offset;
             }
+
+            Editor.Caret.Offset += findResultShift;
         }
     }
 

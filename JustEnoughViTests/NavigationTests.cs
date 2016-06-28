@@ -70,6 +70,12 @@ namespace JustEnoughViTests
         [TestCase("abcd$efghijk", "Fa", "a$bcdefghijk")]
         [TestCase("abcd$efghijk", "Fz", "abcd$efghijk")]
         [TestCase("123$45678", "f6", "123456$78")] //TODO: Fails because it thinks 6 is a count
+        [TestCase("this$ is a test", "tt", "this is a $test")]
+        [TestCase("this$ is a test", "2tt", "this is a tes$t")]
+        [TestCase("this is a test$", "Tt", "this is a te$st")]
+        [TestCase("this is a test again$", "2Tt", "this is a te$st again")]
+        [TestCase("this is a test$", "Ft", "this is a t$est")]
+        [TestCase("this is a test again$", "2Ft", "this is a t$est again")]
         public void MiscTests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));
