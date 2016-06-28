@@ -128,15 +128,13 @@ namespace JustEnoughVi
             CommandMap.Add("^u", new PageUpCommand(editor));
 
             // remaps
-            /*
-            KeyMap.Add("Home", MotionFirstColumn);
-            KeyMap.Add("End", MotionLineEnd);
-            KeyMap.Add("BackSpace", MotionLeft);
-            */
+            SpecialKeyCommandMap.Add(SpecialKey.Home, new LineStartCommand(editor));
+            SpecialKeyCommandMap.Add(SpecialKey.End, new LineEndCommand(editor));
             SpecialKeyCommandMap.Add(SpecialKey.Left, new LeftCommand(editor));
             SpecialKeyCommandMap.Add(SpecialKey.Right, new RightCommand(editor));
             SpecialKeyCommandMap.Add(SpecialKey.Up, new UpCommand(editor));
             SpecialKeyCommandMap.Add(SpecialKey.Down, new DownCommand(editor));
+            SpecialKeyCommandMap.Add(SpecialKey.BackSpace, new LeftCommand(editor));
         }
 
         public void InternalActivate()

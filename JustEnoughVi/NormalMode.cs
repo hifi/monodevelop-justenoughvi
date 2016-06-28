@@ -375,6 +375,17 @@ namespace JustEnoughVi
         }
     }
 
+    public class GoToFirstLineCommand : Command
+    {
+        public GoToFirstLineCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Editor.Caret.Line = 1;
+            Motion.LineStart(Editor);
+        }
+    }
+
     public class GoToLineCommand : Command
     {
         public GoToLineCommand(TextEditorData editor) : base(editor)
@@ -836,7 +847,7 @@ namespace JustEnoughVi
             CommandMap.Add("F", new FindPreviousCommand(editor, 0));
             CommandMap.Add("t", new FindCommand(editor, -1));
             CommandMap.Add("T", new FindPreviousCommand(editor, 1));
-            CommandMap.Add("gg", new GoToLineCommand(editor));
+            CommandMap.Add("gg", new GoToFirstLineCommand(editor));
             CommandMap.Add("gd", new GoToDeclarationCommand(editor));
             CommandMap.Add("gt", new GoToNextDocumentCommand(editor));
             CommandMap.Add("gT", new GoToPreviousDocumentCommand(editor));
@@ -869,7 +880,7 @@ namespace JustEnoughVi
             CommandMap.Add("R", new ReplaceModeCommand(editor));
 
             // remaps
-            //KeyMap.Add("Delete", DeleteCharacter);
+            SpecialKeyCommandMap.Add(SpecialKey.Delete, new DeleteCharacterCommand(editor));
         }
 
         #region implemented abstract members of ViMode
