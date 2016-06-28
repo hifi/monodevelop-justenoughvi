@@ -223,6 +223,33 @@ namespace JustEnoughVi
         }
     }
 
+    public class ChangeToCharCommand : Command
+    {
+        private readonly int findResultShift;
+        public ChangeToCharCommand(TextEditorData editor, int findResultShift) : base(editor)
+        {
+            TakeArgument = true;
+            this.findResultShift = findResultShift;
+        }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                int start = Editor.Caret.Offset;
+                var end = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (end <= 0)
+                    return;
+
+                end += findResultShift;
+
+                Editor.SetSelection(start, end);
+                ClipboardActions.Cut(Editor);
+                RequestedMode = Mode.Insert;
+            }
+        }
+    }
+
     public class ChangeToEndCommand : Command
     {
         public ChangeToEndCommand(TextEditorData editor) : base(editor) { }
@@ -305,9 +332,12 @@ namespace JustEnoughVi
 
     public class FindCommand : Command
     {
-        public FindCommand(TextEditorData editor) : base(editor)
+        readonly int findResultShift;
+
+        public FindCommand(TextEditorData editor, int findResultShift) : base(editor)
         {
             TakeArgument = true;
+            this.findResultShift = findResultShift;
         }
 
         protected override void Run()
@@ -318,16 +348,18 @@ namespace JustEnoughVi
                 if (offset <= 0)
                     return;
 
-                Editor.Caret.Offset = offset;
+                Editor.Caret.Offset = offset + findResultShift;
             }
         }
     }
 
     public class FindPreviousCommand : Command
     {
-        public FindPreviousCommand(TextEditorData editor) : base(editor)
+        readonly int findResultShift;
+        public FindPreviousCommand(TextEditorData editor, int findResultShift) : base(editor)
         {
             TakeArgument = true;
+            this.findResultShift = findResultShift;
         }
 
         protected override void Run()
@@ -338,7 +370,7 @@ namespace JustEnoughVi
                 if (offset <= 0)
                     return;
 
-                Editor.Caret.Offset = offset;
+                Editor.Caret.Offset = offset + findResultShift;
             }
         }
     }
@@ -802,6 +834,8 @@ namespace JustEnoughVi
             CommandMap.Add("di{", new DeleteInsideBracesCommand(editor));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
             CommandMap.Add("ce", new ChangeWordEndCommand(editor));
+            CommandMap.Add("ct", new ChangeToCharCommand(editor, 0));
+            CommandMap.Add("cf", new ChangeToCharCommand(editor, 1));
             CommandMap.Add("c$", new ChangeToEndCommand(editor));
             CommandMap.Add("C", new ChangeToEndCommand(editor));
             CommandMap.Add("dd", new DeleteLineCommand(editor));
@@ -809,8 +843,10 @@ namespace JustEnoughVi
             CommandMap.Add("de", new DeleteWordEndCommand(editor));
             CommandMap.Add("d$", new DeleteLineEndCommand(editor));
             CommandMap.Add("D", new DeleteLineEndCommand(editor));
-            CommandMap.Add("f", new FindCommand(editor));
-            CommandMap.Add("F", new FindPreviousCommand(editor));
+            CommandMap.Add("f", new FindCommand(editor, 0));
+            CommandMap.Add("F", new FindPreviousCommand(editor, 0));
+            CommandMap.Add("t", new FindCommand(editor, -1));
+            CommandMap.Add("T", new FindPreviousCommand(editor, 1));
             CommandMap.Add("gg", new GoToFirstLineCommand(editor));
             CommandMap.Add("gd", new GoToDeclarationCommand(editor));
             CommandMap.Add("gt", new GoToNextDocumentCommand(editor));
