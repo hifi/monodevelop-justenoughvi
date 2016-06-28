@@ -223,6 +223,33 @@ namespace JustEnoughVi
         }
     }
 
+    public class ChangeToCharCommand : Command
+    {
+        private readonly int offset;
+        public ChangeToCharCommand(TextEditorData editor, int offset) : base(editor)
+        {
+            TakeArgument = true;
+            this.offset = offset;
+        }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                int start = Editor.Caret.Offset;
+                var end = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (end <= 0)
+                    return;
+
+                end += offset;
+
+                Editor.SetSelection(start, end);
+                ClipboardActions.Cut(Editor);
+                RequestedMode = Mode.Insert;
+            }
+        }
+    }
+
     public class ChangeToEndCommand : Command
     {
         public ChangeToEndCommand(TextEditorData editor) : base(editor) { }
@@ -831,6 +858,8 @@ namespace JustEnoughVi
             CommandMap.Add("di{", new DeleteInsideBracesCommand(editor));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
             CommandMap.Add("ce", new ChangeWordEndCommand(editor));
+            CommandMap.Add("ct", new ChangeToCharCommand(editor, offset: 0));
+            CommandMap.Add("cf", new ChangeToCharCommand(editor, offset: 1));
             CommandMap.Add("c$", new ChangeToEndCommand(editor));
             CommandMap.Add("C", new ChangeToEndCommand(editor));
             CommandMap.Add("dd", new DeleteLineCommand(editor));
