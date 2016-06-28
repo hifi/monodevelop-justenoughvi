@@ -343,6 +343,46 @@ namespace JustEnoughVi
         }
     }
 
+    public class FindTillCommand : Command
+    {
+        public FindTillCommand(TextEditorData editor) : base(editor)
+        {
+            TakeArgument = true;
+        }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (offset <= 0)
+                    return;
+
+                Editor.Caret.Offset = offset - 1;
+            }
+        }
+    }
+
+    public class FindTillPreviousCommand : Command
+    {
+        public FindTillPreviousCommand(TextEditorData editor) : base(editor)
+        {
+            TakeArgument = true;
+        }
+
+        protected override void Run()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                var offset = StringUtils.FindPreviousInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (offset <= 0)
+                    return;
+
+                Editor.Caret.Offset = offset + 1;
+            }
+        }
+    }
+
     public class GoToLineCommand : Command
     {
         public GoToLineCommand(TextEditorData editor) : base(editor)
@@ -800,6 +840,8 @@ namespace JustEnoughVi
             CommandMap.Add("D", new DeleteLineEndCommand(editor));
             CommandMap.Add("f", new FindCommand(editor));
             CommandMap.Add("F", new FindPreviousCommand(editor));
+            CommandMap.Add("t", new FindTillCommand(editor));
+            CommandMap.Add("T", new FindTillPreviousCommand(editor));
             CommandMap.Add("gg", new GoToLineCommand(editor));
             CommandMap.Add("gd", new GoToDeclarationCommand(editor));
             CommandMap.Add("gt", new GoToNextDocumentCommand(editor));
