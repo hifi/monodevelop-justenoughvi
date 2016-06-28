@@ -223,10 +223,10 @@ namespace JustEnoughVi
         }
     }
 
-    public class ChangeToCharCommand : Command
+    public class DeleteToCharCommand : Command
     {
         private readonly int findResultShift;
-        public ChangeToCharCommand(TextEditorData editor, int findResultShift) : base(editor)
+        public DeleteToCharCommand(TextEditorData editor, int findResultShift) : base(editor)
         {
             TakeArgument = true;
             this.findResultShift = findResultShift;
@@ -245,8 +245,20 @@ namespace JustEnoughVi
 
                 Editor.SetSelection(start, end);
                 ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
             }
+        }
+    }
+
+    public class ChangeToCharCommand : DeleteToCharCommand
+    {
+        public ChangeToCharCommand(TextEditorData editor, int findResultShift) : base(editor, findResultShift)
+        {
+        }
+
+        protected override void Run()
+        {
+            base.Run();
+            RequestedMode = Mode.Insert;
         }
     }
 
@@ -834,6 +846,8 @@ namespace JustEnoughVi
             CommandMap.Add("di{", new DeleteInsideBracesCommand(editor));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
             CommandMap.Add("ce", new ChangeWordEndCommand(editor));
+            CommandMap.Add("dt", new DeleteToCharCommand(editor, 0));
+            CommandMap.Add("df", new DeleteToCharCommand(editor, 1));
             CommandMap.Add("ct", new ChangeToCharCommand(editor, 0));
             CommandMap.Add("cf", new ChangeToCharCommand(editor, 1));
             CommandMap.Add("c$", new ChangeToEndCommand(editor));
