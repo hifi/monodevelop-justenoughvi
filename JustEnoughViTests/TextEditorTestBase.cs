@@ -11,14 +11,31 @@ namespace JustEnoughViTests
     {
         public void Test(string source, string keys, string expected, Type expectedMode)
         {
-            var options = new TextEditorOptions();
-            options.TabsToSpaces = true;
-            var editor = Create(source, options);
-            var plugin = new JustEnoughVi.JustEnoughVi();
-            plugin.Initialize(editor);
+            var plugin = InitTest(source);
 
             ProcessKeys(keys, plugin);
             Check(plugin, expected, expectedMode);
+        }
+
+        public void Test(string source, Gdk.Key specialKey, string expected, Type expectedMode)
+        {
+            var plugin = InitTest(source);
+
+            var descriptor = KeyDescriptor.FromGtk(specialKey, '\0', Gdk.ModifierType.None);
+            plugin.KeyPress(descriptor);
+            
+            Check(plugin, expected, expectedMode);
+        }
+
+        private JustEnoughVi.JustEnoughVi InitTest(string source)
+        {
+            var options = new TextEditorOptions {
+                TabsToSpaces = true,
+            };
+            var editor = Create(source, options);
+            var plugin = new JustEnoughVi.JustEnoughVi();
+            plugin.Initialize(editor);
+            return plugin;
         }
 
         public void ProcessKeys(string keyPresses, JustEnoughVi.JustEnoughVi plugin)
