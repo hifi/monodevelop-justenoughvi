@@ -1,5 +1,6 @@
 ﻿using System;
 using Mono.TextEditor;
+using MonoDevelop.Core;
 
 namespace JustEnoughVi
 {
@@ -27,24 +28,73 @@ namespace JustEnoughVi
 
         public static void Up(TextEditorData editor)
         {
-            CaretMoveActions.Up(editor);
+            if (!Platform.IsMac)
+                CaretMoveActions.Up(editor);
+            else
+            {
+                using (var undo = editor.OpenUndoGroup())
+                {
+                    if (editor.Caret.Line > DocumentLocation.MinLine)
+                    {
+                        int visualLine = editor.LogicalToVisualLine(editor.Caret.Line);
+                        int line = editor.VisualToLogicalLine(visualLine - 1);
+                        editor.Caret.Line = line;
+                    }
+                }
+            }
         }
 
         public static void Down(TextEditorData editor)
         {
-            CaretMoveActions.Down(editor);
+            if (!Platform.IsMac)
+                CaretMoveActions.Down(editor);
+            else
+            {
+                using (var undo = editor.OpenUndoGroup())
+                {
+                    if (editor.Caret.Line < editor.Document.LineCount)
+                    {
+                        int nextLine = editor.LogicalToVisualLine(editor.Caret.Line);
+                        int line = editor.VisualToLogicalLine(nextLine + 1);
+                        editor.Caret.Line = line;
+                    }
+                }
+            }
         }
 
         public static void Left(TextEditorData editor)
         {
-            if (DocumentLocation.MinColumn < editor.Caret.Column)
-                CaretMoveActions.Left(editor);
+            if (!Platform.IsMac)
+            {
+                if (DocumentLocation.MinColumn < editor.Caret.Column)
+                    CaretMoveActions.Left(editor);
+            }
+            else
+            {
+                using (var undo = editor.OpenUndoGroup())
+                {
+                    if (editor.Caret.Column > DocumentLocation.MinColumn)
+                        editor.Caret.Column = editor.Caret.Column - 1;
+                }
+            }
         }
 
         public static void Right(TextEditorData editor)
         {
-            if (editor.GetLine(editor.Caret.Line).EndOffset - editor.Caret.Offset - 1 > 0)
-                CaretMoveActions.Right(editor);
+            if (!Platform.IsMac)
+            {
+                if (editor.GetLine(editor.Caret.Line).EndOffset - editor.Caret.Offset - 1 > 0)
+                    CaretMoveActions.Right(editor);
+            }
+            else
+            {
+                using (var undo = editor.OpenUndoGroup())
+                {
+                    DocumentLine line = editor.GetLine(editor.Caret.Line);
+                    if (editor.Caret.Column < line.Length)
+                        editor.Caret.Column = editor.Caret.Column + 1;
+                }
+            }
         }
 
         // TODO: move this somewhere else? extend TextEditor?
