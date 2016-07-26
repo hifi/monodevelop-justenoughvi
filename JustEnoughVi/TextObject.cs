@@ -120,5 +120,12 @@ namespace JustEnoughVi
                 return CommandRange.Empty;
             return new CommandRange(range.Start + 1, range.End - 1);
         }
+
+        public static CommandRange CurrentWord(TextEditorData editor)
+        {
+            var start = editor.FindCurrentWordStart(editor.Caret.Offset);
+            var end = editor.FindCurrentWordEnd(editor.Caret.Offset);
+            return new CommandRange(start, end);
+        }
     }
 }

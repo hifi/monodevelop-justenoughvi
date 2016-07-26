@@ -507,6 +507,22 @@ namespace JustEnoughVi
         }
     }
 
+    public class SearchForwardCommand : Command
+    {
+        public SearchForwardCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            var currentWord = TextObject.CurrentWord(Editor);
+            Editor.SetSelection(currentWord.Start, currentWord.End);
+            Dispatch(SearchCommands.UseSelectionForFind);
+            Dispatch(SearchCommands.Find);
+            Dispatch(SearchCommands.FindNext);
+            //Switch focus from find window back to document
+            MonoDevelop.Ide.IdeApp.Workbench.ActiveDocument.Window.SelectWindow();
+        }
+    }
+
     public class SearchNextCommand : Command
     {
         public SearchNextCommand(TextEditorData editor) : base(editor) { }
@@ -896,6 +912,7 @@ namespace JustEnoughVi
             CommandMap.Add("%", new MatchingBraceCommand(editor));
             CommandMap.Add("e", new WordEndCommand(editor));
             CommandMap.Add("R", new ReplaceModeCommand(editor));
+            CommandMap.Add("*", new SearchForwardCommand(editor));
 
             // remaps
             SpecialKeyCommandMap.Add(SpecialKey.Delete, new DeleteCharacterCommand(editor));
