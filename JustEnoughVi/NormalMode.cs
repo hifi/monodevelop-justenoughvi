@@ -151,6 +151,16 @@ namespace JustEnoughVi
         }
     }
 
+    public class ChangeInsideAngleBracketsCommand : ChangeInsideCommand
+    {
+        public ChangeInsideAngleBracketsCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            ChangeInside('<', '>');
+        }
+    }
+
     public class DeleteInsideBracketsCommand : DeleteInsideCommand
     {
         public DeleteInsideBracketsCommand(TextEditorData editor) : base(editor) { }
@@ -198,6 +208,16 @@ namespace JustEnoughVi
         protected override void Run()
         {
             DeleteInside('(', ')');
+        }
+    }
+
+    public class DeleteInsideAngleBracketsCommand : DeleteInsideCommand
+    {
+        public DeleteInsideAngleBracketsCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            DeleteInside('<', '>');
         }
     }
 
@@ -844,8 +864,13 @@ namespace JustEnoughVi
             CommandMap.Add("ci'", new ChangeInsideSingleQuotesCommand(editor));
             CommandMap.Add("ci\"", new ChangeInsideDoubleQuotesCommand(editor));
             CommandMap.Add("ci(", new ChangeInsideParenthesesCommand(editor));
+            CommandMap.Add("ci)", new ChangeInsideParenthesesCommand(editor));
             CommandMap.Add("ci{", new ChangeInsideBracesCommand(editor));
+            CommandMap.Add("ci}", new ChangeInsideBracesCommand(editor));
             CommandMap.Add("ci[", new ChangeInsideBracketsCommand(editor));
+            CommandMap.Add("ci]", new ChangeInsideBracketsCommand(editor));
+            CommandMap.Add("ci<", new ChangeInsideAngleBracketsCommand(editor));
+            CommandMap.Add("ci>", new ChangeInsideAngleBracketsCommand(editor));
             CommandMap.Add("ca(", new ChangeCommand(editor, TextObject.Block, '(', ')'));
             CommandMap.Add("ca)", new ChangeCommand(editor, TextObject.Block, '(', ')'));
             CommandMap.Add("cab", new ChangeCommand(editor, TextObject.Block, '(', ')'));
@@ -860,10 +885,15 @@ namespace JustEnoughVi
             CommandMap.Add("ca\"", new ChangeCommand(editor, TextObject.QuotedString, '\"'));
             CommandMap.Add("ca`", new ChangeCommand(editor, TextObject.QuotedString, '`'));
             CommandMap.Add("di[", new DeleteInsideBracketsCommand(editor));
+            CommandMap.Add("di]", new DeleteInsideBracketsCommand(editor));
             CommandMap.Add("di'", new DeleteInsideSingleQuotesCommand(editor));
             CommandMap.Add("di\"", new DeleteInsideDoubleQuotesCommand(editor));
             CommandMap.Add("di(", new DeleteInsideParenthesesCommand(editor));
+            CommandMap.Add("di)", new DeleteInsideParenthesesCommand(editor));
             CommandMap.Add("di{", new DeleteInsideBracesCommand(editor));
+            CommandMap.Add("di}", new DeleteInsideBracesCommand(editor));
+            CommandMap.Add("di<", new DeleteInsideAngleBracketsCommand(editor));
+            CommandMap.Add("di>", new DeleteInsideAngleBracketsCommand(editor));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
             CommandMap.Add("ce", new ChangeWordEndCommand(editor));
             CommandMap.Add("dt", new DeleteToCharCommand(editor, 0));

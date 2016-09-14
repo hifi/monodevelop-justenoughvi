@@ -45,10 +45,13 @@ namespace JustEnoughViTests
         [TestCase("aaa$aaa\nbbbbb\nccccc\n", "dd","b$bbbb\nccccc\n")]
         [TestCase("( asl$kdjf )", "di(", "()$")]
         [TestCase("[ aaa,\n\tbbb]$\n", "di[", "[]$\n")]
+        [TestCase("[ aaa,\n\tbbb]$\n", "di]", "[]$\n")]
         [TestCase("($ aslkdjf )", "di(", "()$")]
         [TestCase("{ aaa$aaaa; }", "di{", "{}$")]
+        [TestCase("{ aaa$aaaa; }", "di}", "{}$")]
         [TestCase("{\n\tint$ a;\n\tint b;\n}\n", "di{", "{\n}$\n")]
         [TestCase("(int $a,\n int b)\n", "di(", "()$\n")]
+        [TestCase("(int $a,\n int b)\n", "di)", "()$\n")]
         [TestCase("\"as$ldkjfasf bbb\"", "di\"", "\"\"$")]
         [TestCase("\"aaaaa\" \"$bbb\"", "di\"", "\"aaaaa\" \"\"$")]
         [TestCase("\"aaaaa\"$ \"bbb\"", "di\"", "\"\"$ \"bbb\"")]
@@ -58,6 +61,8 @@ namespace JustEnoughViTests
         [TestCase("{\n\tif$ (true)\n\t{\n\t\ta();{int a}\n\t}\n}\n", "di{", "{\n}$\n")]
         [TestCase("Test(typeof(Normal$Mode()));", "di(", "Test(typeof()$);")]
         [TestCase("hello ( hello() w$hile(true) )", "di(", "hello ()$")] 
+        [TestCase("<a, b$, c>\n", "di<", "<>$\n")] 
+        [TestCase("\n\t<$a, b, c>\n", "di>", "\n\t<>$\n")]
         public void D_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));

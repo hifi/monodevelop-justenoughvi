@@ -40,7 +40,9 @@ namespace JustEnoughViTests
         [TestCase("this$ is a test", "cft", "thi$est")]
         [TestCase("al$dfklasdjf\n", "cw", "a$\n")]
         [TestCase("( abcde$fghij )", "ci(", "($)")]
+        [TestCase("( abcde$fghij )", "ci)", "($)")]
         [TestCase("{ alskd$fasl }", "ci{", "{$}")]
+        [TestCase("{ alskd$fasl }", "ci}", "{$}")]
         [TestCase("{$ alskdjfasl }", "ci{", "{$}")]
         [TestCase("($  alskdjfasl)", "ci(", "($)")]
         [TestCase("{\n\tint a$;\n\tint b;\n}", "ci{", "{\n\t$\n}")]
@@ -53,8 +55,10 @@ namespace JustEnoughViTests
         [TestCase("'a'$", "ci'", "'$'")]
         [TestCase("'a$'", "ci'", "'$'")]
         [TestCase("while ( w$hile(true) )", "ci(", "while ($)")] 
-        [TestCase("while ( while($true) )", "ci(", "while ( while($) )")]
+        [TestCase("while ( while($true) )", "ci)", "while ( while($) )")]
         [TestCase("aa()$\n", "ci(", "aa($)\n")]
+        [TestCase("\n\t<a$, b, c>\n", "ci<", "\n\t<$>\n")]
+        [TestCase("\n\t<a, b, c>$\n", "ci>", "\n\t<$>\n")]
         public void Change_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(InsertMode));
