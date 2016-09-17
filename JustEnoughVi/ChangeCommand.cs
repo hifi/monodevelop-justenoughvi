@@ -17,6 +17,11 @@ namespace JustEnoughVi
             _selector = () => selector(Editor, enclosingChar);
         }
 
+        //public ChangeCommand(TextEditorData editor, Func<TextEditorData, CommandRange> selector) : base(editor)
+        //{
+        //    _selector = () => selector(Editor);
+        //}
+
         protected override void Run()
         {
             var range = _selector();
@@ -24,8 +29,9 @@ namespace JustEnoughVi
             {
                 Editor.SetSelection(range.Start, range.End);
                 ClipboardActions.Cut(Editor);
-                RequestedMode = Mode.Insert;
             }
+            if (range != CommandRange.Empty)
+                RequestedMode = Mode.Insert;
         }
     }
 }

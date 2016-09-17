@@ -54,10 +54,34 @@ namespace JustEnoughVi
 
         public static CommandRange QuotedString(TextEditorData editor, char quotationChar)
         {
+            CommandRange range = FindQuotes(editor, quotationChar);
+            var lineOffset = editor.GetLine(editor.Caret.Line).Offset;
+            var lineEndOffset = editor.GetLine(editor.Caret.Line).EndOffset - 1; // Line includes \n
+
+            var endIncludingTrailingWhiteSpace = range.End;
+            var startIncludingTrailingWhiteSpace = range.Start;
+
+            // expand to include all trailing white space
+            while (endIncludingTrailingWhiteSpace < lineEndOffset && Char.IsWhiteSpace(editor.Text[endIncludingTrailingWhiteSpace + 1]))
+                endIncludingTrailingWhiteSpace++;
+
+            // if there's no trailing white space then include leading
+            if (endIncludingTrailingWhiteSpace == range.End)
+            {
+                while (startIncludingTrailingWhiteSpace > lineOffset && Char.IsWhiteSpace(editor.Text[startIncludingTrailingWhiteSpace - 1]))
+                    startIncludingTrailingWhiteSpace--;
+            }
+
+            return new CommandRange(Math.Min(range.Start, startIncludingTrailingWhiteSpace), Math.Max(range.End, endIncludingTrailingWhiteSpace) + 1);
+        }
+
+        private static CommandRange FindQuotes(TextEditorData editor, char quotationChar)
+        {
             var start = editor.Caret.Offset;
             var end = editor.Caret.Offset;
             var lineOffset = editor.GetLine(editor.Caret.Line).Offset;
             var lineEndOffset = editor.GetLine(editor.Caret.Line).EndOffset - 1; // Line includes \n
+
             if (editor.Text[start] == quotationChar)
             {
                 // Check if we're on closing char
@@ -84,7 +108,7 @@ namespace JustEnoughVi
                         end++;
                 }
             }
-            else 
+            else
             {
                 while (start >= lineOffset & editor.Text[start] != quotationChar)
                     start--;
@@ -93,32 +117,18 @@ namespace JustEnoughVi
                     end++;
             }
 
-            if (start < 0 || end > lineEndOffset || start == end)
+            if (start < lineOffset || end > lineEndOffset || start == end)
                 return CommandRange.Empty;
 
-            var endIncludingTrailingWhiteSpace = end;
-            var startIncludingTrailingWhiteSpace = start;
-
-            // expand to include all trailing white space
-            while (endIncludingTrailingWhiteSpace < lineEndOffset && Char.IsWhiteSpace(editor.Text[endIncludingTrailingWhiteSpace + 1]))
-                endIncludingTrailingWhiteSpace++;
-
-            // if there's no trailing white space then include leading
-            if (endIncludingTrailingWhiteSpace == end)
-            {
-                while (startIncludingTrailingWhiteSpace > lineOffset && Char.IsWhiteSpace(editor.Text[startIncludingTrailingWhiteSpace - 1]))
-                    startIncludingTrailingWhiteSpace--;
-            }
-
-            return new CommandRange(Math.Min(start, startIncludingTrailingWhiteSpace), Math.Max(end, endIncludingTrailingWhiteSpace) + 1);
+            return new CommandRange(start, end);
         }
 
         public static CommandRange InnerQuotedString(TextEditorData editor, char enclosingChar)
         {
-            var range = QuotedString(editor, enclosingChar);
+            var range = FindQuotes(editor, enclosingChar);
             if (range.Length == 0)
                 return CommandRange.Empty;
-            return new CommandRange(range.Start + 1, range.End - 1);
+            return new CommandRange(range.Start + 1, range.End);
         }
 
         public static CommandRange CurrentWord(TextEditorData editor)

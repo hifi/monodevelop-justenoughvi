@@ -52,7 +52,7 @@ namespace JustEnoughViTests
         [TestCase("\"$aaaa \tbbb cc\"", "ci\"", "\"$\"")]
         [TestCase("\n\"aa$aaa\"", "ci\"", "\n\"$\"")]
         [TestCase("\n\"\taaa$aa\"\n", "ci\"", "\n\"$\"\n")]
-        [TestCase("'a'$", "ci'", "'$'")]
+        [TestCase(" 'a'$", "ci'", " '$'")]
         [TestCase("'a$'", "ci'", "'$'")]
         [TestCase("while ( w$hile(true) )", "ci(", "while ($)")] 
         [TestCase("while ( while($true) )", "ci)", "while ( while($) )")]
