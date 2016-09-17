@@ -63,164 +63,6 @@ namespace JustEnoughVi
         }
     }
 
-    public abstract class DeleteInsideCommand : Command
-    {
-        public DeleteInsideCommand(TextEditorData editor) : base(editor) { }
-
-        protected bool DeleteInside(char start, char end)
-        {
-            Tuple<int, int> offsets;
-            if (start == end)
-                offsets = StringUtils.FindMatchingOffsetsInLine(Editor.Text, Editor.Caret.Offset, start);
-            else
-                offsets = StringUtils.FindMatchingOffsets(Editor.Text, Editor.Caret.Offset, start, end);
-
-            if (offsets.Item1 < 0 || offsets.Item2 < 0)
-                return false;
-
-            if (offsets.Item1 < offsets.Item2 - 1)
-            {
-                Editor.SetSelection(offsets.Item1 + 1, offsets.Item2);
-                ClipboardActions.Cut(Editor);
-            }
-            else
-                Editor.Caret.Offset = offsets.Item2;
-
-            return true;
-        }
-    }
-
-    public abstract class ChangeInsideCommand : DeleteInsideCommand
-    {
-        public ChangeInsideCommand(TextEditorData editor) : base(editor) { }
-
-        protected void ChangeInside(char start, char end)
-        {
-            if (DeleteInside(start, end))
-                RequestedMode = Mode.Insert;
-        }
-    }
-
-    public class ChangeInsideSingleQuotesCommand : ChangeInsideCommand
-    {
-        public ChangeInsideSingleQuotesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            ChangeInside('\'', '\'');
-        }
-    }
-
-    public class ChangeInsideDoubleQuotesCommand : ChangeInsideCommand
-    {
-        public ChangeInsideDoubleQuotesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            ChangeInside('"', '"');
-        }
-    }
-
-    public class ChangeInsideParenthesesCommand : ChangeInsideCommand
-    {
-        public ChangeInsideParenthesesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            ChangeInside('(', ')');
-        }
-    }
-
-    public class ChangeInsideBracesCommand : ChangeInsideCommand
-    {
-        public ChangeInsideBracesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            ChangeInside('{', '}');
-        }
-    }
-
-    public class ChangeInsideBracketsCommand : ChangeInsideCommand
-    {
-        public ChangeInsideBracketsCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            ChangeInside('[', ']');
-        }
-    }
-
-    public class ChangeInsideAngleBracketsCommand : ChangeInsideCommand
-    {
-        public ChangeInsideAngleBracketsCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            ChangeInside('<', '>');
-        }
-    }
-
-    public class DeleteInsideBracketsCommand : DeleteInsideCommand
-    {
-        public DeleteInsideBracketsCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            DeleteInside('[', ']');
-        }
-    }
-
-    public class DeleteInsideDoubleQuotesCommand : DeleteInsideCommand
-    {
-        public DeleteInsideDoubleQuotesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            DeleteInside('"', '"');
-        }
-    }    
-
-    public class DeleteInsideSingleQuotesCommand : DeleteInsideCommand
-    {
-        public DeleteInsideSingleQuotesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            DeleteInside('\'', '\'');
-        }
-    }
-
-    public class DeleteInsideBracesCommand : DeleteInsideCommand
-    {
-        public DeleteInsideBracesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            DeleteInside('{', '}');
-        }
-    }
-
-    public class DeleteInsideParenthesesCommand : DeleteInsideCommand
-    {
-        public DeleteInsideParenthesesCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            DeleteInside('(', ')');
-        }
-    }
-
-    public class DeleteInsideAngleBracketsCommand : DeleteInsideCommand
-    {
-        public DeleteInsideAngleBracketsCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            DeleteInside('<', '>');
-        }
-    }
-
     public class ChangeWordCommand : DeleteWordEndCommand
     {
         public ChangeWordCommand(TextEditorData editor) : base(editor) { }
@@ -884,16 +726,16 @@ namespace JustEnoughVi
             CommandMap.Add("ca'", new ChangeCommand(editor, TextObject.QuotedString, '\''));
             CommandMap.Add("ca\"", new ChangeCommand(editor, TextObject.QuotedString, '\"'));
             CommandMap.Add("ca`", new ChangeCommand(editor, TextObject.QuotedString, '`'));
-            CommandMap.Add("di[", new DeleteInsideBracketsCommand(editor));
-            CommandMap.Add("di]", new DeleteInsideBracketsCommand(editor));
-            CommandMap.Add("di'", new DeleteInsideSingleQuotesCommand(editor));
-            CommandMap.Add("di\"", new DeleteInsideDoubleQuotesCommand(editor));
-            CommandMap.Add("di(", new DeleteInsideParenthesesCommand(editor));
-            CommandMap.Add("di)", new DeleteInsideParenthesesCommand(editor));
-            CommandMap.Add("di{", new DeleteInsideBracesCommand(editor));
-            CommandMap.Add("di}", new DeleteInsideBracesCommand(editor));
-            CommandMap.Add("di<", new DeleteInsideAngleBracketsCommand(editor));
-            CommandMap.Add("di>", new DeleteInsideAngleBracketsCommand(editor));
+            CommandMap.Add("di[", new DeleteCommand(editor, TextObject.InnerBlock, '[', ']'));
+            CommandMap.Add("di]", new DeleteCommand(editor, TextObject.InnerBlock, '[', ']'));
+            CommandMap.Add("di'", new DeleteCommand(editor, TextObject.InnerQuotedString, '\''));
+            CommandMap.Add("di\"", new DeleteCommand(editor, TextObject.InnerQuotedString, '"'));
+            CommandMap.Add("di(", new DeleteCommand(editor, TextObject.InnerBlock, '(', ')'));
+            CommandMap.Add("di)", new DeleteCommand(editor, TextObject.InnerBlock, '(', ')'));
+            CommandMap.Add("di{", new DeleteCommand(editor, TextObject.InnerBlock, '{', '}'));
+            CommandMap.Add("di}", new DeleteCommand(editor, TextObject.InnerBlock, '{', '}'));
+            CommandMap.Add("di<", new DeleteCommand(editor, TextObject.InnerBlock, '<', '>'));
+            CommandMap.Add("di>", new DeleteCommand(editor, TextObject.InnerBlock, '<', '>'));
             CommandMap.Add("cw", new ChangeWordCommand(editor));
             CommandMap.Add("ce", new ChangeWordEndCommand(editor));
             CommandMap.Add("dt", new DeleteToCharCommand(editor, 0));

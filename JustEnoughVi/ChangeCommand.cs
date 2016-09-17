@@ -3,33 +3,24 @@ using Mono.TextEditor;
 
 namespace JustEnoughVi
 {
-    public class ChangeCommand : Command
+    public class ChangeCommand : DeleteCommand
     {
-        Func<CommandRange> _selector;
-
-        public ChangeCommand(TextEditorData editor, Func<TextEditorData, char, char, CommandRange> selector, char openingChar, char closingChar) : base(editor)
+        public ChangeCommand(TextEditorData editor, Func<TextEditorData, char, char, CommandRange> selector, char openingChar, char closingChar) 
+            : base(editor, selector, openingChar, closingChar)
         {
             _selector = () => selector(Editor, openingChar, closingChar);
         }
 
-        public ChangeCommand(TextEditorData editor, Func<TextEditorData, char, CommandRange> selector, char enclosingChar) : base(editor)
+        public ChangeCommand(TextEditorData editor, Func<TextEditorData, char, CommandRange> selector, char enclosingChar) 
+            : base(editor, selector, enclosingChar)
         {
             _selector = () => selector(Editor, enclosingChar);
         }
 
-        //public ChangeCommand(TextEditorData editor, Func<TextEditorData, CommandRange> selector) : base(editor)
-        //{
-        //    _selector = () => selector(Editor);
-        //}
-
         protected override void Run()
         {
             var range = _selector();
-            if (range.Length > 0)
-            {
-                Editor.SetSelection(range.Start, range.End);
-                ClipboardActions.Cut(Editor);
-            }
+            DeleteRange(range);
             if (range != CommandRange.Empty)
                 RequestedMode = Mode.Insert;
         }

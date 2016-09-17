@@ -42,6 +42,7 @@
     <Compile Include="CommandRange.cs" />
     <Compile Include="TextObject.cs" />
     <Compile Include="ChangeCommand.cs" />
+    <Compile Include="DeleteCommand.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />
