@@ -44,21 +44,15 @@ namespace JustEnoughViTests
         [TestCase("aas$kdjf alsdfklasdjf", "d$", "aa$")]
         [TestCase("aaa$aaa\nbbbbb\nccccc\n", "dd","b$bbbb\nccccc\n")]
         [TestCase("( asl$kdjf )", "di(", "()$")]
-        [TestCase("[ aaa,\n\tbbb]$\n", "di[", "[]$\n")]
-        [TestCase("[ aaa,\n\tbbb]$\n", "di]", "[]$\n")]
         [TestCase("($ aslkdjf )", "di(", "()$")]
         [TestCase("{ aaa$aaaa; }", "di{", "{}$")]
         [TestCase("{ aaa$aaaa; }", "di}", "{}$")]
-        [TestCase("{\n\tint$ a;\n\tint b;\n}\n", "di{", "{\n}$\n")]
-        [TestCase("(int $a,\n int b)\n", "di(", "()$\n")]
-        [TestCase("(int $a,\n int b)\n", "di)", "()$\n")]
         [TestCase("\"as$ldkjfasf bbb\"", "di\"", "\"\"$")]
         [TestCase("\"aaaaa\" \"$bbb\"", "di\"", "\"aaaaa\" \"\"$")]
         [TestCase("\"aaaaa\"$ \"bbb\"", "di\"", "\"\"$ \"bbb\"")]
         [TestCase("\n'a'$ '\n", "di'", "\n''$ '\n")]
         [TestCase("'$a'", "di'", "''$")]
         [TestCase("'a$'", "di'","''$")] 
-        [TestCase("{\n\tif$ (true)\n\t{\n\t\ta();{int a}\n\t}\n}\n", "di{", "{\n}$\n")]
         [TestCase("Test(typeof(Normal$Mode()));", "di(", "Test(typeof()$);")]
         [TestCase("hello ( hello() w$hile(true) )", "di(", "hello ()$")] 
         [TestCase("<a, b$, c>\n", "di<", "<>$\n")] 
@@ -66,6 +60,40 @@ namespace JustEnoughViTests
         public void D_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));
+        }
+
+        [TestCase("(int $a,\n int b)\n", "di(", "()$\n")]
+        [TestCase("(int $a,\n int b)\n", "di)", "()$\n")]        
+        [TestCase("[ aaa,\n\tbbb]$\n", "di[", "[]$\n")]
+        [TestCase("[ aaa,\n\tbbb]$\n", "di]", "[]$\n")]        
+        public void should_delete_block_with_newlines(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
+
+        [TestCase("{\n\tint$ a;\n\tint b;\n}\n", "di{", "{\n}$\n")]
+        [TestCase("(int$ a,\n  int b\n)", "di(", "($\n)")]
+        [TestCase("($\n  int b\n)", "di)", "(\n)$")] 
+        [TestCase("[\n  int b\n  int$ c]\n", "di]", "[\n]$\n")]
+        public void should_keep_newline(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(NormalMode));
+        }
+
+        [Test]
+        public void should_keep_block_indented()
+        {
+            string source = @"
+            {
+
+                int$ a;
+
+            }";
+            string expected = @"
+            {
+            }$";
+
+            Test(source, "ci{", expected, typeof(NormalMode));
         }
     }
 }

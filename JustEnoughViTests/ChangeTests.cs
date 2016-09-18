@@ -30,8 +30,8 @@ namespace JustEnoughViTests
         [TestCase("abc$efg", "c$", "ab$")]
         [TestCase("a l$ong sentence", "cw", "a $ sentence")]
         [TestCase("a l$ong sentence", "ce", "a $ sentence")]
-        [TestCase("a l$ong\tsentence\n", "ce", "a $\tsentence\n")] 
-        [TestCase("a l$ong long sentence", "2cw", "a $ sentence")] 
+        [TestCase("a l$ong\tsentence\n", "ce", "a $\tsentence\n")]
+        [TestCase("a l$ong long sentence", "2cw", "a $ sentence")]
         [TestCase("a l$ong long sentence", "c2w", "a $ sentence")]
         [TestCase("a l$ong long sentence", "2ce", "a $ sentence")]
         [TestCase("a l$ong long sentence", "c2e", "a $ sentence")]
@@ -45,16 +45,13 @@ namespace JustEnoughViTests
         [TestCase("{ alskd$fasl }", "ci}", "{$}")]
         [TestCase("{$ alskdjfasl }", "ci{", "{$}")]
         [TestCase("($  alskdjfasl)", "ci(", "($)")]
-        [TestCase("{\n\tint a$;\n\tint b;\n}", "ci{", "{\n\t$\n}")]
-        [TestCase("\t(int a$,\n\t int b)\n", "ci(", "\t($)\n")]
-        [TestCase("{ aksljd$f\n\t\taskldjf\n\t}", "ci{", "{$\n\t}")]
         [TestCase("\"aa$aa bbb cc\"", "ci\"", "\"$\"")]
         [TestCase("\"$aaaa \tbbb cc\"", "ci\"", "\"$\"")]
         [TestCase("\n\"aa$aaa\"", "ci\"", "\n\"$\"")]
         [TestCase("\n\"\taaa$aa\"\n", "ci\"", "\n\"$\"\n")]
         [TestCase(" 'a'$", "ci'", " '$'")]
         [TestCase("'a$'", "ci'", "'$'")]
-        [TestCase("while ( w$hile(true) )", "ci(", "while ($)")] 
+        [TestCase("while ( w$hile(true) )", "ci(", "while ($)")]
         [TestCase("while ( while($true) )", "ci)", "while ( while($) )")]
         [TestCase("aa()$\n", "ci(", "aa($)\n")]
         [TestCase("\n\t<a$, b, c>\n", "ci<", "\n\t<$>\n")]
@@ -62,6 +59,30 @@ namespace JustEnoughViTests
         public void Change_tests(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(InsertMode));
+        }
+
+        [TestCase("{aaa$\n\t aaa\n}", "ci}", "{$\n}")]
+        [TestCase("{\n    aaa\n    bbbb}\n", "ci{", "{\n$}\n")]
+        [TestCase("\t(int a$,\n\t int b)\n", "ci(", "\t($)\n")]        
+        public void change_inside_multiline_block(string source, string keys, string expected)
+        {
+            Test(source, keys, expected, typeof(InsertMode));
+
+        }
+
+        [Test]
+        public void should_change_and_indent()
+        {
+            string source = @"
+            {
+                int a;
+                int b;
+            }";
+            string expected = @"
+            {
+                $
+            }";
+            Test(source, "ci{", expected, typeof(InsertMode)); 
         }
 
         // http://vimdoc.sourceforge.net/htmldoc/motion.html#a]
