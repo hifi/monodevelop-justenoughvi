@@ -1,5 +1,6 @@
 ﻿using System;
 using Mono.TextEditor;
+using ICSharpCode.NRefactory;
 
 namespace JustEnoughVi
 {
@@ -66,6 +67,9 @@ namespace JustEnoughVi
                 end = range.End - 2;
             else
                 end -= line.PreviousLine.DelimiterLength;
+
+            if (start > end + 1)
+                return new CommandRange(start, start);
 
             return new CommandRange(start, end+1);
         }

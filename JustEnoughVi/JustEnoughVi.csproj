@@ -43,6 +43,8 @@
     <Compile Include="TextObject.cs" />
     <Compile Include="ChangeCommand.cs" />
     <Compile Include="DeleteCommand.cs" />
+    <Compile Include="DeleteInnerBlock.cs" />
+    <Compile Include="ChangeInnerBlock.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Manifest.addin.xml" />

@@ -54,6 +54,7 @@ namespace JustEnoughViTests
         [TestCase("while ( w$hile(true) )", "ci(", "while ($)")]
         [TestCase("while ( while($true) )", "ci)", "while ( while($) )")]
         [TestCase("aa()$\n", "ci(", "aa($)\n")]
+        [TestCase("a<$>", "ci>", "a<$>")]
         [TestCase("\n\t<a$, b, c>\n", "ci<", "\n\t<$>\n")]
         [TestCase("\n\t<a, b, c>$\n", "ci>", "\n\t<$>\n")]
         public void Change_tests(string source, string keys, string expected)
@@ -75,7 +76,7 @@ namespace JustEnoughViTests
         {
             string source = @"
             {
-                int a;
+                int a$;
                 int b;
             }";
             string expected = @"
