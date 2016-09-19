@@ -1,5 +1,6 @@
 ﻿using System;
 using Mono.TextEditor;
+using ICSharpCode.NRefactory.Utils;
 using ICSharpCode.NRefactory;
 
 namespace JustEnoughVi
@@ -30,20 +31,18 @@ namespace JustEnoughVi
                         int del2 = NewLine.GetDelimiterLength(Editor.Text[del2Start],
                                                               Editor.Text[del2Start + 1]);
                         if (del2 > 0)
-                            IndentInsideBlock(range.Start);
+                            IndentInsideBlock(range.Start - 2);
                     }
                 }
             }
         }
 
-        private void IndentInsideBlock(int blockStart)
+        private void IndentInsideBlock(int openingChar)
         {
-            int end = blockStart;
-            while (Char.IsWhiteSpace(Editor.Text[end]))
-                end++;
-            Editor.SetSelection(blockStart, end);
-            Editor.DeleteSelectedText();
-            MiscActions.InsertNewLine(Editor);
+            string indentation = Editor.GetLineIndent(Editor.OffsetToLineNumber(openingChar));
+            if (indentation != null && indentation.Length > 0)
+                Editor.Insert(Editor.Caret.Offset, indentation);
+            MiscActions.InsertTab(Editor);
         }
     }
 }
