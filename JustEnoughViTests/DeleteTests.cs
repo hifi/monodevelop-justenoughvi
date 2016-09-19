@@ -65,7 +65,7 @@ namespace JustEnoughViTests
         [TestCase("(int $a,\n int b)\n", "di(", "()$\n")]
         [TestCase("(int $a,\n int b)\n", "di)", "()$\n")]        
         [TestCase("[ aaa,\n\tbbb]$\n", "di[", "[]$\n")]
-        [TestCase("[ aaa,\n\tbbb]$\n", "di]", "[]$\n")]        
+        [TestCase("[ \naaa,\n\tbbb]$\n", "di]", "[]$\n")]        
         public void should_delete_block_with_newlines(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));
@@ -75,6 +75,7 @@ namespace JustEnoughViTests
         [TestCase("(int$ a,\n  int b\n)", "di(", "($\n)")]
         [TestCase("($\n  int b\n)", "di)", "(\n)$")] 
         [TestCase("[\n  int b\n  int$ c]\n", "di]", "[\n]$\n")]
+        [TestCase("<aaa$\n>\n", "di>", "<$\n>\n")]
         public void should_keep_newline(string source, string keys, string expected)
         {
             Test(source, keys, expected, typeof(NormalMode));
@@ -87,13 +88,13 @@ namespace JustEnoughViTests
             {
 
                 int$ a;
-
+                int b;  
             }";
             string expected = @"
             {
             }$";
 
-            Test(source, "ci{", expected, typeof(NormalMode));
+            Test(source, "di{", expected, typeof(NormalMode));
         }
     }
 }

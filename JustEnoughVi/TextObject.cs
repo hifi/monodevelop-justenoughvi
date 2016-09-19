@@ -49,7 +49,25 @@ namespace JustEnoughVi
             var range = Block(editor, openingChar, closingChar);
             if (range.Length == 0)
                 return CommandRange.Empty;
-            return new CommandRange(range.Start + 1, range.End - 1);
+            int start = range.Start + 1;
+            int end = range.End - 2;
+            var line = editor.GetLine(editor.OffsetToLineNumber(range.Start));
+
+            // exclude newline if it comes just after opening char
+            if (line.EndOffsetIncludingDelimiter - start <= line.DelimiterLength)
+                start += line.DelimiterLength;
+
+            // exclude whitespace that comes just before the closing char...
+            line = editor.GetLine(editor.OffsetToLineNumber(range.End));
+            while (Char.IsWhiteSpace(editor.Text[end]) && end >= line.Offset)
+                end--;
+            //.. but only if newline comes after it
+            if (end >= line.Offset)
+                end = range.End - 2;
+            else
+                end -= line.PreviousLine.DelimiterLength;
+
+            return new CommandRange(start, end+1);
         }
 
         public static CommandRange QuotedString(TextEditorData editor, char quotationChar)
