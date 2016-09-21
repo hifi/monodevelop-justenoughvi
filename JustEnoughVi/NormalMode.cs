@@ -454,8 +454,9 @@ namespace JustEnoughVi
             if (text.IndexOfAny(new char[] { '\r', '\n' }) > 0)
             {
                 int oldOffset = Editor.Caret.Offset;
+                var line = Editor.GetLine(Editor.Caret.Line);
                 CaretMoveActions.LineEnd(Editor);
-                Editor.Caret.Offset++;
+                Editor.Caret.Offset += line.DelimiterLength;
                 Editor.InsertAtCaret(text);
                 Editor.Caret.Offset = oldOffset;
                 Motion.Down(Editor);

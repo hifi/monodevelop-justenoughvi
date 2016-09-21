@@ -31,13 +31,13 @@ namespace JustEnoughVi
                         int del2 = NewLine.GetDelimiterLength(Editor.Text[del2Start],
                                                               Editor.Text[del2Start + 1]);
                         if (del2 > 0)
-                            IndentInsideBlock(range.Start - 2);
+                            IndentCaretInBlock(range.Start - 2);
                     }
                 }
             }
         }
 
-        private void IndentInsideBlock(int openingChar)
+        private void IndentCaretInBlock(int openingChar)
         {
             string indentation = Editor.GetLineIndent(Editor.OffsetToLineNumber(openingChar));
             if (indentation != null && indentation.Length > 0)
