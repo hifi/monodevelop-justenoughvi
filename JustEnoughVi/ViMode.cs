@@ -99,8 +99,9 @@ namespace JustEnoughVi
     {
         public TextEditorData Editor { get; set; }
         public Mode RequestedMode { get; internal set; }
-        protected Dictionary<string , Command> CommandMap { get; private set; }
+        protected Dictionary<string, Command> CommandMap { get; private set; }
         protected Dictionary<SpecialKey, Command> SpecialKeyCommandMap { get; private set; }
+        protected bool AllowCaretOnEol { get; set; } = false;
 
         private int _count;
         private Command _command;
@@ -160,7 +161,7 @@ namespace JustEnoughVi
 
         private void CaretOffEol()
         {
-            if (RequestedMode == Mode.Insert)
+            if (AllowCaretOnEol || RequestedMode == Mode.Insert)
                 return;
 
             var line = Editor.GetLine(Editor.Caret.Line);

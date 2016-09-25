@@ -111,7 +111,15 @@ namespace JustEnoughVi
             }
             else
             {
-                Editor.SetSelection(_startOffset + (Editor.Caret.Offset < _startOffset ? 1 : 0), Editor.Caret.Offset + (Editor.Caret.Offset >= _startOffset ? 1 : 0));
+                // Make sure we always select whole eol symbol
+                DocumentLine line = Editor.GetLine(Editor.Caret.Line);
+                int end;
+                if (Editor.Caret.Offset >= line.EndOffset && Editor.Caret.Offset < line.EndOffsetIncludingDelimiter - 1)
+                    end = line.EndOffsetIncludingDelimiter - 1;
+                else
+                    end = Editor.Caret.Offset;
+
+                Editor.SetSelection(_startOffset + (Editor.Caret.Offset < _startOffset ? 1 : 0), end + (Editor.Caret.Offset >= _startOffset ? 1 : 0));
             }
         }
 
@@ -120,12 +128,14 @@ namespace JustEnoughVi
             _startOffset = Editor.Caret.Offset;
             Editor.Caret.Mode = CaretMode.Block;
             UpdateSelection();
+            AllowCaretOnEol = true;
         }
 
         protected override void Deactivate()
         {
             Editor.Caret.Mode = CaretMode.Insert;
             Editor.ClearSelection();
+            AllowCaretOnEol = false;
         }
 
         public override bool KeyPress(KeyDescriptor descriptor)

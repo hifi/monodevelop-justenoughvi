@@ -83,7 +83,7 @@ namespace JustEnoughVi
         {
             if (!Platform.IsMac)
             {
-                if (editor.GetLine(editor.Caret.Line).EndOffset - editor.Caret.Offset - 1 > 0)
+                if (editor.Caret.Offset < editor.GetLine(editor.Caret.Line).EndOffset)
                     CaretMoveActions.Right(editor);
             }
             else
