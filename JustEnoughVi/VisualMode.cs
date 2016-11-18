@@ -2,6 +2,7 @@
 using Mono.TextEditor;
 using MonoDevelop.Ide.Editor;
 using MonoDevelop.Ide.Editor.Extension;
+using GLib;
 
 namespace JustEnoughVi
 {
@@ -28,7 +29,9 @@ namespace JustEnoughVi
 
         protected override void Run()
         {
+            var startOffset = Editor.SelectionAnchor;
             ClipboardActions.Copy(Editor);
+            Editor.Caret.Offset = startOffset;
             RequestedMode = Mode.Normal;
         }
     }
@@ -63,6 +66,7 @@ namespace JustEnoughVi
         }
     }
 
+
     public class ChangeSelectionCommand : Command
     {
         public ChangeSelectionCommand(TextEditorData editor) : base(editor) { }
@@ -72,6 +76,104 @@ namespace JustEnoughVi
             ClipboardActions.Cut(Editor);
             RequestedMode = Mode.Insert;        
         }
+    }
+
+    public class FindSelectionCommand : Command
+    {
+        readonly int findResultShift;
+
+        public FindSelectionCommand(TextEditorData editor, int findResultShift) : base(editor)
+        {
+            TakeArgument = true;
+            this.findResultShift = findResultShift;
+        }
+
+        protected override void Run()
+        {
+            var originalCaretPosition = Editor.Caret.Offset;
+            for (int i = 0; i < Count; i++)
+            {
+                var offset = StringUtils.FindNextInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (offset <= 0)
+                    return;
+
+                Editor.Caret.Offset = offset;
+                Editor.SetSelection(originalCaretPosition, offset);
+            }
+
+            Editor.Caret.Offset += findResultShift;
+        }
+    }
+
+    public class FindPreviousSelectionCommand : Command
+    {
+        readonly int findResultShift;
+        public FindPreviousSelectionCommand(TextEditorData editor, int findResultShift) : base(editor)
+        {
+            TakeArgument = true;
+            this.findResultShift = findResultShift;
+        }
+
+        protected override void Run()
+        {
+            var originalCaretPosition = Editor.Caret.Offset;
+            for (int i = 0; i < Count; i++)
+            {
+                var offset = StringUtils.FindPreviousInLine(Editor.Text, Editor.Caret.Offset, Argument);
+                if (offset <= 0)
+                    return;
+
+                Editor.Caret.Offset = offset;
+                Editor.SetSelection(offset, originalCaretPosition);
+            }
+            Editor.Caret.Offset += findResultShift;
+        }
+    }
+
+    public class PasteSelectionCommand : Command
+    {
+
+        public PasteSelectionCommand (TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            // can the clipboard content be pulled without Gtk?
+            var clipboard = Gtk.Clipboard.Get(ClipboardActions.CopyOperation.CLIPBOARD_ATOM);
+
+            if (!clipboard.WaitIsTextAvailable())
+                return;
+
+            string text = clipboard.WaitForText();
+
+            if (text.IndexOfAny(new char[] { '\r', '\n' }) > 0)
+            {
+                if (Editor.Caret.Line == 1)
+                {
+                    Editor.Caret.Offset = 0;
+                    Editor.InsertAtCaret(text);
+                    Editor.Caret.Offset = 0;
+                    Motion.LineStart(Editor);
+                }
+                else
+                {
+                    Motion.Up(Editor);
+                    Motion.LineEnd(Editor);
+                    Editor.Caret.Offset++;
+                    int oldOffset = Editor.Caret.Offset;
+                    Editor.InsertAtCaret(text);
+                    Editor.Caret.Offset = oldOffset;
+                    Motion.LineStart(Editor);
+                }
+            }
+            else
+            {
+                Editor.InsertAtCaret(text);
+
+                Editor.Caret.Offset--;
+            }
+            RequestedMode = Mode.Normal;
+        }
+
     }
 
     public class VisualMode : ViMode
@@ -94,6 +196,11 @@ namespace JustEnoughVi
             CommandMap.Add("e", new WordEndCommand(editor));
             CommandMap.Add("b", new WordBackCommand(editor));
             CommandMap.Add("G", new GoToLineCommand(editor));
+            CommandMap.Add("f", new FindSelectionCommand(editor, 0));
+            CommandMap.Add("t", new FindSelectionCommand(editor, -1));
+            CommandMap.Add("p", new PasteSelectionCommand(editor));
+            CommandMap.Add("F", new FindPreviousSelectionCommand(editor, 0));
+            CommandMap.Add("T", new FindPreviousSelectionCommand(editor, 1));
 
             // function key remaps
             SpecialKeyCommandMap.Add(SpecialKey.Delete, new CutSelectionCommand(editor));
