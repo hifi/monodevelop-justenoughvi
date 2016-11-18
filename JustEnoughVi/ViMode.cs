@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Mono.TextEditor;
-//using MonoDevelop.Ide.Editor;
+using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Editor.Extension;
     
 namespace JustEnoughVi
@@ -95,6 +95,26 @@ namespace JustEnoughVi
         }
     }
 
+    public class PreviousWindowCommand : Command
+    {
+        public PreviousWindowCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Dispatch(WindowCommands.PrevDocument);
+        }
+    }
+
+    public class NextWindowCommand : Command
+    {
+        public NextWindowCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Dispatch(WindowCommands.NextDocument);
+        }
+    }
+
     public abstract class ViMode
     {
         public TextEditorData Editor { get; set; }
@@ -127,6 +147,8 @@ namespace JustEnoughVi
             CommandMap.Add("^f", new PageDownCommand(editor));
             CommandMap.Add("^d", new PageDownCommand(editor));
             CommandMap.Add("^u", new PageUpCommand(editor));
+            CommandMap.Add("^wl", new NextWindowCommand(editor));
+            CommandMap.Add("^wh", new PreviousWindowCommand(editor));
 
             // remaps
             SpecialKeyCommandMap.Add(SpecialKey.Home, new LineStartCommand(editor));
