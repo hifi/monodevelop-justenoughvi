@@ -95,23 +95,22 @@ namespace JustEnoughVi
         }
     }
 
-    public class PreviousWindowCommand : Command
+    public class WindowCommand : Command
     {
-        public PreviousWindowCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
+        public WindowCommand(TextEditorData editor) : base(editor)
         {
-            Dispatch(WindowCommands.PrevDocument);
+            TakeArgument = true;
         }
-    }
-
-    public class NextWindowCommand : Command
-    {
-        public NextWindowCommand(TextEditorData editor) : base(editor) { }
 
         protected override void Run()
         {
-            Dispatch(WindowCommands.NextDocument);
+            for (int i = 0; i < Count; i++)
+            {
+                if (Argument == 'h' || Argument == 'W')
+                    Dispatch(WindowCommands.PrevDocument);
+                if (Argument == 'l' || Argument == 'w')
+                    Dispatch(WindowCommands.NextDocument);
+            }
         }
     }
 
@@ -147,8 +146,7 @@ namespace JustEnoughVi
             CommandMap.Add("^f", new PageDownCommand(editor));
             CommandMap.Add("^d", new PageDownCommand(editor));
             CommandMap.Add("^u", new PageUpCommand(editor));
-            CommandMap.Add("^wl", new NextWindowCommand(editor));
-            CommandMap.Add("^wh", new PreviousWindowCommand(editor));
+            CommandMap.Add("^w", new WindowCommand(editor));
 
             // remaps
             SpecialKeyCommandMap.Add(SpecialKey.Home, new LineStartCommand(editor));
