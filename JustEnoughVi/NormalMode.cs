@@ -694,6 +694,20 @@ namespace JustEnoughVi
         }
     }
 
+    public class ChangeCharacterCommand : Command
+    {
+        public ChangeCharacterCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            var count = Math.Min(Math.Max(Count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset);
+            Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
+            ClipboardActions.Cut(Editor);
+
+            RequestedMode = Mode.Insert;
+        }
+    }
+
     public class NormalMode : ViMode
     {
         public NormalMode(TextEditorData editor) : base(editor)
@@ -769,6 +783,8 @@ namespace JustEnoughVi
             CommandMap.Add("p", new PasteAppendCommand(editor));
             CommandMap.Add("P", new PasteInsertCommand(editor));
             CommandMap.Add("r", new ReplaceCommand(editor));
+            CommandMap.Add("s", new ChangeCharacterCommand(editor));
+            CommandMap.Add("S", new ChangeLineCommand(editor));
             CommandMap.Add("u", new UndoCommand(editor));
             CommandMap.Add("v", new VisualCommand(editor));
             CommandMap.Add("V", new VisualLineCommand(editor));
