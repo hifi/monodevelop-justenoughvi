@@ -600,6 +600,20 @@ namespace JustEnoughVi
         }
     }
 
+    public class DeletePreviousCharacterCommand : Command
+    {
+        public DeletePreviousCharacterCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            var lineOffset = Editor.GetLine(Editor.Caret.Line).Offset;
+            var count = Math.Min(Math.Max(Count, 1),  Editor.Caret.Offset - Editor.GetLine(Editor.Caret.Line).Offset);
+            if (Editor.Caret.Column == 1 || count > Editor.Caret.Offset) 
+                return;
+            Editor.SetSelection(Editor.Caret.Offset - (count), Editor.Caret.Offset);
+            ClipboardActions.Cut(Editor);
+        }
+    }
     public class YankLineCommand : Command
     {
         public YankLineCommand(TextEditorData editor) : base(editor) { }
@@ -808,6 +822,7 @@ namespace JustEnoughVi
             CommandMap.Add("V", new VisualLineCommand(editor));
             CommandMap.Add("w", new WordCommand(editor));
             CommandMap.Add("x", new DeleteCharacterCommand(editor));
+            CommandMap.Add("X", new DeletePreviousCharacterCommand(editor));
             CommandMap.Add("yy", new YankLineCommand(editor));
             CommandMap.Add("Y", new YankLineCommand(editor));
             CommandMap.Add("zz", new RecenterCommand(editor));
