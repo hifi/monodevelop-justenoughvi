@@ -176,6 +176,14 @@ namespace JustEnoughVi
 
     }
 
+    public class SelectToFirstLineCommand : GoToLineCommand
+    {
+        SelectToFirstLineCommand(TextEditorData editor) : base(editor)
+        {
+            MinCount = 1;
+        }
+    }
+
     public class VisualMode : ViMode
     {
         private int _startOffset;
@@ -195,12 +203,14 @@ namespace JustEnoughVi
             CommandMap.Add("w", new WordCommand(editor));
             CommandMap.Add("e", new WordEndCommand(editor));
             CommandMap.Add("b", new WordBackCommand(editor));
+            CommandMap.Add("gg", new GoToFirstLineCommand(editor));
             CommandMap.Add("G", new GoToLineCommand(editor));
             CommandMap.Add("f", new FindSelectionCommand(editor, 0));
             CommandMap.Add("t", new FindSelectionCommand(editor, -1));
             CommandMap.Add("p", new PasteSelectionCommand(editor));
             CommandMap.Add("F", new FindPreviousSelectionCommand(editor, 0));
             CommandMap.Add("T", new FindPreviousSelectionCommand(editor, 1));
+
 
             // function key remaps
             SpecialKeyCommandMap.Add(SpecialKey.Delete, new CutSelectionCommand(editor));
