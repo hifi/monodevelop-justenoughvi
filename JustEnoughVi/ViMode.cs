@@ -6,6 +6,15 @@ using MonoDevelop.Ide.Editor.Extension;
     
 namespace JustEnoughVi
 {
+    public class FirstColumnCommand : Command
+    {
+        public FirstColumnCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            Motion.FirstColumn(Editor);
+        }
+    }
 
     public class UpCommand : Command
     {
@@ -135,6 +144,7 @@ namespace JustEnoughVi
             _buf = "";
 
             // standard motion keys
+            CommandMap.Add("0", new FirstColumnCommand(editor));
             CommandMap.Add("k", new UpCommand(editor));
             CommandMap.Add("j", new DownCommand(editor));
             CommandMap.Add("h", new LeftCommand(editor));

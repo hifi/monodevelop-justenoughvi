@@ -6,16 +6,6 @@ using System.Linq;
 
 namespace JustEnoughVi
 {
-    public class FirstColumnCommand : Command
-    {
-        public FirstColumnCommand(TextEditorData editor) : base(editor) { }
-
-        protected override void Run()
-        {
-            Motion.FirstColumn(Editor);
-        }
-    }
-
     public class AppendCommand : Command
     {
         public AppendCommand(TextEditorData editor) : base(editor) { }
@@ -745,7 +735,6 @@ namespace JustEnoughVi
         public NormalMode(TextEditorData editor) : base(editor)
         {
             // normal mode commands
-            CommandMap.Add("0", new FirstColumnCommand(editor));
             CommandMap.Add("a", new AppendCommand(editor));
             CommandMap.Add("A", new AppendEndCommand(editor));
             CommandMap.Add("b", new WordBackCommand(editor));
