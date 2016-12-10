@@ -701,6 +701,8 @@ namespace JustEnoughVi
 
         protected override void Run()
         {
+            var count = Math.Min(Math.Max(Count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset);
+            Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
             ClipboardActions.Copy(Editor);
             var stuff = ClipboardActions.GetClipboardContent();
             var swapped = new string(stuff.Select(c => char.IsLetter(c) ? char.IsUpper(c) ?
