@@ -2,6 +2,7 @@
 using Mono.TextEditor;
 using MonoDevelop.Ide.Commands;
 using MonoDevelop.Ide.Editor.Extension;
+using System.Linq;
 
 namespace JustEnoughVi
 {
@@ -694,6 +695,24 @@ namespace JustEnoughVi
         }
     }
 
+    public class SwapCaseCommand : Command
+    {
+        public SwapCaseCommand(TextEditorData editor) : base(editor) { }
+
+        protected override void Run()
+        {
+            var count = Math.Min(Math.Max(Count, 1), Editor.GetLine(Editor.Caret.Line).EndOffset - Editor.Caret.Offset);
+            Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
+
+            ClipboardActions.Copy(Editor);
+            var stuff = ClipboardActions.GetClipboardContent();
+            var swapped = new string(stuff.Select(c => char.IsLetter(c) ? char.IsUpper(c) ?
+                    char.ToLower(c) : char.ToUpper(c) : c).ToArray());
+            Editor.SetSelection(Editor.Caret.Offset, Editor.Caret.Offset + count);
+            Editor.InsertAtCaret(swapped);
+        }
+    }
+
     public class NormalMode : ViMode
     {
         public NormalMode(TextEditorData editor) : base(editor)
@@ -786,6 +805,8 @@ namespace JustEnoughVi
             CommandMap.Add("e", new WordEndCommand(editor));
             CommandMap.Add("R", new ReplaceModeCommand(editor));
             CommandMap.Add("*", new SearchForwardCommand(editor));
+            CommandMap.Add("~", new SwapCaseCommand(editor));
+
 
             // remaps
             SpecialKeyCommandMap.Add(SpecialKey.Delete, new DeleteCharacterCommand(editor));
